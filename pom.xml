@@ -56,13 +56,11 @@
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-server</artifactId>
 			<version>8.0.4.v20111024</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-plus</artifactId>
 			<version>8.0.4.v20111024</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.seleniumhq.webdriver</groupId>
