@@ -20,7 +20,7 @@ public class WebtestFrontpage {
 		server.start();
 		int localPort = server.getConnectors()[0].getLocalPort();
 		WebDriver browser = createBrowser();
-		browser.get("http://localhost:" + localPort + "/personMainpage.html");
+		browser.get("http://localhost:" + localPort + "/mainPerson.html");
 		browser.findElement(By.linkText("Create person")).click();
 		browser.findElement(By.name("Name")).sendKeys("Darth");
 		browser.findElement(By.name("CreatePersonButton")).click();
