@@ -115,7 +115,13 @@
 						<version>[1.6,1.6)</version>
 						<vendor>sun</vendor>
 					</jdk>
+					<signature>
+						<groupId>org.codehaus.mojo.signature</groupId>
+						<artifactId>java16-ibm</artifactId>
+						<version>1.0</version>
+					</signature>
 				</configuration>
+				
 			</plugin>
 			<plugin>
 				<artifactId>maven-jar-plugin</artifactId>
