@@ -1,1 +1,1 @@
-web:    java -cp target/classes:target/dependency/* swhrs
+web:    java -cp target/swhrs-1.0-SNAPSHOT-jar-with-dependencies.jar no.steria.swhrs.JettyServer
