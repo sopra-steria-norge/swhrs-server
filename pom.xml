@@ -120,8 +120,7 @@
 						<artifactId>java16-ibm</artifactId>
 						<version>1.0</version>
 					</signature>
-				</configuration>
-				
+				</configuration>				
 			</plugin>
 			<plugin>
 				<artifactId>maven-jar-plugin</artifactId>
