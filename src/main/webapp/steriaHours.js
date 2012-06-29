@@ -17,7 +17,6 @@ $(document).ready(function() {
     hdrConfirmationVar = $('#hdrConfirmation');
     contentConfirmationVar = $('#contentConfirmation');
     ftrConfirmationVar = $('#ftrConfirmation'); 
-	console.log('Is here');
 	
 	hideContentDialog();
 	hideContentTransition();
@@ -59,7 +58,6 @@ function showContentDialog(){
 function showConfirmation(){
 	hdrConfirmationVar.show();
 	contentConfirmationVar.show();
-	ftrConfirmation.show();
 	}
 
 function hideConfirmation(){
@@ -67,3 +65,12 @@ function hideConfirmation(){
 	contentConfirmationVar.hide();
 	
 	}
+
+function IsJsonString(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}

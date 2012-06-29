@@ -7,4 +7,13 @@
 		<url-pattern>person/*</url-pattern>
 		<servlet-name>personServlet</servlet-name>
 	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>registrationServlet</servlet-name>
+		<servlet-class>no.steria.swhrs.RegistrationServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<url-pattern>hours/*</url-pattern>
+		<servlet-name>registrationServlet</servlet-name>
+	</servlet-mapping>
 </webapp>
