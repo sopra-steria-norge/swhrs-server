@@ -1,0 +1,19 @@
+label.missing  {
+	color:#FF0000;
+	font-weight:bold;
+}
+
+#buttonHour{
+	position: fixed;
+	left: 15%;
+	top: 20%;
+	}
+	
+#button1text{
+	position: fixed;
+	left: 12%;
+	top: 27%;
+	font-family: "Tahoma", Times, serif;
+}
+	
+

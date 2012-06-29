@@ -19,8 +19,8 @@ public class WebtestFrontpage {
 		server.setHandler(new WebAppContext("src/main/webapp", "/"));
 		server.start();
 		int localPort = server.getConnectors()[0].getLocalPort();
-		WebDriver browser = createBrowser();
-		browser.get("http://localhost:" + localPort + "/mainPerson.html");
+		WebDriver browser = new HtmlUnitDriver();
+		browser.get("http://localhost:" + localPort + "/personMainpage.html");
 		browser.findElement(By.linkText("Create person")).click();
 		browser.findElement(By.name("Name")).sendKeys("Darth");
 		browser.findElement(By.name("CreatePersonButton")).click();
@@ -41,6 +41,7 @@ public class WebtestFrontpage {
 				}
 			}
 		};
+
 	}
 	
 }

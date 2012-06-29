@@ -1,0 +1,3 @@
+$('body').bind('pagebeforeshow',function(event,ui) {
+    alert('beforeshow');
+});
