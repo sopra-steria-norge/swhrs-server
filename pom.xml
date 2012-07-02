@@ -79,7 +79,7 @@
 			<groupId>org.seleniumhq.webdriver</groupId>
 			<artifactId>webdriver-firefox</artifactId>
 			<version>0.9.7376</version>
-			<scope>test</scope>
+			<!-- <scope>test</scope>-->
 		</dependency>
 		<dependency>
 			<groupId>org.easytesting</groupId>
