@@ -124,15 +124,14 @@
 	</div>
 	
 	<div data-role="content" id="contentConfirmation" name="contentConfirmation" align="center">	
-  	<p>A new claim has been created based on data you have submitted.</p> 
-    <p>Your confirmation number is: <span id="confirmation" name="confirmation"></span>  </p>
+  	<p>Du har registrert nye timer</p> 
+    <p>Dato:  Antall timer: Prosjekt: <span id="confirmation" name="confirmation"></span>  </p>
 	</div><!-- contentConfirmation -->	
   	
-	<div data-role="footer" id="ftrConfirmation" name="ftrConfirmation"></div>
+	<div data-role="footer" id="ftrConfirmation" name="ftrConfirmation" ></div>
 	
 	<script>
 	$('#buttonOK').click(function(){
-console.log('Is here2');
 	hideContentDialog();
 	showMain();
 	return false;
@@ -182,12 +181,60 @@ $('#form1').submit(function() {
 	//If validation passes, show transition content
 	showContentTransition();
 	
+	//Stringifies the form values
+	var reg = new Object();	
+	reg.favForm = $("#fav").val();
+	reg.assignForm = $("#assignment").val();
+	reg.dateForm = $("#mydate").val();
+	reg.hourForm = $("#myhours").val();
+	
+	var frm = $(document.form1);
+    var dat = frm.serializeArray();
+    
+  	reg.toJSON = function(key)
+  	 {
+  	    var replacement = new Object();
+  	    for (var val in this)
+  	    {
+  	        if (typeof (this[val]) === 'string')
+  	            replacement[val] = this[val].toUpperCase();
+  	        else
+  	            replacement[val] = this[val]
+  	    }
+  	    return replacement;
+  	};
+  	
+  	function IsJsonString(str) {
+  	    try {
+  	        JSON.parse(str);
+  	    } catch (e) {
+  	        return false;
+  	    }
+  	    return true;
+  	}
+  	
+  	var jsonT = JSON.stringify(reg);
+  	var tesst = IsJsonString(jsonT);
+  	console.log(tesst);
+  	console.log(jsonT);
+  	console.log("test"+dat);
+	
 	//Submit the form
-	$.post("/forms/requestProcessor.php", form1Var.serialize(), function(data){
-	confimationVar.text(data);
+	$.ajax
+	({
+		type:"POST",
+		url: 'hours/registration',
+		dataType: 'json',
+		data: 'dat',
+		//data: {'json':'{"favourite": "' + favForm +'", "assignment": "'+ assignForm + '", "date": "'+ dateForm +'", "hours": "'+ hourForm +'" }'},
+		success: function(){
+			alert('response data:' +jsonT);	
+		}
+	})
+	<!-- confimationVar.text(data); -->
 	hideContentTransition();
 	showConfirmation();
-	});
+
 	return false;
 });
 </script>
