@@ -1,20 +1,39 @@
-document.ontouchmove = function(e){
-    e.preventDefault();
-}
+// Declare global variables
+
+	var hdrDayVar = null;
+	var contentDayVar = null;
+	var ftrDayVar = null;
+	var favLabelVar = null;
+	var hoursLabelVar = null;
+	var dayformVar = null;
+	var favVar = null;
+	var hoursVar = null;
+	
+
+	var contentTransitionVar = null;
+	var confirmationVar = null;
+	var contentDialogVar = null;
+	var hdrConfirmationVar = null; 
+	var contentConfirmationVar = null;
+	var ftrConfirmationVar = null;
+
+	// Constants
+	var MISSING = "missing";
+	var NO_FAV = "ZZ";
+	var EMPTY = "";
+	var ZERO = 0;	
 
 $(document).ready(function() {
 	//Assign gloabal variables
-	hdrHourVar = $('#hdrHour');
-	contentHourVar = $('#contentHour');
-	ftrHourVar = $('#ftrHour');
+	hdrDayVar = $('#hdrDay');
+	contentDayVar = $('#contentDay');
+	ftrDayVar = $('#ftrDay');
 	favLabelVar = $('#favLabel');
-	dateLabelVar = $('#dateLabel');
-	myHoursLabelVar = $('#myHoursLabel');
-	form1Var = $('#form1');
+	hoursLabelVar = $('#hoursLabel');
+	dayformVar = $('#dayForm');
 	favVar = $('#fav');
-	hoursVar = $('#myhours');
-	dateVar = $('#mydate');
-	inputMapVar = $('input[name*="_r"]');
+	hoursVar = $('#hours');
+	lunchVar = $('#lunch');
     contentTransitionVar = $('#contentTransition');
     confirmationVar = $('#confirmation');
     contentDialogVar = $('#contentDialog');
@@ -25,22 +44,65 @@ $(document).ready(function() {
 	hideContentDialog();
 	hideContentTransition();
 	hideConfirmation();
+	
+	$('#dayForm').submit(function(){
+		var err = false;
+		// Reset highlighted form elements
+		favLabelVar.removeClass(MISSING);
+		hoursLabelVar.removeClass(MISSING);
+		
+		if(favVar.val()==NO_FAV){
+			favLabelVar.addClass(MISSING);
+			err = true;
+		}
+		if(hoursVar.val()==ZERO){
+			hoursLabelVar.addClass(MISSING);
+			err = true;
+		}
+		
+		// If validation fails, show contentDialog
+		if(err == true){
+			console.log("Validation failed")
+			return false;
+		}
+		
+		
+		var reg = new Object();
+		reg.favForm = $("#fav").val();
+		reg.hourForm = $("#hours").val();
+		reg.lunchForm = $("#lunch").val();
+		
+		var jsonReg = JSON.stringify(reg);
+		console.log(jsonReg);
+		
+		$.ajax({
+			type:"POST",
+			url: 'hours/registration',
+			dataType: 'json',
+			data: jsonReg,
+			success: function(){
+				alert('response data:' +jsonReg);
+			}
+		})
+		
+		return false;
 	});
+});
 
-	
 
-	
+
 
 function hideMain(){
-	hdrHourVar.hide();
-	contentHourVar.hide();
-	ftrHourVar.hide();
+	console.log("TRIES");
+	hdrDayVar.hide();
+	contentDayVar.hide();
+	ftrDayVar.hide();
 	}
 
 function showMain(){
-	hdrHourVar.show();
-	contentHourVar.show();
-	ftrHourVar.show();
+	hdrDayVar.show();
+	contentDayVar.show();
+	ftrDayVar.show();
 	}
 
 function hideContentTransition(){
@@ -78,3 +140,7 @@ function IsJsonString(str) {
     }
     return true;
 }
+
+document.ontouchmove = function(e){
+    e.preventDefault();
+}	
