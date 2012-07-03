@@ -28,10 +28,10 @@
 
 <!-- Mainpage: Showing the dayview where you can log hours -->
 <div data-role="page" data-theme="b" id="dayPage">
-	<div data-role="header" id="hdrDay" name="hdrDay" data-nobackbtn="false" data-theme="b">
-		<a href="#addPage" data-icon="arrow-l">Previous</a>
+	<div data-role="header" id="hdrDay" name="hdrDay" data-nobackbtn="false" data-theme="b" data-position="fixed">
+		<a href="#addPage" data-icon="arrow-l" data-direction="reverse" data-transition="slide">Previous</a>
 		<h1>03.07.2012</h1>
-		<a href="#weekPage" data-icon="arrow-r">Next</a>
+		<a href="#weekPage" data-icon="arrow-r" data-transition="slide">Next</a>
 	</div>
 
 	<!-- DayContent: Contains the form that shall be submitted, project, hours worked, lunch, submit and overtime button -->
@@ -66,7 +66,7 @@
 		
 	<fieldset class="ui-grid-a">
 		<div class="ui-block-a"><button type="submit" data-theme="b">Submit</button></div>
-		<div class="ui-block-b"><a href="#overtimePage" data-role="button" data-theme="b">Overtime</a></div>	   
+		<div class="ui-block-b"><a href="#overtimePage" data-role="button" data-theme="b" data-transition="fade">Overtime</a></div>	   
 	</fieldset>
 
 	</form>
@@ -88,9 +88,9 @@
 		<div data-role="navbar">
 		<ul>
 			<li><a href="#" data-theme="b" data-icon="home" class="ui-btn-active ui-state-persist">Dag</a>
-			<li><a href="#weekPage" data-theme="b" data-icon="grid">Uke</a>
-			<li><a href="#favPage" data-theme="b" data-icon="star">Fav</a>
-			<li><a href="#addPage" data-theme="b" data-icon="gear">Add</a>
+			<li><a href="#weekPage" data-theme="b" data-icon="grid" data-transition="slide">Uke</a>
+			<li><a href="#favPage" data-theme="b" data-icon="star" data-transition="slide">Fav</a>
+			<li><a href="#addPage" data-theme="b" data-icon="gear" data-transition="slide">Add</a>
 		</ul>
 		</div>
 	</div> 
@@ -98,11 +98,11 @@
 
 
 <!-- Weekpage: Showing an overview over the current week -->		
-<div data-role="page" data-theme="b" id="weekPage" data-position="fixed">
-	<div data-role="header" id="hdrWeek" name="hdrWeek" data-nobackbtn="false" data-theme="b">
-		<a href="#dayPage" data-icon="arrow-l">Previous</a>
+<div data-role="page" data-theme="b" id="weekPage">
+	<div data-role="header" id="hdrWeek" name="hdrWeek" data-nobackbtn="false" data-theme="b" data-position="fixed">
+		<a href="#dayPage" data-icon="arrow-l" data-direction="reverse" data-transition="slide">Previous</a>
 		<h1>Week 34</h1>
-		<a href="#favPage" data-icon="arrow-r">Next</a>
+		<a href="#favPage" data-icon="arrow-r" data-transition="slide">Next</a>
 	</div>
 	
 	<!-- WeekpageContent: List of the weekdays and the current status -->
@@ -145,10 +145,10 @@
 	<div data-role="footer" data-position="fixed">
 		<div data-role="navbar">
 		<ul>
-			<li><a href="#dayPage" data-theme="b" data-icon="home">Dag</a>
+			<li><a href="#dayPage" data-theme="b" data-icon="home" data-direction="reverse" data-transition="slide">Dag</a>
 			<li><a href="#" data-theme="b" data-icon="grid" class="ui-btn-active ui-state-persist">Uke</a>
-			<li><a href="#favPage" data-theme="b" data-icon="star">Fav</a>
-			<li><a href="#addPage" data-theme="b" data-icon="gear">Add</a>
+			<li><a href="#favPage" data-theme="b" data-icon="star" data-transition="slide">Fav</a>
+			<li><a href="#addPage" data-theme="b" data-icon="gear" data-transition="slide">Add</a>
 		</ul>
 		</div>
 	</div>
@@ -158,7 +158,7 @@
 
 <!-- Favpage: Contains nothing atm -->
 <div data-role="page" data-theme="b" id="favPage">
-	<div data-role="header" id="hdrWeek" name="hdrWeek" data-nobackbtn="false" data-theme="b">
+	<div data-role="header" id="hdrWeek" name="hdrWeek" data-nobackbtn="false" data-theme="b" data-position="fixed">
 		<h1>Steriatime</h1>
 	</div>
 	
@@ -170,10 +170,10 @@
 	<div data-role="footer" data-position="fixed">
 		<div data-role="navbar">
 		<ul>
-			<li><a href="#dayPage" data-theme="b" data-icon="home">Dag</a>
-			<li><a href="#weekPage" data-theme="b" data-icon="grid">Uke</a>
-			<li><a href="#" data-theme="b" data-icon="star" class="ui-btn-active ui-state-persist">Fav</a>
-			<li><a href="#addPage" data-theme="b" data-icon="gear">Add</a>
+			<li><a href="#dayPage" data-theme="b" data-icon="home" data-direction="reverse" data-transition="slide">Dag</a>
+			<li><a href="#weekPage" data-theme="b" data-icon="grid" data-direction="reverse" data-transition="slide">Uke</a>
+			<li><a href="#" data-theme="b" data-icon="star" class="ui-btn-active ui-state-persist" >Fav</a>
+			<li><a href="#addPage" data-theme="b" data-icon="gear" data-transition="slide">Add</a>
 		</ul>
 		</div>
 	</div>
@@ -181,7 +181,7 @@
 
 <!-- Addpage: Contains nothing atm -->
 <div data-role="page" data-theme="b" id="addPage">
-	<div data-role="header" id="hdrWeek" name="hdrWeek" data-nobackbtn="false" data-theme="b">
+	<div data-role="header" id="hdrWeek" name="hdrWeek" data-nobackbtn="false" data-theme="b" data-position="fixed">
 		<h1>Steriatime</h1>
 	</div>
 	
@@ -193,9 +193,9 @@
 	<div data-role="footer" data-position="fixed">
 		<div data-role="navbar">
 		<ul>
-			<li><a href="#dayPage" data-theme="b" data-icon="home">Dag</a>
-			<li><a href="#weekPage" data-theme="b" data-icon="grid">Uke</a>
-			<li><a href="#favPage" data-theme="b" data-icon="star">Fav</a>
+			<li><a href="#dayPage" data-theme="b" data-icon="home" data-direction="reverse" data-transition="slide">Dag</a>
+			<li><a href="#weekPage" data-theme="b" data-icon="grid" data-direction="reverse" data-transition="slide">Uke</a>
+			<li><a href="#favPage" data-theme="b" data-icon="star" data-direction="reverse" data-transition="slide">Fav</a>
 			<li><a href="#" data-theme="b" data-icon="gear" class="ui-btn-active ui-state-persist">Add</a>
 		</ul>
 		</div>
@@ -207,7 +207,7 @@
 <!-- Subpages -->
 <!-- Overtime page: Add overtime by type and hours -->
 <div data-role="page" data-theme="b" id="overtimePage">
-	<div data-role="header" id="hdrOvertime" name="hdrOvertime" data-add-back-btn="true" data-theme="b">
+	<div data-role="header" id="hdrOvertime" name="hdrOvertime" data-add-back-btn="true" data-theme="b" data-position="fixed">
 		<h1>Steriatime</h1>
 	</div>
 	

@@ -1,7 +1,3 @@
-document.ontouchmove = function(e){
-    e.preventDefault();
-}
-
 div.ui-slider-switch {
     position: absolute !important;
     right: 0 !important;

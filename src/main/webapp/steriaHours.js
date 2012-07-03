@@ -1,3 +1,7 @@
+document.ontouchmove = function(e){
+    e.preventDefault();
+}
+
 $(document).ready(function() {
 	//Assign gloabal variables
 	hdrHourVar = $('#hdrHour');
