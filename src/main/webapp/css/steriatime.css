@@ -1,3 +1,13 @@
+document.ontouchmove = function(e){
+    e.preventDefault();
+}
+
+div.ui-slider-switch {
+    position: absolute !important;
+    right: 0 !important;
+    width: 44% !important;
+}
+
 label.missing  {
 	color:#FF0000;
 	font-weight:bold;
@@ -14,6 +24,13 @@ label.missing  {
 	left: 12%;
 	top: 27%;
 	font-family: "Tahoma", Times, serif;
+}
+.center-button{
+margin: 0 auto;
+}
+#btnGrp{
+	position: fixed;
+	left: 30;
 }
 	
 
