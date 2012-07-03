@@ -5,6 +5,7 @@
 <meta http-equiv="Content-type" content="text/html; charset=utf-8">
 
 	<title>Steriatime</title>
+	<head>
 	<link rel="stylesheet" type="text/css" href="http://code.jquery.com/mobile/latest/jquery.mobile.min.css" />
 	<link rel="stylesheet" type="text/css" href="http://dev.jtsage.com/cdn/datebox/latest/jqm-datebox.min.css" />
 	<link rel="stylesheet" type="text/css" href="css/steriatime.css">
@@ -20,9 +21,8 @@
 	<script type="text/javascript" charset="utf-8" src="js/jquery.easing.1.3.js"></script>
 	<script type="text/javascript" charset="utf-8" src="js/jquery.mobile.scrollview.js"></script>
 	<script type="text/javascript" charset="utf-8" src="js/scrollview.js"></script>  
+	<script type="text/javascript" charset="utf-8" src="steriaHours.js"></script>	
 	
-	
-	<script type="text/javascript" charset="utf-8" src="steriaHours.js"></script>
 </head>
 <body>
 
@@ -33,10 +33,11 @@
 		<h1>03.07.2012</h1>
 		<a href="#weekPage" data-icon="arrow-r">Next</a>
 	</div>
-	
+
 	<!-- DayContent: Contains the form that shall be submitted, project, hours worked, lunch, submit and overtime button -->
 	<div data-role="content" id="contentDay" name="contentDay">
 		<form id="dayForm">
+			
 		<div id="favDiv" data-role="fieldcontain">
 			<label id="favLabel" for="fav">Choose project</label>
 			<select id="fav" name="fav_r" tabindex="2" data-theme="c">

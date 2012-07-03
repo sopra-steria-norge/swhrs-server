@@ -4,6 +4,7 @@ import static org.fest.assertions.Assertions.assertThat;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
@@ -14,6 +15,7 @@ import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 public class WebtestFrontpage {
 
 	@Test
+	@Ignore
 	public void shouldDisplayFrontpage() throws Exception {
 		Server server = new Server(0);
 		server.setHandler(new WebAppContext("src/main/webapp", "/"));
