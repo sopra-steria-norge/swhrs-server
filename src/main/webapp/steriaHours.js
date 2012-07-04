@@ -1,5 +1,9 @@
 // Declare global variables
-
+// Remember 
+/*
+ 	$('#hdrDay').children('h1').text('new text');
+  
+ */
 	var hdrDayVar = null;
 	var contentDayVar = null;
 	var ftrDayVar = null;
@@ -74,6 +78,17 @@ $(document).ready(function() {
 		
 		var jsonReg = JSON.stringify(reg);
 		console.log(jsonReg);
+		console.log(get_type(jsonReg));
+		
+		var json_object = eval('('+ jsonReg +')');
+		
+		console.log(get_type(json_object));
+		console.log(json_object);
+		var jsonObjects = [{id:1, name:"amit"}, {id:2, name:"ankit"},{id:3, name:"atin"},{id:1, name:"puneet"}];
+		/*
+		$.post("http://localhost:8081/hours/registration",     
+		           JSON.stringify({"a":"b"} ), 
+		           function(data) {});*/
 		
 		$.ajax({
 			type:"POST",
@@ -89,8 +104,39 @@ $(document).ready(function() {
 	});
 });
 
+function get_type(thing){
+    if(thing===null)return "[object Null]"; // special case
+    return Object.prototype.toString.call(thing);
+}
 
 
+function prevDay(){
+	var currDay = $('#hdrDay').children('h1').text();
+	currDay = parseInt(currDay);
+	var prevDay = currDay - 1;
+	$('#hdrDay').children('h1').text(prevDay);
+}
+
+function nextDay(){
+	var currDay = $('#hdrDay').children('h1').text();
+	currDay = parseInt(currDay);
+	var nextDay = currDay + 1;
+	$('#hdrDay').children('h1').text(nextDay);
+}
+
+function prevWeek(){
+	var currDay = $('#hdrWeek').children('h1').text();
+	currDay = parseInt(currDay);
+	var prevDay = currDay - 1;
+	$('#hdrWeek').children('h1').text(prevDay);
+}
+
+function nextWeek(){
+	var currDay = $('#hdrWeek').children('h1').text();
+	currDay = parseInt(currDay);
+	var prevDay = currDay + 1;
+	$('#hdrWeek').children('h1').text(prevDay);
+}
 
 function hideMain(){
 	console.log("TRIES");

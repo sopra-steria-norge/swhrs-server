@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=320; user-scalable=no" />
+<meta name="viewport" content="width=device-width, user-scalable=no" />
 <meta http-equiv="Content-type" content="text/html; charset=utf-8">
 
 	<title>Steriatime</title>
@@ -26,9 +26,9 @@
 <!-- Mainpage: Showing the dayview where you can log hours -->
 <div data-role="page" data-theme="b" id="dayPage">
 	<div data-role="header" id="hdrDay" name="hdrDay" data-nobackbtn="false" data-theme="b" data-position="fixed">
-		<a href="#addPage" data-icon="arrow-l" data-direction="reverse" data-transition="slide">Previous</a>
-		<h1>03.07.2012</h1>
-		<a href="#weekPage" data-icon="arrow-r" data-transition="slide">Next</a>
+		<a href="javascript:prevDay()" data-icon="arrow-l">Previous</a>
+		<h1>200</h1>
+		<a href="javascript:nextDay()" data-icon="arrow-r">Next</a>
 	</div>
 
 	<!-- DayContent: Contains the form that shall be submitted, project, hours worked, lunch, submit and overtime button -->
@@ -97,9 +97,9 @@
 <!-- Weekpage: Showing an overview over the current week -->		
 <div data-role="page" data-theme="b" id="weekPage">
 	<div data-role="header" id="hdrWeek" name="hdrWeek" data-nobackbtn="false" data-theme="b" data-position="fixed">
-		<a href="#dayPage" data-icon="arrow-l" data-direction="reverse" data-transition="slide">Previous</a>
-		<h1>Week 34</h1>
-		<a href="#favPage" data-icon="arrow-r" data-transition="slide">Next</a>
+		<a href="javascript:prevWeek()" data-icon="arrow-l" data-direction="reverse" data-transition="slide">Previous</a>
+		<h1>34</h1>
+		<a href="javascript:nextWeek()" data-icon="arrow-r" data-transition="slide">Next</a>
 	</div>
 	
 	<!-- WeekpageContent: List of the weekdays and the current status -->
@@ -155,12 +155,12 @@
 
 <!-- Favpage: Contains nothing atm -->
 <div data-role="page" data-theme="b" id="favPage">
-	<div data-role="header" id="hdrWeek" name="hdrWeek" data-nobackbtn="false" data-theme="b" data-position="fixed">
+	<div data-role="header" id="hdrFav" name="hdrFav" data-nobackbtn="false" data-theme="b" data-position="fixed">
 		<h1>Steriatime</h1>
 	</div>
 	
 	<!-- FavpageContent -->
-	<div data-role="content" id="contentWeek" name="contentWeek">
+	<div data-role="content" id="contentFav" name="contentFav">
 	</div>
 	
 	<!-- Favpage footer -->
@@ -178,12 +178,12 @@
 
 <!-- Addpage: Contains nothing atm -->
 <div data-role="page" data-theme="b" id="addPage">
-	<div data-role="header" id="hdrWeek" name="hdrWeek" data-nobackbtn="false" data-theme="b" data-position="fixed">
+	<div data-role="header" id="hdrAdd" name="hdrAdd" data-nobackbtn="false" data-theme="b" data-position="fixed">
 		<h1>Steriatime</h1>
 	</div>
 	
 	<!-- AddpageContent -->
-	<div data-role="content" id="contentWeek" name="contentWeek">
+	<div data-role="content" id="contentAdd" name="contentAdd">
 	</div>
 	
 	<!-- Addpage footer -->
