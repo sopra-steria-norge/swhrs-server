@@ -184,6 +184,7 @@
 	
 	<!-- AddpageContent -->
 	<div data-role="content" id="contentAdd" name="contentAdd">
+	<a href="#loginPage" data-theme="b" data-transition="pop">Login page</a>
 	</div>
 	
 	<!-- Addpage footer -->
@@ -233,6 +234,34 @@
 		</form>
 	</div>
 		
+</div>
+
+<div data-role="page" id="loginPage" data-theme="b">
+	<div data-role="header" id="hdrLogin" name="hdrLogin" data-theme="b">
+		<h1>Login Steriatime</h1>
+	</div>
+	
+	<div data-role="content" id="contentLogin" name="contentLogin">
+		<form id="loginForm">
+			<fieldset data-role="controlgroup" data-type="horizontal">
+			
+				<input type="radio" name="radioCountry" id="radNorway" value="norway" checked="checked" />
+				<label for="radNorway">Norway</label>
+				
+				<input type="radio" name="radioCountry" id="radDenmark" value="denmark" />
+				<label for="radDenmark">Denmark</label>
+				
+				<input type="radio" name="radioCountry" id="radSweden" value="sweden" />
+				<label for="radSweden">Sweden</label>
+			</fieldset>			
+		
+			Username: <input type="text" name="username"><br />
+			<!-- Byttes til input type="password" etter testing -->
+			Password: <input type="text" name="password"><br />
+			<input type="submit" value="Login">
+		</form>
+		
+	</div>
 </div>
 
 

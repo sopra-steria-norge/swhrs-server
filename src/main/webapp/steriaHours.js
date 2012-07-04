@@ -38,16 +38,14 @@ $(document).ready(function() {
 	favVar = $('#fav');
 	hoursVar = $('#hours');
 	lunchVar = $('#lunch');
-    contentTransitionVar = $('#contentTransition');
-    confirmationVar = $('#confirmation');
-    contentDialogVar = $('#contentDialog');
-    hdrConfirmationVar = $('#hdrConfirmation');
-    contentConfirmationVar = $('#contentConfirmation');
-    ftrConfirmationVar = $('#ftrConfirmation'); 
 	
-	hideContentDialog();
-	hideContentTransition();
-	hideConfirmation();
+
+	$('#loginForm').submit(function(){
+		var loginErr = false;
+		var jsonLogin = {username: $('[name=username]').val() , password: $('[name=password]').val(), country: $('[name=radioCountry]').val()}
+		console.log(jsonLogin);
+		//$.post(postTo, jsonLogin, , 'json');
+	});
 	
 	$('#dayForm').submit(function(){
 		var err = false;
@@ -98,10 +96,13 @@ $(document).ready(function() {
 			success: function(){
 				alert('response data:' +jsonReg);
 			}
-		})
+		});
 		
 		return false;
 	});
+	
+	
+	
 });
 
 function get_type(thing){
@@ -138,45 +139,6 @@ function nextWeek(){
 	$('#hdrWeek').children('h1').text(prevDay);
 }
 
-function hideMain(){
-	console.log("TRIES");
-	hdrDayVar.hide();
-	contentDayVar.hide();
-	ftrDayVar.hide();
-	}
-
-function showMain(){
-	hdrDayVar.show();
-	contentDayVar.show();
-	ftrDayVar.show();
-	}
-
-function hideContentTransition(){
-	contentTransitionVar.hide();
-	}
-	
-function showContentTransition(){
-	contentTransitionVar.show();
-	}
-	
-function hideContentDialog(){
-	contentDialogVar.hide();
-	}
-
-function showContentDialog(){
-	contentDialogVar.show();
-	}
-	
-function showConfirmation(){
-	hdrConfirmationVar.show();
-	contentConfirmationVar.show();
-	}
-
-function hideConfirmation(){
-	hdrConfirmationVar.hide();
-	contentConfirmationVar.hide();
-	
-	}
 
 function IsJsonString(str) {
     try {
