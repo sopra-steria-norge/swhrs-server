@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=320; user-scalable=no" />
+<meta name="viewport" content="width=device-width, user-scalable=no" />
 <meta http-equiv="Content-type" content="text/html; charset=utf-8">
 
 	<title>Steriatime</title>
@@ -26,9 +26,9 @@
 <!-- Mainpage: Showing the dayview where you can log hours -->
 <div data-role="page" data-theme="b" id="dayPage">
 	<div data-role="header" id="hdrDay" name="hdrDay" data-nobackbtn="false" data-theme="b" data-position="fixed">
-		<a href="#addPage" data-icon="arrow-l" data-direction="reverse" data-transition="slide">Previous</a>
-		<h1>03.07.2012</h1>
-		<a href="#weekPage" data-icon="arrow-r" data-transition="slide">Next</a>
+		<a href="javascript:prevDay()" data-icon="arrow-l">Previous</a>
+		<h1>200</h1>
+		<a href="javascript:nextDay()" data-icon="arrow-r">Next</a>
 	</div>
 
 	<!-- DayContent: Contains the form that shall be submitted, project, hours worked, lunch, submit and overtime button -->
@@ -39,11 +39,11 @@
 			<label id="favLabel" for="fav">Choose project</label>
 			<select id="fav" name="fav_r" tabindex="2" data-theme="c">
 				<option value="ZZ">Select a favourite</option>
-				<option value="AA">LARM</option>
-				<option value="BB">OSL CDM</option>
-				<option value="CC">JavaZone</option>
-				<option value="DD">Timeforing app</option>
-				<option value="EE">Steria intern: 02 : Opplæring : Ettellerannet</option>
+				<option value="LARM">LARM</option>
+				<option value="OSL CDM">OSL CDM</option>
+				<option value="JavaZone">JavaZone</option>
+				<option value="Timeforing">Timeforing app</option>
+				<option value="Steria intern">Steria intern: 02 : Opplæring : Ettellerannet</option>
 			</select>
 		</div>
 		
@@ -67,21 +67,12 @@
 	</fieldset>
 
 	</form>
-	<table>
-	<tr>
-		<td><b>Project</b></td>
-		<td><b>Hours</b></td>
-	</tr>
-	<tr>
-		<td>Steria</td>
-		<td>7.5</td>
-	</tr>
-	</table>
-		
+	<ul id="dayList" data-role="listview" data-inset="true" data-theme="c">
+	</ul>
 	</div> <!--  contentDay -->
 	
 	<!-- Mainpage footer -->
-	<div id="ftrDay" data-role="footer" data-position="fixed">
+	<div id="ftrDay" data-role="footer" data-position="fixed" >
 		<div data-role="navbar">
 		<ul>
 			<li><a href="#" data-theme="b" data-icon="home" class="ui-btn-active ui-state-persist">Dag</a>
@@ -97,15 +88,15 @@
 <!-- Weekpage: Showing an overview over the current week -->		
 <div data-role="page" data-theme="b" id="weekPage">
 	<div data-role="header" id="hdrWeek" name="hdrWeek" data-nobackbtn="false" data-theme="b" data-position="fixed">
-		<a href="#dayPage" data-icon="arrow-l" data-direction="reverse" data-transition="slide">Previous</a>
-		<h1>Week 34</h1>
-		<a href="#favPage" data-icon="arrow-r" data-transition="slide">Next</a>
+		<a href="javascript:prevWeek()" data-icon="arrow-l" data-direction="reverse" data-transition="slide">Previous</a>
+		<h1>34</h1>
+		<a href="javascript:nextWeek()" data-icon="arrow-r" data-transition="slide">Next</a>
 	</div>
 	
 	<!-- WeekpageContent: List of the weekdays and the current status -->
 	<div data-role="content" id="contentWeek" name="contentWeek" >
 		<ul data-role="listview" data-inset="true">
-			<li><a href="" ><h3>Monday</h3>
+			<li><a href="#favPage?220112" ><h3>Monday</h3>
 			<p>Something something</p></a>
 			<span class="ui-li-count">8 timer</span></li>
 			
@@ -155,12 +146,12 @@
 
 <!-- Favpage: Contains nothing atm -->
 <div data-role="page" data-theme="b" id="favPage">
-	<div data-role="header" id="hdrWeek" name="hdrWeek" data-nobackbtn="false" data-theme="b" data-position="fixed">
+	<div data-role="header" id="hdrFav" name="hdrFav" data-nobackbtn="false" data-theme="b" data-position="fixed">
 		<h1>Steriatime</h1>
 	</div>
 	
 	<!-- FavpageContent -->
-	<div data-role="content" id="contentWeek" name="contentWeek">
+	<div data-role="content" id="contentFav" name="contentFav">
 	</div>
 	
 	<!-- Favpage footer -->
@@ -178,12 +169,13 @@
 
 <!-- Addpage: Contains nothing atm -->
 <div data-role="page" data-theme="b" id="addPage">
-	<div data-role="header" id="hdrWeek" name="hdrWeek" data-nobackbtn="false" data-theme="b" data-position="fixed">
+	<div data-role="header" id="hdrAdd" name="hdrAdd" data-nobackbtn="false" data-theme="b" data-position="fixed">
 		<h1>Steriatime</h1>
 	</div>
 	
 	<!-- AddpageContent -->
-	<div data-role="content" id="contentWeek" name="contentWeek">
+	<div data-role="content" id="contentAdd" name="contentAdd">
+	<a href="#loginPage" data-theme="b" data-transition="pop">Login page</a>
 	</div>
 	
 	<!-- Addpage footer -->
@@ -233,6 +225,34 @@
 		</form>
 	</div>
 		
+</div>
+
+<div data-role="page" id="loginPage" data-theme="b">
+	<div data-role="header" id="hdrLogin" name="hdrLogin" data-theme="b">
+		<h1>Login Steriatime</h1>
+	</div>
+	
+	<div data-role="content" id="contentLogin" name="contentLogin">
+		<form id="loginForm">
+			<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+			
+				<input type="radio" name="radioCountry" id="radNorway" value="norway" checked="checked" />
+				<label for="radNorway">Norway</label>
+				
+				<input type="radio" name="radioCountry" id="radDenmark" value="denmark" />
+				<label for="radDenmark">Denmark</label>
+				
+				<input type="radio" name="radioCountry" id="radSweden" value="sweden" />
+				<label for="radSweden">Sweden</label>
+			</fieldset>			
+		
+			Username: <input type="text" name="username"><br />
+			<!-- Byttes til input type="password" etter testing -->
+			Password: <input type="text" name="password"><br />
+			<input type="submit" value="Login">
+		</form>
+		
+	</div>
 </div>
 
 

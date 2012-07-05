@@ -1,5 +1,9 @@
 // Declare global variables
-
+// Remember 
+/*
+ 	$('#hdrDay').children('h1').text('new text');
+  
+ */
 	var hdrDayVar = null;
 	var contentDayVar = null;
 	var ftrDayVar = null;
@@ -34,16 +38,15 @@ $(document).ready(function() {
 	favVar = $('#fav');
 	hoursVar = $('#hours');
 	lunchVar = $('#lunch');
-    contentTransitionVar = $('#contentTransition');
-    confirmationVar = $('#confirmation');
-    contentDialogVar = $('#contentDialog');
-    hdrConfirmationVar = $('#hdrConfirmation');
-    contentConfirmationVar = $('#contentConfirmation');
-    ftrConfirmationVar = $('#ftrConfirmation'); 
 	
-	hideContentDialog();
-	hideContentTransition();
-	hideConfirmation();
+
+	$('#loginForm').submit(function(){
+		var loginErr = false;
+		var postTo = 'hours/registration';
+		var jsonLogin = {username: $('[name=username]').val() , password: $('[name=password]').val(), country: $('[name=radioCountry]').val()}
+		console.log(jsonLogin);
+		//$.post(postTo, jsonLogin, , 'json');
+	});
 	
 	$('#dayForm').submit(function(){
 		var err = false;
@@ -65,72 +68,70 @@ $(document).ready(function() {
 			console.log("Validation failed")
 			return false;
 		}
+			
+		var dateForm = $('#hdrDay').children('h1').text();
+		var favForm = $("#fav").val();
+		var hourForm = $("#hours").val();
+		var lunchForm = $("#lunch").val();
 		
-		
-		var reg = new Object();
-		reg.favForm = $("#fav").val();
-		reg.hourForm = $("#hours").val();
-		reg.lunchForm = $("#lunch").val();
-		
-		var jsonReg = JSON.stringify(reg);
-		console.log(jsonReg);
+		var myData = {'fav': favForm, 'hours': hourForm, 'lunch': lunchForm, 'date': dateForm};
+		var lunchText = "";
+		if(lunchForm == 1){
+			lunchText = "+ Lunch";
+		}
+		$('#dayList').append($("<li></li>").html('<b>' +
+                favForm + '</b> '+lunchText+'<span class="ui-li-count">' + hourForm + ' timer '+'</span>')).listview('refresh');
 		
 		$.ajax({
 			type:"POST",
 			url: 'hours/registration',
-			dataType: 'json',
-			data: jsonReg,
+			data: myData,
 			success: function(){
-				alert('response data:' +jsonReg);
+				alert('response data:' +myData);
 			}
-		})
+		});
 		
 		return false;
 	});
+	
+	
+	
 });
 
+function get_type(thing){
+    if(thing===null)return "[object Null]"; // special case
+    return Object.prototype.toString.call(thing);
+}
 
 
+function prevDay(){
+	var currDay = $('#hdrDay').children('h1').text();
+	currDay = parseInt(currDay);
+	var prevDay = currDay - 1;
+	$('#hdrDay').children('h1').text(prevDay);
+}
 
-function hideMain(){
-	console.log("TRIES");
-	hdrDayVar.hide();
-	contentDayVar.hide();
-	ftrDayVar.hide();
-	}
+function nextDay(){
+	var currDay = $('#hdrDay').children('h1').text();
+	currDay = parseInt(currDay);
+	var nextDay = currDay + 1;
+	$('#hdrDay').children('h1').text(nextDay);
+}
 
-function showMain(){
-	hdrDayVar.show();
-	contentDayVar.show();
-	ftrDayVar.show();
-	}
+function prevWeek(){
+	var currDay = $('#hdrWeek').children('h1').text();
+	currDay = parseInt(currDay);
+	var prevDay = currDay - 1;
+	$('#hdrWeek').children('h1').text(prevDay);
+}
 
-function hideContentTransition(){
-	contentTransitionVar.hide();
-	}
-	
-function showContentTransition(){
-	contentTransitionVar.show();
-	}
-	
-function hideContentDialog(){
-	contentDialogVar.hide();
-	}
+function nextWeek(){
+	var currDay = $('#hdrWeek').children('h1').text();
+	currDay = parseInt(currDay);
+	var prevDay = currDay + 1;
+	$('#hdrWeek').children('h1').text(prevDay);
+}
 
-function showContentDialog(){
-	contentDialogVar.show();
-	}
-	
-function showConfirmation(){
-	hdrConfirmationVar.show();
-	contentConfirmationVar.show();
-	}
-
-function hideConfirmation(){
-	hdrConfirmationVar.hide();
-	contentConfirmationVar.hide();
-	
-	}
 
 function IsJsonString(str) {
     try {
