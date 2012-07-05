@@ -14,7 +14,7 @@ public class JettyServer {
 		Server server = new Server(localPort);
 		server.setHandler(new WebAppContext("src/main/webapp", "/"));
 		server.start();
-		System.out.println("Server started!!!! - port " + localPort);
+		System.out.println("Server started! - port " + localPort);
 		server.join();
 		System.out.println("Dette gikk galt!");
 		
