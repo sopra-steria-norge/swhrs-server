@@ -2,7 +2,7 @@ package no.steria.swhrs;
 
 import java.util.List;
 
-import no.steria.kata.javaee.Person;
+import no.steria.swhrs.Person;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -42,9 +42,9 @@ public class HibernatePersonDao implements PersonDao{
 	}
 
 	@Override
-	public boolean getHours(Long person_id, LocalDate date) {
+	public HourRegistration getHours(Long person_id, LocalDate date) {
 		// TODO Auto-generated method stub
-		return false;
+		return null;
 	}
 	
 	private Session session(){
