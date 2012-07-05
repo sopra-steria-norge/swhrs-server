@@ -42,6 +42,7 @@ $(document).ready(function() {
 
 	$('#loginForm').submit(function(){
 		var loginErr = false;
+		var postTo = 'hours/registration';
 		var jsonLogin = {username: $('[name=username]').val() , password: $('[name=password]').val(), country: $('[name=radioCountry]').val()}
 		console.log(jsonLogin);
 		//$.post(postTo, jsonLogin, , 'json');
@@ -67,34 +68,26 @@ $(document).ready(function() {
 			console.log("Validation failed")
 			return false;
 		}
+			
+		var dateForm = $('#hdrDay').children('h1').text();
+		var favForm = $("#fav").val();
+		var hourForm = $("#hours").val();
+		var lunchForm = $("#lunch").val();
 		
-		
-		var reg = new Object();
-		reg.favForm = $("#fav").val();
-		reg.hourForm = $("#hours").val();
-		reg.lunchForm = $("#lunch").val();
-		
-		var jsonReg = JSON.stringify(reg);
-		console.log(jsonReg);
-		console.log(get_type(jsonReg));
-		
-		var json_object = eval('('+ jsonReg +')');
-		
-		console.log(get_type(json_object));
-		console.log(json_object);
-		var jsonObjects = [{id:1, name:"amit"}, {id:2, name:"ankit"},{id:3, name:"atin"},{id:1, name:"puneet"}];
-		/*
-		$.post("http://localhost:8081/hours/registration",     
-		           JSON.stringify({"a":"b"} ), 
-		           function(data) {});*/
+		var myData = {'fav': favForm, 'hours': hourForm, 'lunch': lunchForm, 'date': dateForm};
+		var lunchText = "";
+		if(lunchForm == 1){
+			lunchText = "+ Lunch";
+		}
+		$('#dayList').append($("<li></li>").html('<b>' +
+                favForm + '</b> '+lunchText+'<span class="ui-li-count">' + hourForm + ' timer '+'</span>')).listview('refresh');
 		
 		$.ajax({
 			type:"POST",
 			url: 'hours/registration',
-			dataType: 'json',
-			data: jsonReg,
+			data: myData,
 			success: function(){
-				alert('response data:' +jsonReg);
+				alert('response data:' +myData);
 			}
 		});
 		

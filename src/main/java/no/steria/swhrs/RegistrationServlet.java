@@ -14,6 +14,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.gson.Gson;
 import com.steadystate.css.parser.ParseException;
 
 public class RegistrationServlet extends HttpServlet{
@@ -40,14 +41,13 @@ public class RegistrationServlet extends HttpServlet{
 		System.out.println("Dette er registrationservleten POST");
 		writer.append("<html><body>Dette er registrationservletenPOST</body></html>");
 		
+		String favourite = req.getParameter("fav");
+		String hours = req.getParameter("hours");
+		String lunch = req.getParameter("lunch");
+		String date = req.getParameter("date");
+		System.out.println(favourite+"," +hours+ ", "+lunch+", "+date);
 		
-	     JSONObject jObj = new JSONObject();
-	     try {
-			JSONObject newObj = jObj.getJSONObject(req.getParameter("jsonReg"));
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
  	}
 
 }

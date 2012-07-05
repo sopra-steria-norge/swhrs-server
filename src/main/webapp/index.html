@@ -39,11 +39,11 @@
 			<label id="favLabel" for="fav">Choose project</label>
 			<select id="fav" name="fav_r" tabindex="2" data-theme="c">
 				<option value="ZZ">Select a favourite</option>
-				<option value="AA">LARM</option>
-				<option value="BB">OSL CDM</option>
-				<option value="CC">JavaZone</option>
-				<option value="DD">Timeforing app</option>
-				<option value="EE">Steria intern: 02 : Opplæring : Ettellerannet</option>
+				<option value="LARM">LARM</option>
+				<option value="OSL CDM">OSL CDM</option>
+				<option value="JavaZone">JavaZone</option>
+				<option value="Timeforing">Timeforing app</option>
+				<option value="Steria intern">Steria intern: 02 : Opplæring : Ettellerannet</option>
 			</select>
 		</div>
 		
@@ -67,21 +67,12 @@
 	</fieldset>
 
 	</form>
-	<table>
-	<tr>
-		<td><b>Project</b></td>
-		<td><b>Hours</b></td>
-	</tr>
-	<tr>
-		<td>Steria</td>
-		<td>7.5</td>
-	</tr>
-	</table>
-		
+	<ul id="dayList" data-role="listview" data-inset="true" data-theme="c">
+	</ul>
 	</div> <!--  contentDay -->
 	
 	<!-- Mainpage footer -->
-	<div id="ftrDay" data-role="footer" data-position="fixed">
+	<div id="ftrDay" data-role="footer" data-position="fixed" >
 		<div data-role="navbar">
 		<ul>
 			<li><a href="#" data-theme="b" data-icon="home" class="ui-btn-active ui-state-persist">Dag</a>
@@ -105,7 +96,7 @@
 	<!-- WeekpageContent: List of the weekdays and the current status -->
 	<div data-role="content" id="contentWeek" name="contentWeek" >
 		<ul data-role="listview" data-inset="true">
-			<li><a href="" ><h3>Monday</h3>
+			<li><a href="#favPage?220112" ><h3>Monday</h3>
 			<p>Something something</p></a>
 			<span class="ui-li-count">8 timer</span></li>
 			
@@ -243,7 +234,7 @@
 	
 	<div data-role="content" id="contentLogin" name="contentLogin">
 		<form id="loginForm">
-			<fieldset data-role="controlgroup" data-type="horizontal">
+			<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
 			
 				<input type="radio" name="radioCountry" id="radNorway" value="norway" checked="checked" />
 				<label for="radNorway">Norway</label>
