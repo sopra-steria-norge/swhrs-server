@@ -1,10 +1,20 @@
 package no.steria.swhrs;
 
+import org.eclipse.jetty.plus.jndi.EnvEntry;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.hibernate.cfg.Environment;
+import org.hsqldb.jdbc.JDBCDataSource;
 
 public class JettyServer {
 	public static void main(String[] args) throws Exception {
+		JDBCDataSource jdbcDataSource = new JDBCDataSource();
+		jdbcDataSource.setDatabase("jdbc:hsqldb:mem:testDb");
+		jdbcDataSource.setUser("sa");
+		jdbcDataSource.setPassword("");
+		System.setProperty(Environment.HBM2DDL_AUTO, "create");
+		new EnvEntry(Parametere.DB_JNDI, jdbcDataSource);
+		
 		int localPort = 8081;
 		String envPort = System.getenv("PORT");
 		if (envPort != null && !envPort.isEmpty()) {

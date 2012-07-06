@@ -18,15 +18,15 @@ public class HibernateHourRegDaoTest {
 
 	@Test
 	public void shouldAndGetSaveHours() throws Exception {
-		HourRegDao personDao = createPersonDao();
+		HourRegDao personDao = createHourRegDao();
 		personDao.beginTransaction();
-		HourRegistration dummyHourReg = HourRegistration.createRegistration(new Long(1), 10, LocalDate.now(), 7.5);
+		HourRegistration dummyHourReg = HourRegistration.createRegistration(1, 10, LocalDate.now(), 7.5);
 		personDao.saveHours(dummyHourReg);
-		List<HourRegistration> regs = personDao.getHours(new Long(1), LocalDate.now());
+		List<HourRegistration> regs = personDao.getHours(1, LocalDate.now());
 		assertThat(regs).contains(dummyHourReg);
 	}
 	
-	private HourRegDao createPersonDao() throws NamingException{
+	private HourRegDao createHourRegDao() throws NamingException{
 		JDBCDataSource jdbcDataSource = new JDBCDataSource();
 		jdbcDataSource.setDatabase("jdbc:hsqldb:mem:testDb");
 		jdbcDataSource.setUser("sa");

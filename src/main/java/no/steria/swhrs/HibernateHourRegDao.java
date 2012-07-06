@@ -2,13 +2,17 @@ package no.steria.swhrs;
 
 import java.util.List;
 
+import javax.naming.NamingException;
+
 import no.steria.swhrs.Person;
 
+import org.eclipse.jetty.plus.jndi.EnvEntry;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.context.ThreadLocalSessionContext;
+import org.hsqldb.jdbc.JDBCDataSource;
 import org.joda.time.LocalDate;
 
 public class HibernateHourRegDao implements HourRegDao{
@@ -41,14 +45,9 @@ public class HibernateHourRegDao implements HourRegDao{
 	}
 
 	@Override
-<<<<<<< HEAD:src/main/java/no/steria/swhrs/HibernateHourRegDao.java
-	public List<HourRegistration> getHours(Long person_id, LocalDate date) {
+	public List<HourRegistration> getHours(int person_id, LocalDate date) {
+		//This actually just gets all registrations in the database, so the parameters are useless atm
 		return session().createCriteria(HourRegistration.class).list();
-=======
-	public HourRegistration getHours(Long person_id, LocalDate date) {
-		// TODO Auto-generated method stub
-		return null;
->>>>>>> 79cc1267e29ca047aa9dcfd2de3519ec71775881:src/main/java/no/steria/swhrs/HibernatePersonDao.java
 	}
 	
 	private Session session(){

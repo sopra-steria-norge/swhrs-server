@@ -13,6 +13,11 @@
 	var favVar = null;
 	var hoursVar = null;
 	
+	var date = new Date();
+	var day = date.getDay();
+	var month = date.getMonth();
+	var year = date.getFullYear();
+	
 
 	var contentTransitionVar = null;
 	var confirmationVar = null;
@@ -38,6 +43,7 @@ $(document).ready(function() {
 	favVar = $('#fav');
 	hoursVar = $('#hours');
 	lunchVar = $('#lunch');
+	hdrDayVar.children('h1').text(day + '.' + month + '.' + year)
 	
 
 	$('#loginForm').submit(function(){
@@ -71,10 +77,12 @@ $(document).ready(function() {
 			
 		var dateForm = $('#hdrDay').children('h1').text();
 		var favForm = $("#fav").val();
+		var projectNr = favForm.split(':')[0];
 		var hourForm = $("#hours").val();
 		var lunchForm = $("#lunch").val();
+		var personId = 1;
 		
-		var myData = {'fav': favForm, 'hours': hourForm, 'lunch': lunchForm, 'date': dateForm};
+		var myData = {'personId': personId, 'projectNr': projectNr, 'hours': hourForm, 'lunch': lunchForm, 'date': dateForm};
 		var lunchText = "";
 		if(lunchForm == 1){
 			lunchText = "+ Lunch";

@@ -12,5 +12,5 @@ public interface HourRegDao {
 	
 	void saveHours(HourRegistration reg);
 	
-	List<HourRegistration> getHours(Long person_id, LocalDate date);
+	List<HourRegistration> getHours(int person_id, LocalDate date);
 }
