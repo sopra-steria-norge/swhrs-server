@@ -2,7 +2,7 @@ package no.steria.swhrs;
 
 import java.util.List;
 
-import no.steria.kata.javaee.Person;
+import no.steria.swhrs.Person;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -11,17 +11,17 @@ import org.hibernate.cfg.Environment;
 import org.hibernate.context.ThreadLocalSessionContext;
 import org.joda.time.LocalDate;
 
-public class HibernatePersonDao implements PersonDao{
+public class HibernateHourRegDao implements HourRegDao{
 
 	private SessionFactory sessionFactory;
 	private Person loggedInUser = Person.createDummyPerson("Ola Nordmann");
-	private List<HourRegistration> registrations;
 	
-	public HibernatePersonDao(String jndi) {
+	public HibernateHourRegDao(String jndi) {
 		Configuration configuration = new Configuration();
 		configuration.setProperty(Environment.DATASOURCE, jndi);
 		configuration.setProperty(Environment.CURRENT_SESSION_CONTEXT_CLASS, ThreadLocalSessionContext.class.getName());
-		configuration.addAnnotatedClass(Person.class);
+		//configuration.addAnnotatedClass(Person.class);
+		configuration.addAnnotatedClass(HourRegistration.class);
 		sessionFactory = configuration.buildSessionFactory();		
 	}
 	
@@ -36,15 +36,13 @@ public class HibernatePersonDao implements PersonDao{
 	}
 
 	@Override
-	public boolean saveHours(HourRegistration reg) {
-		// TODO Auto-generated method stub
-		return false;
+	public void saveHours(HourRegistration reg) {
+		session().save(reg);
 	}
 
 	@Override
-	public boolean getHours(Long person_id, LocalDate date) {
-		// TODO Auto-generated method stub
-		return false;
+	public List<HourRegistration> getHours(Long person_id, LocalDate date) {
+		return session().createCriteria(HourRegistration.class).list();
 	}
 	
 	private Session session(){
