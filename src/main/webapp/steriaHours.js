@@ -13,6 +13,11 @@
 	var favVar = null;
 	var hoursVar = null;
 	
+	var date = new Date();
+	var day = date.getDay();
+	var month = date.getMonth();
+	var year = date.getFullYear();
+	
 
 	var contentTransitionVar = null;
 	var confirmationVar = null;
@@ -48,19 +53,14 @@ $(document).ready(function() {
 	favVar = $('#fav');
 	hoursVar = $('#hours');
 	lunchVar = $('#lunch');
+
 	var dayArray=new Array("Monday","Tuesday","Wednesday", "Thursday");
 	var dateArray=new Array("02.07.2012","03.07.2012","04.07.2012", "06.07.2012");
 	var hourArray=new Array(2,7,8, 8);
 	updateWeekList(dayArray, dateArray, hourArray);
-	
-	myDate = new Date();
-	var month = myDate.getMonth();
-	var day = myDate.getDate();
-	var year = myDate.getFullYear();
-	var dates2 = day+"/"+month+"/"+year;
-	dates = myDate.getTime();
-	console.log(dates);
-	//$('#hdrH1').append(dates);
+
+	hdrDayVar.children('h1').text(day + '.' + month + '.' + year)
+
 	
 
 	$('#testB').click(function(){
@@ -100,9 +100,14 @@ $(document).ready(function() {
 		hourForm = $("#hours").val();
 		lunchForm = $("#lunch").val();
 		
-		var myData = {'fav': favForm, 'hours': hourForm, 'lunch': lunchForm, 'date': dateForm, 'username': username, 'password': password};
-		
 		updateDayList(favForm, hourForm, lunchForm);
+		var favForm = $("#fav").val();
+		var projectNr = favForm.split(':')[0];
+		var hourForm = $("#hours").val();
+		var lunchForm = $("#lunch").val();
+		var personId = 1;
+		
+		var myData = {'personId': personId, 'projectNr': projectNr, 'hours': hourForm, 'lunch': lunchForm, 'date': dateForm};
 		
 		$.ajax({
 			type:"POST",
