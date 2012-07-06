@@ -41,7 +41,8 @@ public class HibernateHourRegDao implements HourRegDao{
 
 	@Override
 	public void saveHours(HourRegistration reg) {
-		session().save(reg);
+		HourRegistrationEntity newEntity = HourRegistrationEntity.createRegistration(reg);
+		session().save(newEntity);
 	}
 
 	@Override

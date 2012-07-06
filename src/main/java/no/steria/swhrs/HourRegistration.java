@@ -1,19 +1,10 @@
 package no.steria.swhrs;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-
 import org.joda.time.LocalDate;
 
-@Entity
+
 public class HourRegistration {
-	
-	@SuppressWarnings("unused")
-	@Id
-	@GeneratedValue
-	private long Id;
-	
+
 	private int personId;
 	private int projectnumber; //maybe this will be changed to type "Project" later
 	private LocalDate date;
