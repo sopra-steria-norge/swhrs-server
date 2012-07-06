@@ -36,6 +36,11 @@ public class HourRegistrationEntity {
 		hrEnt.hours = hr.getHours();
 		return hrEnt;
 	}
+	
+	public HourRegistration createHourRegistrationFromEntity(){
+		HourRegistration hr = HourRegistration.createRegistration(getPersonId(), getProjectnumber(), getDate(), getHours());
+		return hr;
+	}
 
 	public int getPersonId() {
 		return personId;
