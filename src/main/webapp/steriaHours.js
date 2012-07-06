@@ -20,7 +20,17 @@
 	var hdrConfirmationVar = null; 
 	var contentConfirmationVar = null;
 	var ftrConfirmationVar = null;
-
+	
+	var favForm = null;
+	var hourForm = null;
+	var lunchForm = null;
+	
+	var myDate = null;
+	var dates = null;
+	
+	var username = null;
+	var password = null;
+	
 	// Constants
 	var MISSING = "missing";
 	var NO_FAV = "ZZ";
@@ -38,13 +48,29 @@ $(document).ready(function() {
 	favVar = $('#fav');
 	hoursVar = $('#hours');
 	lunchVar = $('#lunch');
+	var dayArray=new Array("Monday","Tuesday","Wednesday", "Thursday");
+	var dateArray=new Array("02.07.2012","03.07.2012","04.07.2012", "06.07.2012");
+	var hourArray=new Array(2,7,8, 8);
+	updateWeekList(dayArray, dateArray, hourArray);
+	
+	myDate = new Date();
+	var month = myDate.getMonth();
+	var day = myDate.getDate();
+	var year = myDate.getFullYear();
+	var dates2 = day+"/"+month+"/"+year;
+	dates = myDate.getTime();
+	console.log(dates);
+	//$('#hdrH1').append(dates);
 	
 
-	$('#loginForm').submit(function(){
+	$('#testB').click(function(){
 		var loginErr = false;
 		var postTo = 'hours/registration';
 		var jsonLogin = {username: $('[name=username]').val() , password: $('[name=password]').val(), country: $('[name=radioCountry]').val()}
+		username = $('[name=username]').val();
+		password = $('[name=password]').val();
 		console.log(jsonLogin);
+		$.mobile.changePage("#dayPage");
 		//$.post(postTo, jsonLogin, , 'json');
 	});
 	
@@ -70,17 +96,13 @@ $(document).ready(function() {
 		}
 			
 		var dateForm = $('#hdrDay').children('h1').text();
-		var favForm = $("#fav").val();
-		var hourForm = $("#hours").val();
-		var lunchForm = $("#lunch").val();
+		favForm = $("#fav").val();
+		hourForm = $("#hours").val();
+		lunchForm = $("#lunch").val();
 		
-		var myData = {'fav': favForm, 'hours': hourForm, 'lunch': lunchForm, 'date': dateForm};
-		var lunchText = "";
-		if(lunchForm == 1){
-			lunchText = "+ Lunch";
-		}
-		$('#dayList').append($("<li></li>").html('<b>' +
-                favForm + '</b> '+lunchText+'<span class="ui-li-count">' + hourForm + ' timer '+'</span>')).listview('refresh');
+		var myData = {'fav': favForm, 'hours': hourForm, 'lunch': lunchForm, 'date': dateForm, 'username': username, 'password': password};
+		
+		updateDayList(favForm, hourForm, lunchForm);
 		
 		$.ajax({
 			type:"POST",
@@ -108,6 +130,8 @@ function prevDay(){
 	var currDay = $('#hdrDay').children('h1').text();
 	currDay = parseInt(currDay);
 	var prevDay = currDay - 1;
+	//$('#hdrH1').text(dates+1);
+	//$('#hdrH1').text(prevDay+"/"+myDate.getMonth()+"/"+myDate.getFullYear());
 	$('#hdrDay').children('h1').text(prevDay);
 }
 
@@ -116,6 +140,8 @@ function nextDay(){
 	currDay = parseInt(currDay);
 	var nextDay = currDay + 1;
 	$('#hdrDay').children('h1').text(nextDay);
+	resetDay();
+	
 }
 
 function prevWeek(){
@@ -130,6 +156,44 @@ function nextWeek(){
 	currDay = parseInt(currDay);
 	var prevDay = currDay + 1;
 	$('#hdrWeek').children('h1').text(prevDay);
+}
+
+function updateWeekList(day, date, dayHours){
+	for(i=0; i<day.length; i++){
+		if(dayHours[i] < 8){
+			$('#weekList').append($("<li data-theme='e'></li>").html('<a href=""><b>' + 
+						day[i] + '</b><p>'+date[i]+'</p></a><span class="ui-li-count">' + dayHours[i] + ' timer'+'</span>')).listview('refresh');
+			}else{	
+			$('#weekList').append($("<li></li>").html('<a href=""><b>' + 
+					day[i] + '</b><p>'+date[i]+'</p></a><span class="ui-li-count">' + dayHours[i] + ' timer'+'</span>')).listview('refresh');
+		}
+	}
+	
+	var total = 0;
+	$.each(dayHours,function() {
+	    total += this;
+	});
+	$('#weekDescription').children('b').text("You have logged "+total+" hours this week");
+	
+}
+
+function updateDayList(fav, hour, lunch){
+	var lunchText = "Lunch";
+	if(lunch == 1){
+		$('#dayList').append($("<li></li>").html('<b>' +
+	            lunchText + '<span class="ui-li-count"> 0.5 timer '+'</span>')).listview('refresh');
+	}
+	$('#dayList').append($("<li></li>").html('<b>' +
+            fav + '</b><span class="ui-li-count">' + hour + ' timer '+'</span>')).listview('refresh');
+}
+
+function resetDay(){
+	$('#dayList').children().remove('li');
+	$('#lunch').val(1);
+	$('#lunch').slider('refresh');
+	$('#hours').val(0);
+	$('#hours').slider('refresh');
+	$('#fav').val('').removeAttr('checked').removeAttr('selected');
 }
 
 

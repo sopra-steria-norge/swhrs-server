@@ -24,9 +24,6 @@ public class RegistrationServlet extends HttpServlet{
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		//String[] arrayData=req.getParameterValues("jsonReg");
-		//System.out.println("nameParameter"+arrayData);
 		
 		resp.setContentType("application/json");
 		PrintWriter writer = resp.getWriter();		
@@ -37,7 +34,9 @@ public class RegistrationServlet extends HttpServlet{
 		String hours = req.getParameter("hours");
 		String lunch = req.getParameter("lunch");
 		String date = req.getParameter("date");
-		System.out.println(favourite+"," +hours+ ", "+lunch+", "+date);
+		String username = req.getParameter("username");
+		String password = req.getParameter("password");
+		System.out.println(favourite+"," +hours+ ", "+lunch+", "+date+", "+username+", "+password);
 		
 		
  	}

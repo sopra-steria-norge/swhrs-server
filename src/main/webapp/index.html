@@ -27,7 +27,7 @@
 <div data-role="page" data-theme="b" id="dayPage">
 	<div data-role="header" id="hdrDay" name="hdrDay" data-nobackbtn="false" data-theme="b" data-position="fixed">
 		<a href="javascript:prevDay()" data-icon="arrow-l">Previous</a>
-		<h1>200</h1>
+		<h1 id="hdrH1">200</h1>
 		<a href="javascript:nextDay()" data-icon="arrow-r">Next</a>
 	</div>
 
@@ -38,7 +38,7 @@
 		<div id="favDiv" data-role="fieldcontain">
 			<label id="favLabel" for="fav">Choose project</label>
 			<select id="fav" name="fav_r" tabindex="2" data-theme="c">
-				<option value="ZZ">Select a favourite</option>
+				<option value="">Select a favourite</option>
 				<option value="LARM">LARM</option>
 				<option value="OSL CDM">OSL CDM</option>
 				<option value="JavaZone">JavaZone</option>
@@ -60,7 +60,6 @@
 		</select>
 	</div>
 	
-		
 	<fieldset class="ui-grid-a">
 		<div class="ui-block-a"><button type="submit" data-theme="b">Submit</button></div>
 		<div class="ui-block-b"><a href="#overtimePage" data-role="button" data-theme="b" data-transition="fade">Overtime</a></div>	   
@@ -95,8 +94,10 @@
 	
 	<!-- WeekpageContent: List of the weekdays and the current status -->
 	<div data-role="content" id="contentWeek" name="contentWeek" >
-		<ul data-role="listview" data-inset="true">
-			<li><a href="#favPage?220112" ><h3>Monday</h3>
+		<ul id="weekList" data-role="listview" data-inset="true">
+		
+			<!-- 
+			<li><a href="" ><h3>Monday</h3>
 			<p>Something something</p></a>
 			<span class="ui-li-count">8 timer</span></li>
 			
@@ -122,10 +123,11 @@
 			
 			<li><a href="" ><h3>Sunday</h3>
 			<p>Something something</p></a>
-			<span class="ui-li-count">0 timer</span></li>															
+			<span class="ui-li-count">0 timer</span></li>
+			 -->															
 		</ul>
 		<div id="weekDescription" align="center">
-			<p><b>You have worked 40 hours this week</b></p>
+			<b></b>
 		</div>
 	</div>
 	
@@ -215,7 +217,7 @@
 		
 		<div id="otHoursDiv" data-role="fieldcontain">
 			<label id="otHoursLabel" for="otHours">Hours worked:</label>
-			<input type="range" name="otHours" id="otHours" value="" min="0" max="12" step="0.5" data-highlight="true" data-theme="" />
+			<input type="range" name="otHours" id="otHours" value="" min="0" max="12" step="0.5" data-highlight="true" data-theme="c" />
 		</div>
 		
 		<div id="submitOTDiv" data-role="fieldcontain">
@@ -233,7 +235,7 @@
 	</div>
 	
 	<div data-role="content" id="contentLogin" name="contentLogin">
-		<form id="loginForm">
+		<form id="loginForm" action="#dayPage"  data-ajax="false">
 			<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
 			
 				<input type="radio" name="radioCountry" id="radNorway" value="norway" checked="checked" />
@@ -249,7 +251,7 @@
 			Username: <input type="text" name="username"><br />
 			<!-- Byttes til input type="password" etter testing -->
 			Password: <input type="text" name="password"><br />
-			<input type="submit" value="Login">
+			
 		</form>
 		
 	</div>
