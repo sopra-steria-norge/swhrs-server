@@ -51,7 +51,7 @@ public class RegistrationFromAppTest {
 		browser.get(url);
 		
 		browser.findElement(By.name("hours")).sendKeys("7,5");
-		browser.findElement(By.name("save")).click();
+		browser.findElement(By.id("saveBtnID")).click();
 		
 		System.out.println(browser.getPageSource());
 		
