@@ -41,8 +41,14 @@ public class HibernateHourRegDao implements HourRegDao{
 	}
 
 	@Override
+<<<<<<< HEAD:src/main/java/no/steria/swhrs/HibernateHourRegDao.java
 	public List<HourRegistration> getHours(Long person_id, LocalDate date) {
 		return session().createCriteria(HourRegistration.class).list();
+=======
+	public HourRegistration getHours(Long person_id, LocalDate date) {
+		// TODO Auto-generated method stub
+		return null;
+>>>>>>> 79cc1267e29ca047aa9dcfd2de3519ec71775881:src/main/java/no/steria/swhrs/HibernatePersonDao.java
 	}
 	
 	private Session session(){
