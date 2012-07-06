@@ -54,13 +54,10 @@ $(document).ready(function() {
 	hoursVar = $('#hours');
 	lunchVar = $('#lunch');
 
-	var dayArray=new Array("Monday","Tuesday","Wednesday", "Thursday");
-	var dateArray=new Array("02.07.2012","03.07.2012","04.07.2012", "06.07.2012");
-	var hourArray=new Array(2,7,8, 8);
-	updateWeekList(dayArray, dateArray, hourArray);
+	
 
 	hdrDayVar.children('h1').text(day + '.' + month + '.' + year)
-
+	console.log('Test');
 	
 
 	$('#testB').click(function(){
@@ -72,6 +69,7 @@ $(document).ready(function() {
 		console.log(jsonLogin);
 		$.mobile.changePage("#dayPage");
 		//$.post(postTo, jsonLogin, , 'json');
+		
 	});
 	
 	$('#dayForm').submit(function(){
@@ -161,9 +159,14 @@ function nextWeek(){
 	currDay = parseInt(currDay);
 	var prevDay = currDay + 1;
 	$('#hdrWeek').children('h1').text(prevDay);
+	var dayArray=new Array("Monday","Tuesday","Wednesday", "Thursday");
+	var dateArray=new Array("02.07.2012","03.07.2012","04.07.2012", "06.07.2012");
+	var hourArray=new Array(2,7,8, 8);
+	updateWeekList(dayArray, dateArray, hourArray);
 }
 
 function updateWeekList(day, date, dayHours){
+	console.log('test');
 	for(i=0; i<day.length; i++){
 		if(dayHours[i] < 8){
 			$('#weekList').append($("<li data-theme='e'></li>").html('<a href=""><b>' + 
