@@ -1,5 +1,6 @@
 package no.steria.swhrs;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.naming.NamingException;
@@ -41,13 +42,21 @@ public class HibernateHourRegDao implements HourRegDao{
 
 	@Override
 	public void saveHours(HourRegistration reg) {
-		session().save(reg);
+		HourRegistrationEntity newEntity = HourRegistrationEntity.createRegistration(reg);
+		session().save(newEntity);
 	}
 
 	@Override
 	public List<HourRegistration> getHours(int person_id, LocalDate date) {
 		//This actually just gets all registrations in the database, so the parameters are useless atm
-		return session().createCriteria(HourRegistration.class).list();
+		List<HourRegistrationEntity> entityList = session().createCriteria(HourRegistrationEntity.class).list();
+		
+		//This is very ugly, but it's ok for now since all of this is only for local testing
+		List<HourRegistration> list = new ArrayList<HourRegistration>();
+		for (HourRegistrationEntity hr: entityList) {
+			list.add(hr.createHourRegistrationFromEntity());
+		}
+		return list;
 	}
 	
 	private Session session(){
