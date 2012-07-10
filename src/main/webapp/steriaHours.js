@@ -196,6 +196,9 @@ function updateDayList(fav, hour, lunch){
 	if(lunch == 1){
 		$('#dayList').append($("<li></li>").html('<b>' +
 	            lunchText + '<span class="ui-li-count"> 0.5 timer '+'</span>')).listview('refresh');
+		$('#lunch').val(0);
+		$('#lunch').slider('refresh');
+		
 	}
 	$('#dayList').append($("<li></li>").html('<b>' +
             fav + '</b><span class="ui-li-count">' + hour + ' timer '+'</span>')).listview('refresh');
@@ -207,7 +210,6 @@ function getDayList() {
 	
 	$.getJSON("hours/list", function(json) {
 		for(var key in json) {
-			console.log('Projectnr: ' +  key + ' hours: ' + json[key]);
 			$('#dayList').append($("<li></li>").html('<b>' +
 					projects[key] + '</b><span class="ui-li-count">' + json[key] + ' timer '+'</span>')).listview('refresh');
 		}
