@@ -64,7 +64,6 @@ $(document).ready(function() {
 	var hourArray=new Array(2,7,8, 8);
 	//updateWeekList(dayArray, dateArray, hourArray);
 	
-
 	hdrDayVar.children('h1').text(day + '.' + month + '.' + year);
 	
 	
@@ -93,6 +92,10 @@ $(document).ready(function() {
 		return false;
 	});
 	
+	$("#updateBtn").click(function() {
+		getDayList();
+	});
+	
 	$('#dayForm').submit(function(){
 		var err = false;
 		// Reset highlighted form elements
@@ -118,24 +121,17 @@ $(document).ready(function() {
 		favForm = $("#fav").val();
 		hourForm = $("#hours").val();
 		lunchForm = $("#lunch").val();
+		projectNr = favForm.split(':')[0];
+		personId = 1;
 		
-		updateDayList(favForm, hourForm, lunchForm);
-		var favForm = $("#fav").val();
-		var projectNr = favForm.split(':')[0];
-		var hourForm = $("#hours").val();
-		var lunchForm = $("#lunch").val();
-		var personId = 1;
+		updateDayList(favForm, hourForm, lunchForm);		
 		
-		var myData = {'personId': personId, 'projectNr': projectNr, 'hours': hourForm, 'lunch': lunchForm, 'date': dateForm};
-		
-		$.ajax({
-			type:"POST",
-			url: 'hours/registration',
-			data: myData,
-			success: function(){
-				alert('response data:' +myData);
-			}
-		});
+		if (lunchForm == 1) {
+			var myData = {'personId': personId, 'projectNr': "1", 'hours': "0.5", 'date': dateForm};		
+			postHourRegistration(myData);
+		}
+		var myData = {'personId': personId, 'projectNr': projectNr, 'hours': hourForm, 'date': dateForm};		
+		postHourRegistration(myData);
 		
 		return false;
 	});
@@ -143,6 +139,7 @@ $(document).ready(function() {
 	
 	
 });
+
 
 /*
  * Checks if the page is secured, if so checks if the user is authenticated.
@@ -177,7 +174,18 @@ function SuccessLogin(data) {
                 $.mobile.changePage("#weekPage", { changeHash: false });
             }
 	}
+}
     
+
+function postHourRegistration(myData) {
+	$.ajax({
+		type:"POST",
+		url: 'hours/registration',
+		data: myData,
+		success: function(){
+			console.log(myData);
+		}
+	});
 }
 
 
@@ -242,9 +250,28 @@ function updateDayList(fav, hour, lunch){
 	if(lunch == 1){
 		$('#dayList').append($("<li></li>").html('<b>' +
 	            lunchText + '<span class="ui-li-count"> 0.5 timer '+'</span>')).listview('refresh');
+		
+		$('#lunch').val(0);
+		$('#lunch').slider('refresh');		
 	}
 	$('#dayList').append($("<li></li>").html('<b>' +
             fav + '</b><span class="ui-li-count">' + hour + ' timer '+'</span>')).listview('refresh');
+}
+
+function getDayList() {
+	//Hardkoder inn prosjektene her for å printe ut prosjektnavn, fjern dette når vi har databaseoppslag
+	var projects = {'10': 'ZZ', '1093094': 'LARM', '1112890': 'OSL CDM', '19': 'Javazone', '1337': 'Timeforing app', '19': 'Steria Intern', '1': 'Lunch'};
+	
+	$.getJSON("hours/list", function(json) {
+		for(var key in json) {
+			if (key === "1") {
+				$('#lunch').val(0);
+				$('#lunch').slider('refresh');	
+			}
+			$('#dayList').append($("<li></li>").html('<b>' +
+					projects[key] + '</b><span class="ui-li-count">' + json[key] + ' timer '+'</span>')).listview('refresh');
+		}
+	});
 }
 
 function resetDay(){

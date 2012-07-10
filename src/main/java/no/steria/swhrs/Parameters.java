@@ -1,7 +1,7 @@
 package no.steria.swhrs;
 
-public class Parametere {
-	private Parametere() {
+public class Parameters {
+	private Parameters() {
 		throw new IllegalArgumentException("Ikke instans");
 	}
 	

@@ -1,6 +1,6 @@
 package no.steria.swhrs;
 
-import javax.persistence.Entity;
+//import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 

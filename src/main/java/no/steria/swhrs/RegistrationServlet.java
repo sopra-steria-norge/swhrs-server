@@ -2,6 +2,7 @@ package no.steria.swhrs;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.naming.NamingException;
@@ -11,10 +12,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.eclipse.jetty.util.ajax.JSONObjectConvertor;
 import org.joda.time.LocalDate;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.json.JSONWriter;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+
 
 
 public class RegistrationServlet extends HttpServlet{
@@ -23,20 +26,39 @@ public class RegistrationServlet extends HttpServlet{
 	private HibernateHourRegDao db;
 		
 	public void init() throws ServletException {
-		db = new HibernateHourRegDao(Parametere.DB_JNDI);
+		db = new HibernateHourRegDao(Parameters.DB_JNDI);
 	}
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		PrintWriter writer = resp.getWriter();
-		writer.append("<html><body>Dette er registrationservletenPP</body></html>");
+		
+		if (req.getRequestURL().toString().contains(("hours/list"))) { 
+			resp.setContentType("application/json");
+			List<HourRegistration> hrlist = db.getHours(1, LocalDate.now());
+			
+			JSONObject json = new JSONObject();
+			for (HourRegistration hr: hrlist) {
+				json.put(Integer.toString(hr.getProjectnumber()), hr.getHours());
+			}
+			
+			String jsonText = json.toString();
+			System.out.println(jsonText);
+			resp.getWriter().write(jsonText);
+//			JSONObject json = new JSONObject();
+//			json.put("project_nr", hr.getProjectnumber());
+//			json.put("hours", hr.getHours());
+//			
+//			String jsonText = json.toString();
+//			System.out.print(jsonText);
+//			resp.getWriter().write(jsonText);
+		}
+		
 	}
 	
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		
 		
 		
 		if (req.getRequestURL().toString().contains(("hours/registration"))) {
@@ -45,12 +67,10 @@ public class RegistrationServlet extends HttpServlet{
 			String pNr = req.getParameter("projectNr");
 			int projectNr = Integer.parseInt(req.getParameter("projectNr").trim());
 			double hours = Double.parseDouble(req.getParameter("hours"));
-			String lunch = req.getParameter("lunch");
 			String date = req.getParameter("date");
 			
-			System.out.println(projectNr + "," +hours+ ", "+lunch+", "+date);
-			
-			//saveRegToDatabase(personId, projectNr, LocalDate.now(), hours);
+			System.out.println("Trying to save project: " + pNr);
+			saveRegToDatabase(personId, projectNr, LocalDate.now(), hours);
 		}
 		
 		if (req.getRequestURL().toString().contains(("hours/login"))) {
