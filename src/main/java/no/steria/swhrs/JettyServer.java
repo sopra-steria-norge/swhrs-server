@@ -10,10 +10,11 @@ public class JettyServer {
 	public static void main(String[] args) throws Exception {
 		JDBCDataSource jdbcDataSource = new JDBCDataSource();
 		jdbcDataSource.setDatabase("jdbc:hsqldb:mem:testDb");
+//		jdbcDataSource.setDatabase("jdbc:sqlserver://localhost;databaseName=SuperComputer;integratedSecurity=true;");
 		jdbcDataSource.setUser("sa");
 		jdbcDataSource.setPassword("");
 		System.setProperty(Environment.HBM2DDL_AUTO, "create");
-		new EnvEntry(Parametere.DB_JNDI, jdbcDataSource);
+		new EnvEntry(Parameters.DB_JNDI, jdbcDataSource);
 		
 		int localPort = 8081;
 		String envPort = System.getenv("PORT");

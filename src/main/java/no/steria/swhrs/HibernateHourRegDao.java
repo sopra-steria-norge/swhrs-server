@@ -1,6 +1,6 @@
 package no.steria.swhrs;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.naming.NamingException;
@@ -52,7 +52,7 @@ public class HibernateHourRegDao implements HourRegDao{
 		List<HourRegistrationEntity> entityList = session().createCriteria(HourRegistrationEntity.class).list();
 		
 		//This is very ugly, but it's ok for now since all of this is only for local testing
-		List<HourRegistration> list = new ArrayList<HourRegistration>();
+		List<HourRegistration> list = new LinkedList<HourRegistration>();
 		for (HourRegistrationEntity hr: entityList) {
 			list.add(hr.createHourRegistrationFromEntity());
 		}

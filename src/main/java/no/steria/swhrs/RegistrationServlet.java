@@ -19,7 +19,7 @@ public class RegistrationServlet extends HttpServlet{
 	private HibernateHourRegDao db;
 		
 	public void init() throws ServletException {
-		db = new HibernateHourRegDao(Parametere.DB_JNDI);
+		db = new HibernateHourRegDao(Parameters.DB_JNDI);
 	}
 
 	@Override

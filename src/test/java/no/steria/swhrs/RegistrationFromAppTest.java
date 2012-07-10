@@ -34,7 +34,7 @@ public class RegistrationFromAppTest {
 		jdbcDataSource.setUser("sa");
 		jdbcDataSource.setPassword("");
 		System.setProperty(Environment.HBM2DDL_AUTO, "create");
-		new EnvEntry(Parametere.DB_JNDI, jdbcDataSource);
+		new EnvEntry(Parameters.DB_JNDI, jdbcDataSource);
 //		
 //		
 //		Server server = new Server(0);
@@ -55,7 +55,7 @@ public class RegistrationFromAppTest {
 		
 		System.out.println(browser.getPageSource());
 		
-		HibernateHourRegDao controller = new HibernateHourRegDao(Parametere.DB_JNDI);
+		HibernateHourRegDao controller = new HibernateHourRegDao(Parameters.DB_JNDI);
 		controller.beginTransaction();
 		List<HourRegistration> registrations = controller.getHours(1, LocalDate.now());
 		System.out.println(registrations.size());
