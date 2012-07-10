@@ -69,14 +69,11 @@ public class RegistrationServlet extends HttpServlet{
 		String pNr = req.getParameter("projectNr");
 		int projectNr = Integer.parseInt(req.getParameter("projectNr").trim());
 		double hours = Double.parseDouble(req.getParameter("hours"));
-		String lunch = req.getParameter("lunch");
 		String date = req.getParameter("date");
 		
 		//String username = req.getParameter("username");
 		//String password = req.getParameter("password");
-		
-		System.out.println(projectNr + "," +hours+ ", "+lunch+", "+date);
-		
+		System.out.println("Trying to save project: " + pNr);
 		saveRegToDatabase(personId, projectNr, LocalDate.now(), hours);
  	}
 
