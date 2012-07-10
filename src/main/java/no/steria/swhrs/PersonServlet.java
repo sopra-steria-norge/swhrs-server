@@ -18,5 +18,6 @@ public class PersonServlet extends HttpServlet {
 		PrintWriter writer = resp.getWriter();
 		
 		writer.append("<html><body>HHer er servlet</body></html>");
+	
 	}
 }
