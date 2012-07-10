@@ -57,7 +57,6 @@ $(document).ready(function() {
 	
 
 	hdrDayVar.children('h1').text(day + '.' + month + '.' + year)
-	console.log('Test');
 	
 
 	$('#testB').click(function(){
@@ -70,6 +69,10 @@ $(document).ready(function() {
 		$.mobile.changePage("#dayPage");
 		//$.post(postTo, jsonLogin, , 'json');
 		
+	});
+	
+	$("#updateBtn").click(function() {
+		getDayList();
 	});
 	
 	$('#dayForm').submit(function(){
@@ -193,6 +196,19 @@ function updateDayList(fav, hour, lunch){
 	}
 	$('#dayList').append($("<li></li>").html('<b>' +
             fav + '</b><span class="ui-li-count">' + hour + ' timer '+'</span>')).listview('refresh');
+}
+
+function getDayList() {
+	//Hardkoder inn prosjektene her for å printe ut prosjektnavn, fjern dette når vi har databaseoppslag
+	var projects = {'10': 'ZZ', '1093094': 'LARM', '1112890': 'OSL CDM', '19': 'Javazone', '1337': 'Timeforing app', '19': 'Steria Intern'};
+	
+	$.getJSON("hours/list", function(json) {
+		for(var key in json) {
+			console.log('Projectnr: ' +  key + ' hours: ' + json[key]);
+			$('#dayList').append($("<li></li>").html('<b>' +
+					projects[key] + '</b><span class="ui-li-count">' + json[key] + ' timer '+'</span>')).listview('refresh');
+		}
+	});
 }
 
 function resetDay(){

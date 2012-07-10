@@ -26,7 +26,7 @@ public class HibernateHourRegDao implements HourRegDao{
 		configuration.setProperty(Environment.DATASOURCE, jndi);
 		configuration.setProperty(Environment.CURRENT_SESSION_CONTEXT_CLASS, ThreadLocalSessionContext.class.getName());
 		//configuration.addAnnotatedClass(Person.class);
-		configuration.addAnnotatedClass(HourRegistration.class);
+		configuration.addAnnotatedClass(HourRegistrationEntity.class);
 		sessionFactory = configuration.buildSessionFactory();		
 	}
 	
