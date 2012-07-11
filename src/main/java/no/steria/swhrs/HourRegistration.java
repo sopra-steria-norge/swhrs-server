@@ -18,7 +18,7 @@ public class HourRegistration {
 		hr.hours = hours;
 		return hr;
 	}
-
+	
 	public int getPersonId() {
 		return personId;
 	}

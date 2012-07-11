@@ -47,7 +47,7 @@ public class HibernateHourRegDao implements HourRegDao{
 	}
 
 	@Override
-	public List<HourRegistration> getHours(int person_id, LocalDate date) {
+	public List<HourRegistration> getAllHoursForDate(int person_id, LocalDate date) {
 		//This actually just gets all registrations in the database, so the parameters are useless atm
 		List<HourRegistrationEntity> entityList = session().createCriteria(HourRegistrationEntity.class).list();
 		
@@ -68,5 +68,25 @@ public class HibernateHourRegDao implements HourRegDao{
 	private Session session(){
 		return sessionFactory.getCurrentSession();
 	}
-	
+
+	@Override
+	public HourRegistration getHourRegistration(int person_id,
+			String project_id, LocalDate date) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean updataHourRegistration(int person_id, String project_id,
+			LocalDate date) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean deleteHourRegistration(int person_id, String project_id,
+			LocalDate date) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

@@ -2,22 +2,16 @@ package no.steria.swhrs;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.LinkedList;
 import java.util.List;
 
-import javax.naming.NamingException;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.jetty.util.ajax.JSONObjectConvertor;
 import org.joda.time.LocalDate;
-import org.json.JSONWriter;
 import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-
 
 
 public class RegistrationServlet extends HttpServlet{
@@ -35,7 +29,7 @@ public class RegistrationServlet extends HttpServlet{
 		
 		if (req.getRequestURL().toString().contains(("hours/list"))) { 
 			resp.setContentType("application/json");
-			List<HourRegistration> hrlist = db.getHours(1, LocalDate.now());
+			List<HourRegistration> hrlist = db.getAllHoursForDate(1, LocalDate.now());
 			
 			JSONObject json = new JSONObject();
 			for (HourRegistration hr: hrlist) {
@@ -45,13 +39,6 @@ public class RegistrationServlet extends HttpServlet{
 			String jsonText = json.toString();
 			System.out.println(jsonText);
 			resp.getWriter().write(jsonText);
-//			JSONObject json = new JSONObject();
-//			json.put("project_nr", hr.getProjectnumber());
-//			json.put("hours", hr.getHours());
-//			
-//			String jsonText = json.toString();
-//			System.out.print(jsonText);
-//			resp.getWriter().write(jsonText);
 		}
 		
 	}
@@ -78,7 +65,7 @@ public class RegistrationServlet extends HttpServlet{
 			String password = req.getParameter("password");
 			System.out.println("Username:" +username+" Password: "+password);
 			int autoLoginExpire = (60*60*24);
-			//Byttes ut når database er oppe
+			//Change this when database is up
 			//if(db.validateUser(username, password) == true){
 			if(username.equals("steria") && password.equals("123")){
 				Cookie loginCookie = new Cookie("USERNAME", username);
@@ -112,7 +99,7 @@ public class RegistrationServlet extends HttpServlet{
 		db.beginTransaction();
 		super.service(req, resp);
 		db.endTransaction(true);
-		//TODO sleng på en finally her så den ender transaksjonen hvis servleten kræsjer
+		//TODO add a finally here so that it ends the transaction of the servlet crashes
 	}
 
 }
