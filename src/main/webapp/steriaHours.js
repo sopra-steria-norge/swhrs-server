@@ -305,7 +305,7 @@ function resetDay(){
 	$('#lunch').slider('refresh');
 	$('#hours').val(0);
 	$('#hours').slider('refresh');
-	$('#fav').val('').removeAttr('checked').removeAttr('selected');
+	//$('#fav').val('10 : ZZ').removeAttr('checked').removeAttr('selected');
 }
 
 function resetDay2(){
@@ -313,7 +313,7 @@ function resetDay2(){
 	$('#lunch').slider('refresh');
 	$('#hours').val(0);
 	$('#hours').slider('refresh');
-	$('#fav').val('').removeAttr('checked').removeAttr('selected');
+	//$('#fav').val('').removeAttr('checked').removeAttr('selected');
 }
 
 /*document.ontouchmove = function(e){
