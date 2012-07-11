@@ -359,12 +359,9 @@ function resetDay(){
 	$('#lunch').slider('refresh');
 	$('#hours').val(0);
 	$('#hours').slider('refresh');
-<<<<<<< HEAD
 	$('#fav').val('').removeAttr('selected').find('option:first');
 //	$('#fav').val('').removeAttr('checked').removeAttr('selected');
-=======
-	//$('#fav').val('10 : ZZ').removeAttr('checked').removeAttr('selected');
->>>>>>> 84b2ed325833e5d190fa490fc0113a7cdba47d3b
+//	$('#fav').val('10 : ZZ').removeAttr('checked').removeAttr('selected');
 }
 
 function resetDay2(){
