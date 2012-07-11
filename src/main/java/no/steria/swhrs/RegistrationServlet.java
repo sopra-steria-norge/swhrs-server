@@ -17,7 +17,7 @@ import org.json.simple.JSONObject;
 public class RegistrationServlet extends HttpServlet{
 	
 	private static final long serialVersionUID = -1090477374982937503L;
-	private HibernateHourRegDao db;
+	private HourRegDao db;
 		
 	public void init() throws ServletException {
 		db = new HibernateHourRegDao(Parameters.DB_JNDI);
@@ -84,6 +84,19 @@ public class RegistrationServlet extends HttpServlet{
 		if(req.getRequestURL().toString().contains(("hours/week"))){
 			String week = req.getParameter("week");
 			System.out.println(week);
+			
+			resp.setContentType("application/json");
+			List<WeekRegistration> weeklist = db.getWeekSummary(week);
+			
+			JSONObject json = new JSONObject();
+			for (WeekRegistration wr: weeklist) {
+				json.put(wr.getDate(), wr.getWeekHours());
+			}
+			
+			String jsonText = json.toString();
+			System.out.println(jsonText);
+			resp.getWriter().write(jsonText);
+			
 			
 		}
 		

@@ -21,5 +21,7 @@ public interface HourRegDao {
 	boolean updataHourRegistration(int person_id, String project_id, LocalDate date);
 	
 	boolean deleteHourRegistration(int person_id, String project_id, LocalDate date);
+
+	List<WeekRegistration> getWeekSummary(String week);
 	
 }

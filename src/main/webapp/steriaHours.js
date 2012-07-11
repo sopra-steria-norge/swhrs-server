@@ -57,7 +57,6 @@ $(document).ready(function() {
 	dayformVar = $('#dayForm');
 	favVar = $('#fav');
 	hoursVar = $('#hours');
-	lunchVar = $('#lunch');
 
 	var dayArray=new Array("Monday","Tuesday","Wednesday", "Thursday");
 	var dateArray=new Array("02.07.2012","03.07.2012","04.07.2012", "06.07.2012");
@@ -306,7 +305,7 @@ function resetDay(){
 	$('#lunch').slider('refresh');
 	$('#hours').val(0);
 	$('#hours').slider('refresh');
-	$('#fav').val('').removeAttr('checked').removeAttr('selected');
+	//$('#fav').val('10 : ZZ').removeAttr('checked').removeAttr('selected');
 }
 
 function resetDay2(){
@@ -314,9 +313,9 @@ function resetDay2(){
 	$('#lunch').slider('refresh');
 	$('#hours').val(0);
 	$('#hours').slider('refresh');
-	$('#fav').val('').removeAttr('checked').removeAttr('selected');
+	//$('#fav').val('').removeAttr('checked').removeAttr('selected');
 }
 
-document.ontouchmove = function(e){
+/*document.ontouchmove = function(e){
     e.preventDefault();
-}	
+}*/	
