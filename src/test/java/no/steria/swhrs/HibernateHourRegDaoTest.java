@@ -23,7 +23,10 @@ public class HibernateHourRegDaoTest {
 		HourRegistration dummyHourReg = HourRegistration.createRegistration(1, 10, LocalDate.now(), 7.5);
 		personDao.saveHours(dummyHourReg);
 		List<HourRegistration> regs = personDao.getHours(1, LocalDate.now());
-		assertThat(regs).contains(dummyHourReg);
+		assertThat(regs.get(0).getDate().equals(LocalDate.now()));
+		assertThat(regs.get(0).getProjectnumber() == 10);
+		assertThat(regs.get(0).getPersonId() == 1);
+		assertThat(regs.get(0).getHours() == 7.5);
 	}
 	
 	private HourRegDao createHourRegDao() throws NamingException{
