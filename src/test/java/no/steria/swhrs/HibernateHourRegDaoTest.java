@@ -3,7 +3,7 @@ package no.steria.swhrs;
 import java.util.List;
 import static org.fest.assertions.Assertions.assertThat;
 import javax.naming.NamingException;
-import javax.swing.plaf.synth.SynthOptionPaneUI;
+//import javax.swing.plaf.synth.SynthOptionPaneUI;
 
 import no.steria.swhrs.HibernateHourRegDao;
 import no.steria.swhrs.HourRegDao;
