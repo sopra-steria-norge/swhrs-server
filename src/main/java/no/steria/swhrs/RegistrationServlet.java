@@ -43,13 +43,6 @@ public class RegistrationServlet extends HttpServlet{
 			String jsonText = json.toString();
 			System.out.println(jsonText);
 			resp.getWriter().write(jsonText);
-//			JSONObject json = new JSONObject();
-//			json.put("project_nr", hr.getProjectnumber());
-//			json.put("hours", hr.getHours());
-//			
-//			String jsonText = json.toString();
-//			System.out.print(jsonText);
-//			resp.getWriter().write(jsonText);
 		}
 		
 		
