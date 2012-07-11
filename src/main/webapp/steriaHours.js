@@ -43,7 +43,7 @@
 	
 	// Constants
 	var MISSING = "missing";
-	var NO_FAV = "ZZ";
+	var NO_FAV = "10 : ZZ";
 	var EMPTY = "";
 	var ZERO = 0;	
 
@@ -136,6 +136,10 @@ $(document).ready(function() {
 		return false;
 	});
 	
+	$('#resetDayBtn').click(function(){
+		resetDay();
+	});
+	
 	
 	
 });
@@ -146,8 +150,11 @@ $(document).ready(function() {
  */
 $(document).bind("pagebeforechange", function (event, data) {
     if (typeof data.toPage == 'object' && data.toPage.attr('data-needs-auth') == 'true') {
+    	console.log("data-needs-auth");
     	if (!sessionStorage.getItem("UNameLSKey")) {
+    		console.log("hasnosessionstorage");
     		if (!localStorage.getItem("UNameLSKey")) {
+    			console.log("hasnolocalstorage");
     			console.log(data.toPage.attr('id'));
     			pageVar = data.toPage.attr('id');
     			pageVars.returnAfterLogin = data;
@@ -158,6 +165,11 @@ $(document).bind("pagebeforechange", function (event, data) {
     		}
     	}
     }
+    if (typeof data.toPage != "string" && data.toPage.attr("id") == "weekPage") {
+    	console.log("to weekPage");
+    	loadWeekList();
+    }
+    
 });
 
 /*
@@ -166,7 +178,8 @@ $(document).bind("pagebeforechange", function (event, data) {
  */
 function SuccessLogin(data) {
     if (data != null) {
-    	localStorage.setItem('UNameLSKey', "Stian");
+    	localStorage.setItem('UNameLSKey', "Steriatime");
+    	
     	if (pageVars && pageVars.returnAfterLogin) {
             	$.mobile.changePage(pageVars.returnAfterLogin.toPage);
             }
@@ -222,6 +235,19 @@ function nextWeek(){
 	
 }
 
+function loadWeekList(){
+	var week = {week: $('#hdrWeek').children('h1').text()}
+	console.log(week);
+	$.ajax({
+		type: "POST",
+		url: 'hours/week',
+		data: week,
+		success: function(data){
+			//updateWeekList(data);
+		}
+		
+	});
+}
 
 function updateWeekList(day, date, dayHours){
 	console.log('test');

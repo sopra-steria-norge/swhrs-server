@@ -74,7 +74,6 @@ public class RegistrationServlet extends HttpServlet{
 		}
 		
 		if (req.getRequestURL().toString().contains(("hours/login"))) {
-			System.out.println("Kom hit");
 			String username = req.getParameter("username");
 			String password = req.getParameter("password");
 			System.out.println("Username:" +username+" Password: "+password);
@@ -91,6 +90,12 @@ public class RegistrationServlet extends HttpServlet{
 				resp.setStatus(403);
 				System.out.println("FAIL");
 			}
+		}
+		
+		if(req.getRequestURL().toString().contains(("hours/week"))){
+			String week = req.getParameter("week");
+			System.out.println(week);
+			
 		}
 		
  	}

@@ -64,9 +64,9 @@
 	</div>
 	
 	<fieldset class="ui-grid-a">
-		<div class="ui-block-a"><button id="saveBtnID" name="saveButton" type="submit" data-theme="b">Save</button></div>
-		<div class="ui-block-b"><a href="#overtimePage" data-role="button" data-theme="b" data-transition="fade">Overtime</a></div>
-		<div class="ui-block-a"><button id="updateBtn" name="updateButton" type="button" data-theme="b">Update</button></div> 
+		<div class="ui-block-a"><button id="saveBtnID" name="saveButton" type="submit" data-theme="a">Save</button></div>
+		<div class="ui-block-b"><button id="resetDayBtn" name="resetDayBtn" type="button" data-theme="a">Reset</button> </div>
+		<div class="ui-block-a"><button id="updateBtn" name="updateButton" type="button" data-theme="a">Update</button></div> 
 	</fieldset>
 
 	</form>
@@ -79,7 +79,7 @@
 		<div data-role="navbar">
 		<ul>
 			<li><a href="#" data-theme="a" data-icon="home" class="ui-btn-active ui-state-persist">Dag</a>
-			<li><a href="#weekPage" data-theme="a" data-icon="grid" data-transition="slide">Uke</a>
+			<li><a href="#weekPage" id="weekLink" data-theme="a" data-icon="grid" data-transition="slide">Uke</a>
 			<li><a href="#favPage" data-theme="a" data-icon="star" data-transition="slide">Fav</a>
 			<li><a href="#addPage" data-theme="a" data-icon="gear" data-transition="slide">Add</a>
 		</ul>
@@ -181,7 +181,7 @@
 	
 	<!-- AddpageContent -->
 	<div data-role="content" id="contentAdd" name="contentAdd">
-	<a href="#loginPage" data-theme="a" data-transition="pop">Login page</a>
+	<a href="#overtimePage" data-role="button" data-theme="b" data-transition="fade">Overtime</a>
 	</div>
 	
 	<!-- Addpage footer -->
