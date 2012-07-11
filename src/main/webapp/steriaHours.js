@@ -137,7 +137,7 @@ $(document).ready(function() {
 	});
 	
 	$('#resetDayBtn').click(function(){
-		resetDay();
+		resetDay2();
 	});
 	
 	
@@ -302,6 +302,14 @@ function getDayList() {
 
 function resetDay(){
 	$('#dayList').children().remove('li');
+	$('#lunch').val(1);
+	$('#lunch').slider('refresh');
+	$('#hours').val(0);
+	$('#hours').slider('refresh');
+	$('#fav').val('').removeAttr('checked').removeAttr('selected');
+}
+
+function resetDay2(){
 	$('#lunch').val(1);
 	$('#lunch').slider('refresh');
 	$('#hours').val(0);
