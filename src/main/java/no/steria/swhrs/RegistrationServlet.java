@@ -88,14 +88,14 @@ public class RegistrationServlet extends HttpServlet{
 			
 			JSONObject json = new JSONObject();
 			for (WeekRegistration wr: weeklist) {
+				System.out.println("Date"+wr.getDate()+" Hours:"+wr.getWeekHours());
 				json.put(wr.getDate(), wr.getWeekHours());
+				
 			}
-			
+			resp.setContentType("text/json");
+			PrintWriter writer = resp.getWriter();
 			String jsonText = json.toString();
-			System.out.println(jsonText);
-			resp.getWriter().write(jsonText);
-			
-			
+			writer.append(jsonText);
 		}
 		
  	}

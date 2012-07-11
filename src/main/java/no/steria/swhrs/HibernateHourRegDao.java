@@ -1,5 +1,6 @@
 package no.steria.swhrs;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -15,6 +16,7 @@ import org.hibernate.cfg.Environment;
 import org.hibernate.context.ThreadLocalSessionContext;
 import org.hsqldb.jdbc.JDBCDataSource;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalDate.Property;
 
 public class HibernateHourRegDao implements HourRegDao{
 
@@ -91,8 +93,20 @@ public class HibernateHourRegDao implements HourRegDao{
 	}
 
 	public List<WeekRegistration> getWeekSummary(String week) {
+		
+		LocalDate date1 = LocalDate.parse("2012-07-11");
+		LocalDate date2 = LocalDate.parse("2012-07-12");
+		LocalDate date3 = LocalDate.parse("2012-07-13");
+		LocalDate date4 = LocalDate.parse("2012-07-14");
+		
 		List<WeekRegistration> weeklist = new LinkedList<WeekRegistration>();
-		//weeklist.add();
+		weeklist = new ArrayList();
+		weeklist.add(new WeekRegistration(2, date1, 8));
+		weeklist.add(new WeekRegistration(2, date2, 9));
+		weeklist.add(new WeekRegistration(2, date3, 2));
+		weeklist.add(new WeekRegistration(2, date4, 3));
+		//weeklist.add(2, 2, weekyear, 8);
+		System.out.println(weeklist.toString());
 		return weeklist;
 		
 	}

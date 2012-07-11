@@ -236,13 +236,27 @@ function nextWeek(){
 
 function loadWeekList(){
 	var week = {week: $('#hdrWeek').children('h1').text()}
+	$('#weekList').children().remove('li');
 	console.log(week);
 	$.ajax({
 		type: "POST",
 		url: 'hours/week',
 		data: week,
 		success: function(data){
-			//updateWeekList(data);
+			console.log('loadWeekList success');
+			console.log(data);
+			var dateArray = new Array();
+			var hoursArray = new Array();
+			var dayArray = new Array("Monday","Tuesday","Wednesday","Thursday");
+			for (var key in data) {
+				dateArray.push(key);
+				hoursArray.push(data[key]);
+				  
+				/*if (data.hasOwnProperty(key)) {
+				    alert(key + " -> " + data[key]);
+				  }*/
+				}
+			updateWeekList(dayArray, dateArray, hoursArray);
 		}
 		
 	});
