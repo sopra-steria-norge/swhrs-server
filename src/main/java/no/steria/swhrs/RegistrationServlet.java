@@ -100,7 +100,7 @@ public class RegistrationServlet extends HttpServlet{
 		db.beginTransaction();
 		super.service(req, resp);
 		db.endTransaction(true);
-		//TODO sleng på en finally her så den ender transaksjonen hvis servleten kræsjer
+		//TODO add a finally here so that it ends the transaction of the servlet crashes
 	}
 
 }
