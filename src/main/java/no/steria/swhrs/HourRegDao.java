@@ -12,7 +12,10 @@ public interface HourRegDao {
 	
 	void saveHours(HourRegistration reg);
 	
-	List<HourRegistration> getHours(int person_id, LocalDate date);
+	List<HourRegistration> getAllHoursForDate(int person_id, LocalDate date);
 
 	boolean validateUser(String username, String password);
+	
+	HourRegistration getHourRegistration(Long id);
+	
 }

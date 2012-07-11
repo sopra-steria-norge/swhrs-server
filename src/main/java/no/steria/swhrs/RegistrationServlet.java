@@ -14,8 +14,6 @@ import org.joda.time.LocalDate;
 import org.json.simple.JSONObject;
 
 
-
-
 public class RegistrationServlet extends HttpServlet{
 	
 	private static final long serialVersionUID = -1090477374982937503L;
@@ -31,7 +29,7 @@ public class RegistrationServlet extends HttpServlet{
 		
 		if (req.getRequestURL().toString().contains(("hours/list"))) { 
 			resp.setContentType("application/json");
-			List<HourRegistration> hrlist = db.getHours(1, LocalDate.now());
+			List<HourRegistration> hrlist = db.getAllHoursForDate(1, LocalDate.now());
 			
 			JSONObject json = new JSONObject();
 			for (HourRegistration hr: hrlist) {
