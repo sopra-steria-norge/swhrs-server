@@ -70,22 +70,23 @@ public class HibernateHourRegDao implements HourRegDao{
 	}
 
 	@Override
-	public HourRegistration getHourRegistration(Long id) {
+	public HourRegistration getHourRegistration(int person_id,
+			String project_id, LocalDate date) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public boolean updataHourRegistration(Long id) {
+	public boolean updataHourRegistration(int person_id, String project_id,
+			LocalDate date) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public boolean deleteHourRegistration(Long id) {
+	public boolean deleteHourRegistration(int person_id, String project_id,
+			LocalDate date) {
 		// TODO Auto-generated method stub
 		return false;
 	}
-	
-	
 }

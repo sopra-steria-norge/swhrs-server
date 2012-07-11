@@ -16,10 +16,10 @@ public interface HourRegDao {
 
 	boolean validateUser(String username, String password);
 	
-	HourRegistration getHourRegistration(Long id);
+	HourRegistration getHourRegistration(int person_id, String project_id, LocalDate date);
 	
-	boolean updataHourRegistration(Long id);
+	boolean updataHourRegistration(int person_id, String project_id, LocalDate date);
 	
-	boolean deleteHourRegistration(Long id);
+	boolean deleteHourRegistration(int person_id, String project_id, LocalDate date);
 	
 }
