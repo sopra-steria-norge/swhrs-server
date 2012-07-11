@@ -9,6 +9,7 @@
 	<link rel="stylesheet" type="text/css" href="http://code.jquery.com/mobile/latest/jquery.mobile.min.css" />
 	<link rel="stylesheet" type="text/css" href="http://dev.jtsage.com/cdn/datebox/latest/jqm-datebox.min.css" />
 	<link rel="stylesheet" type="text/css" href="css/steriatime.css">
+	<link rel="stylesheet" type="text/css" href="css/steria.css">
 
 	<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script> 
 	<script type="text/javascript" src="http://code.jquery.com/mobile/latest/jquery.mobile.min.js"></script>
@@ -19,13 +20,15 @@
 	
 	<script type="text/javascript" charset="utf-8" src="steriaHours.js"></script>	
 	
-	
+	<style>
+  		.ui-page { background: #DAD6D5;}
+	</style>
 </head>
 <body>
 
 <!-- Mainpage: Showing the dayview where you can log hours -->
-<div data-role="page" data-theme="b" id="dayPage">
-	<div data-role="header" id="hdrDay" name="hdrDay" data-nobackbtn="false" data-theme="b" data-position="fixed">
+<div data-role="page" data-theme="a" id="dayPage" data-needs-auth="true">
+	<div data-role="header" id="hdrDay" name="hdrDay" data-nobackbtn="false" data-theme="a" data-position="fixed">
 		<a href="javascript:prevDay()" data-icon="arrow-l">Previous</a>
 		<h1></h1>
 		<a href="javascript:nextDay()" data-icon="arrow-r">Next</a>
@@ -37,7 +40,7 @@
 			
 		<div id="favDiv" data-role="fieldcontain">
 			<label id="favLabel" for="fav">Choose project</label>
-			<select id="fav" name="fav_r" tabindex="2" data-theme="c">
+			<select id="fav" name="fav_r" tabindex="2" data-theme="c"  data-native-menu="false">
 				<option value="10 : ZZ">Select a favourite</option>
 				<option value="1093094 : LARM">1093094: LARM</option>
 				<option value="1112890 : OSL CDM">1112890: OSL CDM</option>
@@ -54,7 +57,7 @@
 	
 	<div id="lunchDiv" data-role="fieldcontain">
 		<label id="lunchLabel" for="lunch">Lunch</label>
-		<select name="lunch_r" id="lunch" data-role="slider" data-theme="b">
+		<select name="lunch_r" id="lunch" data-role="slider" data-theme="a">
 			<option value="0">No</option>
 			<option value="1" selected="selected">Yes</option>
 		</select>
@@ -75,10 +78,10 @@
 	<div id="ftrDay" data-role="footer" data-position="fixed" >
 		<div data-role="navbar">
 		<ul>
-			<li><a href="#" data-theme="b" data-icon="home" class="ui-btn-active ui-state-persist">Dag</a>
-			<li><a href="#weekPage" data-theme="b" data-icon="grid" data-transition="slide">Uke</a>
-			<li><a href="#favPage" data-theme="b" data-icon="star" data-transition="slide">Fav</a>
-			<li><a href="#addPage" data-theme="b" data-icon="gear" data-transition="slide">Add</a>
+			<li><a href="#" data-theme="a" data-icon="home" class="ui-btn-active ui-state-persist">Dag</a>
+			<li><a href="#weekPage" data-theme="a" data-icon="grid" data-transition="slide">Uke</a>
+			<li><a href="#favPage" data-theme="a" data-icon="star" data-transition="slide">Fav</a>
+			<li><a href="#addPage" data-theme="a" data-icon="gear" data-transition="slide">Add</a>
 		</ul>
 		</div>
 	</div> 
@@ -86,8 +89,8 @@
 
 
 <!-- Weekpage: Showing an overview over the current week -->		
-<div data-role="page" data-theme="b" id="weekPage">
-	<div data-role="header" id="hdrWeek" name="hdrWeek" data-nobackbtn="false" data-theme="b" data-position="fixed">
+<div data-role="page" data-theme="a" id="weekPage" data-needs-auth="true">
+	<div data-role="header" id="hdrWeek" name="hdrWeek" data-nobackbtn="false" data-theme="a" data-position="fixed">
 		<a href="javascript:prevWeek()" data-icon="arrow-l" data-direction="reverse" data-transition="slide">Previous</a>
 		<h1>34</h1>
 		<a href="javascript:nextWeek()" data-icon="arrow-r" data-transition="slide">Next</a>
@@ -136,10 +139,10 @@
 	<div data-role="footer" data-position="fixed">
 		<div data-role="navbar">
 		<ul>
-			<li><a href="#dayPage" data-theme="b" data-icon="home" data-direction="reverse" data-transition="slide">Dag</a>
-			<li><a href="#" data-theme="b" data-icon="grid" class="ui-btn-active ui-state-persist">Uke</a>
-			<li><a href="#favPage" data-theme="b" data-icon="star" data-transition="slide">Fav</a>
-			<li><a href="#addPage" data-theme="b" data-icon="gear" data-transition="slide">Add</a>
+			<li><a href="#dayPage" data-theme="a" data-icon="home" data-direction="reverse" data-transition="slide">Dag</a>
+			<li><a href="#" data-theme="a" data-icon="grid" class="ui-btn-active ui-state-persist">Uke</a>
+			<li><a href="#favPage" data-theme="a" data-icon="star" data-transition="slide">Fav</a>
+			<li><a href="#addPage" data-theme="a" data-icon="gear" data-transition="slide">Add</a>
 		</ul>
 		</div>
 	</div>
@@ -148,8 +151,8 @@
 
 
 <!-- Favpage: Contains nothing atm -->
-<div data-role="page" data-theme="b" id="favPage">
-	<div data-role="header" id="hdrFav" name="hdrFav" data-nobackbtn="false" data-theme="b" data-position="fixed">
+<div data-role="page" data-theme="a" id="favPage">
+	<div data-role="header" id="hdrFav" name="hdrFav" data-nobackbtn="false" data-theme="a" data-position="fixed">
 		<h1>Steriatime</h1>
 	</div>
 	
@@ -161,34 +164,34 @@
 	<div data-role="footer" data-position="fixed">
 		<div data-role="navbar">
 		<ul>
-			<li><a href="#dayPage" data-theme="b" data-icon="home" data-direction="reverse" data-transition="slide">Dag</a>
-			<li><a href="#weekPage" data-theme="b" data-icon="grid" data-direction="reverse" data-transition="slide">Uke</a>
-			<li><a href="#" data-theme="b" data-icon="star" class="ui-btn-active ui-state-persist" >Fav</a>
-			<li><a href="#addPage" data-theme="b" data-icon="gear" data-transition="slide">Add</a>
+			<li><a href="#dayPage" data-theme="a" data-icon="home" data-direction="reverse" data-transition="slide">Dag</a>
+			<li><a href="#weekPage" data-theme="a" data-icon="grid" data-direction="reverse" data-transition="slide">Uke</a>
+			<li><a href="#" data-theme="a" data-icon="star" class="ui-btn-active ui-state-persist" >Fav</a>
+			<li><a href="#addPage" data-theme="a" data-icon="gear" data-transition="slide">Add</a>
 		</ul>
 		</div>
 	</div>
 </div><!-- Favpage end -->
 
 <!-- Addpage: Contains nothing atm -->
-<div data-role="page" data-theme="b" id="addPage">
-	<div data-role="header" id="hdrAdd" name="hdrAdd" data-nobackbtn="false" data-theme="b" data-position="fixed">
+<div data-role="page" data-theme="a" id="addPage">
+	<div data-role="header" id="hdrAdd" name="hdrAdd" data-nobackbtn="false" data-theme="a" data-position="fixed">
 		<h1>Steriatime</h1>
 	</div>
 	
 	<!-- AddpageContent -->
 	<div data-role="content" id="contentAdd" name="contentAdd">
-	<a href="#loginPage" data-theme="b" data-transition="pop">Login page</a>
+	<a href="#loginPage" data-theme="a" data-transition="pop">Login page</a>
 	</div>
 	
 	<!-- Addpage footer -->
 	<div data-role="footer" data-position="fixed">
 		<div data-role="navbar">
 		<ul>
-			<li><a href="#dayPage" data-theme="b" data-icon="home" data-direction="reverse" data-transition="slide">Dag</a>
-			<li><a href="#weekPage" data-theme="b" data-icon="grid" data-direction="reverse" data-transition="slide">Uke</a>
-			<li><a href="#favPage" data-theme="b" data-icon="star" data-direction="reverse" data-transition="slide">Fav</a>
-			<li><a href="#" data-theme="b" data-icon="gear" class="ui-btn-active ui-state-persist">Add</a>
+			<li><a href="#dayPage" data-theme="a" data-icon="home" data-direction="reverse" data-transition="slide">Dag</a>
+			<li><a href="#weekPage" data-theme="a" data-icon="grid" data-direction="reverse" data-transition="slide">Uke</a>
+			<li><a href="#favPage" data-theme="a" data-icon="star" data-direction="reverse" data-transition="slide">Fav</a>
+			<li><a href="#" data-theme="a" data-icon="gear" class="ui-btn-active ui-state-persist">Add</a>
 		</ul>
 		</div>
 	</div>
@@ -198,8 +201,8 @@
 
 <!-- Subpages -->
 <!-- Overtime page: Add overtime by type and hours -->
-<div data-role="page" data-theme="b" id="overtimePage">
-	<div data-role="header" id="hdrOvertime" name="hdrOvertime" data-add-back-btn="true" data-theme="b" data-position="fixed">
+<div data-role="page" data-theme="a" id="overtimePage">
+	<div data-role="header" id="hdrOvertime" name="hdrOvertime" data-add-back-btn="true" data-theme="a" data-position="fixed">
 		<h1>Steriatime</h1>
 	</div>
 	
@@ -230,14 +233,14 @@
 		
 </div>
 
-<div data-role="page" id="loginPage" data-theme="b">
-	<div data-role="header" id="hdrLogin" name="hdrLogin" data-theme="b">
+<div data-role="page" id="loginPage" data-theme="a">
+	<div data-role="header" id="hdrLogin" name="hdrLogin" data-theme="a">
 		<h1>Login Steriatime</h1>
 	</div>
 	
 	<div data-role="content" id="contentLogin" name="contentLogin">
-		<form id="loginForm" action="#dayPage"  data-ajax="false">
-			<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+		<form id="loginForm" >
+			<fieldset data-role="controlgroup" data-type="horizontal" >
 			
 				<input type="radio" name="radioCountry" id="radNorway" value="norway" checked="checked" />
 				<label for="radNorway">Norway</label>
@@ -248,13 +251,17 @@
 				<input type="radio" name="radioCountry" id="radSweden" value="sweden" />
 				<label for="radSweden">Sweden</label>
 			</fieldset>			
-		
-			Username: <input type="text" name="username"><br />
-			<!-- Byttes til input type="password" etter testing -->
-			Password: <input type="text" name="password"><br />
 			
+			Username: <input type="text" name="username" data-role="fieldcontain"><br />
+			<!-- Byttes til input type="password" etter testing -->
+			Password: <input type="password" name="password" data-role="fieldcontain"><br />
+			
+			<fieldset class="ui-grid-a">
+				<div class="ui-block-a"><button id="loginBtn" name="loginBtn" type="submit" data-theme="a">Login</button></div>
+				<div class="ui-block-b"><button type="reset" data-theme="a" >Reset</button></div>	   
+			</fieldset>				
 		</form>
-		
+		<p id="loginErr" class="wrong"></p>
 	</div>
 </div>
 

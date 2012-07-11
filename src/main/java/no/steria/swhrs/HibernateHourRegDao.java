@@ -59,6 +59,12 @@ public class HibernateHourRegDao implements HourRegDao{
 		return list;
 	}
 	
+	@Override
+	public boolean validateUser(String username, String password){
+		//Validate the user in the database
+		return true;
+	}
+	
 	private Session session(){
 		return sessionFactory.getCurrentSession();
 	}

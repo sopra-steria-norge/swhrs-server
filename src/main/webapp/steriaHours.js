@@ -36,6 +36,11 @@
 	var username = null;
 	var password = null;
 	
+	var pageVar = "";
+	var pageVar2 = "weekPage";
+	var pageVars = {}
+	
+	
 	// Constants
 	var MISSING = "missing";
 	var NO_FAV = "ZZ";
@@ -59,20 +64,32 @@ $(document).ready(function() {
 	var hourArray=new Array(2,7,8, 8);
 	//updateWeekList(dayArray, dateArray, hourArray);
 	
-
-	hdrDayVar.children('h1').text(day + '.' + month + '.' + year)
+	hdrDayVar.children('h1').text(day + '.' + month + '.' + year);
 	
-
-	$('#testB').click(function(){
+	
+	/*
+	 * Loginform submit 
+	 * Sends the input username and password to the servlet(url: hours/login).
+	 * If the username and password is approved, the function SuccessLogin is executed.
+	 */
+	$('#loginForm').submit(function(){
 		var loginErr = false;
-		var postTo = 'hours/registration';
-		var jsonLogin = {username: $('[name=username]').val() , password: $('[name=password]').val(), country: $('[name=radioCountry]').val()}
-		username = $('[name=username]').val();
-		password = $('[name=password]').val();
+		var jsonLogin = {username: $('[name=username]').val() , password: $('[name=password]').val(), country: $('[name=radioCountry]').val()}	
 		console.log(jsonLogin);
-		$.mobile.changePage("#dayPage");
-		//$.post(postTo, jsonLogin, , 'json');
 		
+		$.ajax({
+			type:"POST",
+			url: 'hours/login',
+			data: jsonLogin,
+			success: function(data){
+				SuccessLogin(data);
+				console.log(data);
+			},
+			error: function(data){
+				$('#loginErr').text("Wrong username/password");
+			}
+		});
+		return false;
 	});
 	
 	$("#updateBtn").click(function() {
@@ -123,20 +140,52 @@ $(document).ready(function() {
 	
 });
 
+
+/*
+ * Checks if the page is secured, if so checks if the user is authenticated.
+ */
+$(document).bind("pagebeforechange", function (event, data) {
+    if (typeof data.toPage == 'object' && data.toPage.attr('data-needs-auth') == 'true') {
+    	if (!sessionStorage.getItem("UNameLSKey")) {
+    		if (!localStorage.getItem("UNameLSKey")) {
+    			console.log(data.toPage.attr('id'));
+    			pageVar = data.toPage.attr('id');
+    			pageVars.returnAfterLogin = data;
+    			event.preventDefault();
+    			$.mobile.changePage("#loginPage", { changeHash: false });
+    		}else{
+    			sessionStorage.setItem('UNameLSKey', localStorage.getItem("UNameLSKey"));
+    		}
+    	}
+    }
+});
+
+/*
+ * SuccessLogin - Executed after a successful login response
+ * Checks if the response data is null, if not return to the page requested before login.
+ */
+function SuccessLogin(data) {
+    if (data != null) {
+    	localStorage.setItem('UNameLSKey', "Stian");
+    	if (pageVars && pageVars.returnAfterLogin) {
+            	$.mobile.changePage(pageVars.returnAfterLogin.toPage);
+            }
+            else {
+                $.mobile.changePage("#weekPage", { changeHash: false });
+            }
+	}
+}
+    
+
 function postHourRegistration(myData) {
 	$.ajax({
 		type:"POST",
 		url: 'hours/registration',
 		data: myData,
 		success: function(){
-			alert('response data:' +myData);
+			console.log(myData);
 		}
 	});
-}
-
-function get_type(thing){
-    if(thing===null)return "[object Null]"; // special case
-    return Object.prototype.toString.call(thing);
 }
 
 
@@ -172,6 +221,7 @@ function nextWeek(){
 	$('#hdrWeek').children('h1').text(prevDay);
 	
 }
+
 
 function updateWeekList(day, date, dayHours){
 	console.log('test');
@@ -231,16 +281,6 @@ function resetDay(){
 	$('#hours').val(0);
 	$('#hours').slider('refresh');
 	$('#fav').val('').removeAttr('checked').removeAttr('selected');
-}
-
-
-function IsJsonString(str) {
-    try {
-        JSON.parse(str);
-    } catch (e) {
-        return false;
-    }
-    return true;
 }
 
 document.ontouchmove = function(e){

@@ -9,6 +9,12 @@ label.missing  {
 	font-weight:bold;
 }
 
+.wrong{
+	color:#FF0000;
+	font-weight:bold;
+	margin: 0 auto;
+}
+
 #buttonHour{
 	position: fixed;
 	left: 15%;
@@ -28,5 +34,8 @@ margin: 0 auto;
 	position: fixed;
 	left: 30;
 }
+
+
+
 	
 
