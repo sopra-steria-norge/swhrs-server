@@ -29,6 +29,7 @@ public class RegistrationServlet extends HttpServlet{
 		
 		if (req.getRequestURL().toString().contains(("hours/list"))) { 
 			resp.setContentType("application/json");
+			//TODO currently hardcoded as LocalDate.now() change to get date parameter from javascript
 			List<HourRegistration> hrlist = db.getAllHoursForDate(1, LocalDate.now());
 			
 			JSONObject json = new JSONObject();
@@ -57,6 +58,7 @@ public class RegistrationServlet extends HttpServlet{
 			String date = req.getParameter("date");
 			
 			System.out.println("Trying to save project: " + pNr);
+			//TODO currently hardcoded as LocalDate.now() change to get date parameter from javascript
 			saveRegToDatabase(personId, projectNr, LocalDate.now(), hours);
 		}
 		
@@ -101,7 +103,7 @@ public class RegistrationServlet extends HttpServlet{
  	}
 
 	private void saveRegToDatabase(int personId, int projectNr, LocalDate date, double hours) {
-		HourRegistration reg = HourRegistration.createRegistration(personId, projectNr, LocalDate.now(), hours);
+		HourRegistration reg = HourRegistration.createRegistration(personId, projectNr, date, hours);
 		db.saveHours(reg);
 		System.out.println("Saving registration with data: " + projectNr + "," +hours+ ", " +LocalDate.now());
 	}
