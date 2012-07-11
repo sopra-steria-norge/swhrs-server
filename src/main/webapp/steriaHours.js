@@ -316,6 +316,6 @@ function resetDay2(){
 	$('#fav').val('').removeAttr('checked').removeAttr('selected');
 }
 
-document.ontouchmove = function(e){
+/*document.ontouchmove = function(e){
     e.preventDefault();
-}	
+}*/	
