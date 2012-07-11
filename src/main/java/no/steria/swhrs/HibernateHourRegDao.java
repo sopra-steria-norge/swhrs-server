@@ -74,5 +74,18 @@ public class HibernateHourRegDao implements HourRegDao{
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public boolean updataHourRegistration(Long id) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean deleteHourRegistration(Long id) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
 	
 }

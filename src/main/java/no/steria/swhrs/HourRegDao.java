@@ -18,4 +18,8 @@ public interface HourRegDao {
 	
 	HourRegistration getHourRegistration(Long id);
 	
+	boolean updataHourRegistration(Long id);
+	
+	boolean deleteHourRegistration(Long id);
+	
 }
