@@ -89,4 +89,11 @@ public class HibernateHourRegDao implements HourRegDao{
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	public List<WeekRegistration> getWeekSummary(String week) {
+		List<WeekRegistration> weeklist = new LinkedList<WeekRegistration>();
+		//weeklist.add();
+		return weeklist;
+		
+	}
 }

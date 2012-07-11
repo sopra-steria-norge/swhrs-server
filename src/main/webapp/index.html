@@ -23,6 +23,12 @@
 	<style>
   		.ui-page { background: #DAD6D5;}
 	</style>
+	
+	<style>
+        div[data-role='controlgroup'] >  div{
+            width:350px;
+        }
+    </style>
 </head>
 <body>
 
@@ -240,7 +246,7 @@
 	
 	<div data-role="content" id="contentLogin" name="contentLogin">
 		<form id="loginForm" >
-			<fieldset data-role="controlgroup" data-type="horizontal" >
+			<div data-role="controlgroup" data-type="horizontal" >
 			
 				<input type="radio" name="radioCountry" id="radNorway" value="norway" checked="checked" />
 				<label for="radNorway">Norway</label>
@@ -250,7 +256,7 @@
 				
 				<input type="radio" name="radioCountry" id="radSweden" value="sweden" />
 				<label for="radSweden">Sweden</label>
-			</fieldset>			
+			</div>			
 			
 			Username: <input type="text" name="username" data-role="fieldcontain"><br />
 			<!-- Byttes til input type="password" etter testing -->
