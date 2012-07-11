@@ -5,12 +5,13 @@ import org.joda.time.LocalDate;
 
 public class HourRegistration {
 
+	private long Id;
 	private int personId;
 	private int projectnumber; //maybe this will be changed to type "Project" later
 	private LocalDate date;
 	private double hours;
 	
-	public static HourRegistration createRegistration(int personId, int projectnumber, LocalDate date, double hours){
+	public static HourRegistration createRegistration(long id, int personId, int projectnumber, LocalDate date, double hours){
 		HourRegistration hr = new HourRegistration ();
 		hr.personId = personId;
 		hr.projectnumber = projectnumber;
@@ -18,7 +19,14 @@ public class HourRegistration {
 		hr.hours = hours;
 		return hr;
 	}
+	
+	public long getId() {
+		return Id;
+	}
 
+	public void setId(long id) {
+		Id = id;
+	}
 	public int getPersonId() {
 		return personId;
 	}
