@@ -2,21 +2,17 @@ package no.steria.swhrs;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.LinkedList;
 import java.util.List;
 
-import javax.naming.NamingException;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.jetty.util.ajax.JSONObjectConvertor;
 import org.joda.time.LocalDate;
-import org.json.JSONWriter;
 import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
+
 
 
 
