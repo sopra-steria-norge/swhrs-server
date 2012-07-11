@@ -57,7 +57,6 @@ $(document).ready(function() {
 	dayformVar = $('#dayForm');
 	favVar = $('#fav');
 	hoursVar = $('#hours');
-	lunchVar = $('#lunch');
 
 	var dayArray=new Array("Monday","Tuesday","Wednesday", "Thursday");
 	var dateArray=new Array("02.07.2012","03.07.2012","04.07.2012", "06.07.2012");
@@ -237,13 +236,27 @@ function nextWeek(){
 
 function loadWeekList(){
 	var week = {week: $('#hdrWeek').children('h1').text()}
+	$('#weekList').children().remove('li');
 	console.log(week);
 	$.ajax({
 		type: "POST",
 		url: 'hours/week',
 		data: week,
 		success: function(data){
-			//updateWeekList(data);
+			console.log('loadWeekList success');
+			console.log(data);
+			var dateArray = new Array();
+			var hoursArray = new Array();
+			var dayArray = new Array("Monday","Tuesday","Wednesday","Thursday");
+			for (var key in data) {
+				dateArray.push(key);
+				hoursArray.push(data[key]);
+				  
+				/*if (data.hasOwnProperty(key)) {
+				    alert(key + " -> " + data[key]);
+				  }*/
+				}
+			updateWeekList(dayArray, dateArray, hoursArray);
 		}
 		
 	});
@@ -346,8 +359,12 @@ function resetDay(){
 	$('#lunch').slider('refresh');
 	$('#hours').val(0);
 	$('#hours').slider('refresh');
+<<<<<<< HEAD
 	$('#fav').val('').removeAttr('selected').find('option:first');
 //	$('#fav').val('').removeAttr('checked').removeAttr('selected');
+=======
+	//$('#fav').val('10 : ZZ').removeAttr('checked').removeAttr('selected');
+>>>>>>> 84b2ed325833e5d190fa490fc0113a7cdba47d3b
 }
 
 function resetDay2(){
@@ -355,9 +372,9 @@ function resetDay2(){
 	$('#lunch').slider('refresh');
 	$('#hours').val(0);
 	$('#hours').slider('refresh');
-	$('#fav').val('').removeAttr('checked').removeAttr('selected');
+	//$('#fav').val('').removeAttr('checked').removeAttr('selected');
 }
 
-document.ontouchmove = function(e){
+/*document.ontouchmove = function(e){
     e.preventDefault();
-}	
+}*/	

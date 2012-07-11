@@ -16,7 +16,7 @@ public class HourRegistrationEntity {
 	
 	private int personId;
 	private int projectnumber; //maybe this will be changed to type "Project" later
-	private LocalDate date;
+	private LocalDate regDate;
 	private double hours;
 	
 //	public static HourRegistrationEntity createRegistration(int personId, int projectnumber, LocalDate date, double hours){
@@ -32,7 +32,7 @@ public class HourRegistrationEntity {
 		HourRegistrationEntity hrEnt = new HourRegistrationEntity ();
 		hrEnt.personId = hr.getPersonId();
 		hrEnt.projectnumber = hr.getProjectnumber();
-		hrEnt.date = hr.getDate();
+		hrEnt.regDate = hr.getDate();
 		hrEnt.hours = hr.getHours();
 		return hrEnt;
 	}
@@ -51,11 +51,11 @@ public class HourRegistrationEntity {
 	}
 	
 	public LocalDate getDate() {
-		return date;
+		return regDate;
 	}
 	
 	public void setDate(LocalDate date) {
-		this.date = date;
+		this.regDate = date;
 	}
 	
 	public double getHours() {

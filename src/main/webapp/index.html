@@ -23,11 +23,17 @@
 	<style>
   		.ui-page { background: #DAD6D5;}
 	</style>
+	
+	<style>
+        div[data-role='controlgroup'] >  div{
+            width:350px;
+        }
+    </style>
 </head>
 <body>
 
 <!-- Mainpage: Showing the dayview where you can log hours -->
-<div data-role="page" data-theme="a" id="dayPage" data-needs-auth="true">
+<div data-role="page" data-theme="a" id="dayPage" data-needs-auth="true" >
 	<div data-role="header" id="hdrDay" name="hdrDay" data-nobackbtn="false" data-theme="a" data-position="fixed">
 		<a href="javascript:prevDay()" data-icon="arrow-l">Previous</a>
 		<h1></h1>
@@ -40,8 +46,13 @@
 			
 		<div id="favDiv" data-role="fieldcontain">
 			<label id="favLabel" for="fav">Choose project</label>
+<<<<<<< HEAD
 			<select id="fav" name="fav_r" tabindex="2" data-theme="c"  data-native-menu="false">
 				<option selected="selected" value="10 : ZZ">Select a favourite</option>
+=======
+			<select id="fav" name="fav_r" tabindex="2" data-theme="c" >
+				<option value="10 : ZZ">Select a favourite</option>
+>>>>>>> 84b2ed325833e5d190fa490fc0113a7cdba47d3b
 				<option value="1093094 : LARM">1093094: LARM</option>
 				<option value="1112890 : OSL CDM">1112890: OSL CDM</option>
 				<option value="19 : JavaZone">19: JavaZone</option>
@@ -241,17 +252,14 @@
 	
 	<div data-role="content" id="contentLogin" name="contentLogin">
 		<form id="loginForm" >
-			<fieldset data-role="controlgroup" data-type="horizontal" >
-			
+			<div data-role="controlgroup" data-type="horizontal" >		
 				<input type="radio" name="radioCountry" id="radNorway" value="norway" checked="checked" />
 				<label for="radNorway">Norway</label>
-				
 				<input type="radio" name="radioCountry" id="radDenmark" value="denmark" />
 				<label for="radDenmark">Denmark</label>
-				
 				<input type="radio" name="radioCountry" id="radSweden" value="sweden" />
 				<label for="radSweden">Sweden</label>
-			</fieldset>			
+			</div>			
 			
 			Username: <input type="text" name="username" data-role="fieldcontain"><br />
 			<!-- Byttes til input type="password" etter testing -->

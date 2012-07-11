@@ -17,7 +17,7 @@ import org.json.simple.JSONObject;
 public class RegistrationServlet extends HttpServlet{
 	
 	private static final long serialVersionUID = -1090477374982937503L;
-	private HibernateHourRegDao db;
+	private HourRegDao db;
 		
 	public void init() throws ServletException {
 		db = new HibernateHourRegDao(Parameters.DB_JNDI);
@@ -29,6 +29,7 @@ public class RegistrationServlet extends HttpServlet{
 		
 		if (req.getRequestURL().toString().contains(("hours/list"))) { 
 			resp.setContentType("application/json");
+			//TODO currently hardcoded as LocalDate.now() change to get date parameter from javascript
 			List<HourRegistration> hrlist = db.getAllHoursForDate(1, LocalDate.now());
 			
 			JSONObject json = new JSONObject();
@@ -57,6 +58,7 @@ public class RegistrationServlet extends HttpServlet{
 			String date = req.getParameter("date");
 			
 			System.out.println("Trying to save project: " + pNr);
+			//TODO currently hardcoded as LocalDate.now() change to get date parameter from javascript
 			saveRegToDatabase(personId, projectNr, LocalDate.now(), hours);
 		}
 		
@@ -83,12 +85,25 @@ public class RegistrationServlet extends HttpServlet{
 			String week = req.getParameter("week");
 			System.out.println(week);
 			
+			resp.setContentType("application/json");
+			List<WeekRegistration> weeklist = db.getWeekSummary(week);
+			
+			JSONObject json = new JSONObject();
+			for (WeekRegistration wr: weeklist) {
+				System.out.println("Date"+wr.getDate()+" Hours:"+wr.getWeekHours());
+				json.put(wr.getDate(), wr.getWeekHours());
+				
+			}
+			resp.setContentType("text/json");
+			PrintWriter writer = resp.getWriter();
+			String jsonText = json.toString();
+			writer.append(jsonText);
 		}
 		
  	}
 
 	private void saveRegToDatabase(int personId, int projectNr, LocalDate date, double hours) {
-		HourRegistration reg = HourRegistration.createRegistration(personId, projectNr, LocalDate.now(), hours);
+		HourRegistration reg = HourRegistration.createRegistration(personId, projectNr, date, hours);
 		db.saveHours(reg);
 		System.out.println("Saving registration with data: " + projectNr + "," +hours+ ", " +LocalDate.now());
 	}
