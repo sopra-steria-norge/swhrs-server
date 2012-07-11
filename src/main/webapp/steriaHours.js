@@ -57,7 +57,6 @@ $(document).ready(function() {
 	dayformVar = $('#dayForm');
 	favVar = $('#fav');
 	hoursVar = $('#hours');
-	lunchVar = $('#lunch');
 
 	var dayArray=new Array("Monday","Tuesday","Wednesday", "Thursday");
 	var dateArray=new Array("02.07.2012","03.07.2012","04.07.2012", "06.07.2012");
