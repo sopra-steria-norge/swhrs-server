@@ -72,7 +72,7 @@ public class RegistrationServlet extends HttpServlet{
 			String password = req.getParameter("password");
 			System.out.println("Username:" +username+" Password: "+password);
 			int autoLoginExpire = (60*60*24);
-			//Byttes ut når database er oppe
+			//Change this when database is up
 			//if(db.validateUser(username, password) == true){
 			if(username.equals("steria") && password.equals("123")){
 				Cookie loginCookie = new Cookie("USERNAME", username);
