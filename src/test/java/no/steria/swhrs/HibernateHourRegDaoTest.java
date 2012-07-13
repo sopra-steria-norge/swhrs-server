@@ -1,18 +1,15 @@
 package no.steria.swhrs;
 
-import java.util.List;
 import static org.fest.assertions.Assertions.assertThat;
-import javax.naming.NamingException;
-//import javax.swing.plaf.synth.SynthOptionPaneUI;
 
-import no.steria.swhrs.HibernateHourRegDao;
-import no.steria.swhrs.HourRegDao;
+import java.util.List;
+
+import javax.naming.NamingException;
 
 import org.eclipse.jetty.plus.jndi.EnvEntry;
 import org.hibernate.cfg.Environment;
 import org.hsqldb.jdbc.JDBCDataSource;
 import org.joda.time.LocalDate;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class HibernateHourRegDaoTest {
