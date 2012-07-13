@@ -105,8 +105,8 @@ public class HibernateHourRegDao implements HourRegDao{
 		List<WeekRegistration> weeklist = new LinkedList<WeekRegistration>();
 		weeklist = new ArrayList();
 		weeklist.add(new WeekRegistration(2, date1, 8));
-		weeklist.add(new WeekRegistration(2, date2, 9));
-		weeklist.add(new WeekRegistration(2, date3, 2));
+		weeklist.add(new WeekRegistration(2, date2, 2));
+		weeklist.add(new WeekRegistration(2, date3, 9));
 		weeklist.add(new WeekRegistration(2, date4, 3));
 		weeklist.add(new WeekRegistration(2, date5, 7));
 		System.out.println(weeklist.toString());

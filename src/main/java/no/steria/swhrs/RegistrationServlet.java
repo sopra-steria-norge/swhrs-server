@@ -2,6 +2,7 @@ package no.steria.swhrs;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -11,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.joda.time.LocalDate;
+import org.json.JSONArray;
 import org.json.simple.JSONObject;
 
 
@@ -86,19 +88,27 @@ public class RegistrationServlet extends HttpServlet{
 			String week = req.getParameter("week");
 			System.out.println(week);
 			
-			resp.setContentType("application/json");
+			resp.setContentType("application/text");
 			List<WeekRegistration> weeklist = db.getWeekSummary(week);
 			
 			JSONObject json = new JSONObject();
+
+			ArrayList<String> jsonArr = new ArrayList<String>();
+			int order = 0;
 			for (WeekRegistration wr: weeklist) {
+				order++;
 				System.out.println("Date"+wr.getDate()+" Hours:"+wr.getWeekHours());
-				json.put(wr.getDate(), wr.getWeekHours());
-				
+				json.put(wr.getDate(), order+":"+wr.getWeekHours());
+				jsonArr.add(wr.getDate()+":"+wr.getWeekHours());
 			}
 			resp.setContentType("text/json");
 			PrintWriter writer = resp.getWriter();
 			String jsonText = json.toString();
+			String jsonArrText = jsonArr.toString();
+			System.out.println(jsonText);
+			System.out.println(jsonArr.toString());
 			writer.append(jsonText);
+			//writer.append(jsonArrText);
 		}
 		
  	}
