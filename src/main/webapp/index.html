@@ -84,10 +84,10 @@
 	<div id="ftrDay" data-role="footer" data-position="fixed" >
 		<div data-role="navbar">
 		<ul>
-			<li><a href="#" data-theme="a" data-icon="home" class="ui-btn-active ui-state-persist">Dag</a>
-			<li><a href="#weekPage" id="weekLink" data-theme="a" data-icon="grid" data-transition="slide">Uke</a>
+			<li><a href="#" data-theme="a" data-icon="home" class="ui-btn-active ui-state-persist">Day</a>
+			<li><a href="#weekPage" id="weekLink" data-theme="a" data-icon="grid" data-transition="slide">Week</a>
 			<li><a href="#favPage" data-theme="a" data-icon="star" data-transition="slide">Fav</a>
-			<li><a href="#addPage" data-theme="a" data-icon="gear" data-transition="slide">Add</a>
+			<li><a href="#addPage" data-theme="a" data-icon="gear" data-transition="slide">Settings</a>
 		</ul>
 		</div>
 	</div> 
@@ -98,7 +98,7 @@
 <div data-role="page" data-theme="a" id="weekPage" data-needs-auth="true">
 	<div data-role="header" id="hdrWeek" name="hdrWeek" data-nobackbtn="false" data-theme="a" data-position="fixed">
 		<a href="javascript:prevWeek()" data-icon="arrow-l" data-direction="reverse" data-transition="slide">Previous</a>
-		<h1>34</h1>
+		<h1>28</h1>
 		<a href="javascript:nextWeek()" data-icon="arrow-r" data-transition="slide">Next</a>
 	</div>
 	
@@ -145,10 +145,10 @@
 	<div data-role="footer" data-position="fixed">
 		<div data-role="navbar">
 		<ul>
-			<li><a href="#dayPage" data-theme="a" data-icon="home" data-direction="reverse" data-transition="slide">Dag</a>
-			<li><a href="#" data-theme="a" data-icon="grid" class="ui-btn-active ui-state-persist">Uke</a>
+			<li><a href="#dayPage" data-theme="a" data-icon="home" data-direction="reverse" data-transition="slide">Day</a>
+			<li><a href="#" data-theme="a" data-icon="grid" class="ui-btn-active ui-state-persist">Week</a>
 			<li><a href="#favPage" data-theme="a" data-icon="star" data-transition="slide">Fav</a>
-			<li><a href="#addPage" data-theme="a" data-icon="gear" data-transition="slide">Add</a>
+			<li><a href="#addPage" data-theme="a" data-icon="gear" data-transition="slide">Settings</a>
 		</ul>
 		</div>
 	</div>
@@ -170,10 +170,10 @@
 	<div data-role="footer" data-position="fixed">
 		<div data-role="navbar">
 		<ul>
-			<li><a href="#dayPage" data-theme="a" data-icon="home" data-direction="reverse" data-transition="slide">Dag</a>
-			<li><a href="#weekPage" data-theme="a" data-icon="grid" data-direction="reverse" data-transition="slide">Uke</a>
+			<li><a href="#dayPage" data-theme="a" data-icon="home" data-direction="reverse" data-transition="slide">Day</a>
+			<li><a href="#weekPage" data-theme="a" data-icon="grid" data-direction="reverse" data-transition="slide">Week</a>
 			<li><a href="#" data-theme="a" data-icon="star" class="ui-btn-active ui-state-persist" >Fav</a>
-			<li><a href="#addPage" data-theme="a" data-icon="gear" data-transition="slide">Add</a>
+			<li><a href="#addPage" data-theme="a" data-icon="gear" data-transition="slide">Settings</a>
 		</ul>
 		</div>
 	</div>
@@ -194,10 +194,10 @@
 	<div data-role="footer" data-position="fixed">
 		<div data-role="navbar">
 		<ul>
-			<li><a href="#dayPage" data-theme="a" data-icon="home" data-direction="reverse" data-transition="slide">Dag</a>
-			<li><a href="#weekPage" data-theme="a" data-icon="grid" data-direction="reverse" data-transition="slide">Uke</a>
+			<li><a href="#dayPage" data-theme="a" data-icon="home" data-direction="reverse" data-transition="slide">Day</a>
+			<li><a href="#weekPage" data-theme="a" data-icon="grid" data-direction="reverse" data-transition="slide">Week</a>
 			<li><a href="#favPage" data-theme="a" data-icon="star" data-direction="reverse" data-transition="slide">Fav</a>
-			<li><a href="#" data-theme="a" data-icon="gear" class="ui-btn-active ui-state-persist">Add</a>
+			<li><a href="#" data-theme="a" data-icon="gear" class="ui-btn-active ui-state-persist">Settings</a>
 		</ul>
 		</div>
 	</div>
@@ -207,7 +207,7 @@
 
 <!-- Subpages -->
 <!-- Overtime page: Add overtime by type and hours -->
-<div data-role="page" data-theme="a" id="overtimePage">
+<div data-role="page" data-theme="a" id="overtimePage"  data-rel="back">
 	<div data-role="header" id="hdrOvertime" name="hdrOvertime" data-add-back-btn="true" data-theme="a" data-position="fixed">
 		<h1>Steriatime</h1>
 	</div>
@@ -267,6 +267,34 @@
 		<p id="loginErr" class="wrong"></p>
 	</div>
 </div>
+
+<!-- Dialog box -->
+
+<div data-role="dialog" id="dialogPopUp">
+
+<div data-role="header">
+
+<h1>Edit hour registration?</h1>
+
+</div><!-- /header -->
+
+<div data-role="content"> 
+
+<fieldset class="ui-grid-a" data-type="vertical">
+
+<div class="ui-block-a"><button id="editRegBtn" name="editButton" type="button" data-theme="a">Edit</button></div>
+
+<div class="ui-block-b"><button id="deleteRegBtn" name="deleteDayBtn" type="button" data-theme="a">Delete</button> </div>
+
+<div class="ui-block-c"><button id="cancelBtn" name="cancelButton" type="button" data-theme="a">Cancel</button></div> 
+
+</fieldset> 
+
+</div><!-- /content -->
+
+</div><!-- /page -->
+
+
 
 
 </body>

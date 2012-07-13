@@ -1,27 +1,17 @@
 package no.steria.swhrs;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-import javax.naming.NamingException;
-
-import no.steria.swhrs.Person;
-
-import org.eclipse.jetty.plus.jndi.EnvEntry;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.context.ThreadLocalSessionContext;
-import org.hibernate.criterion.Conjunction;
 import org.hibernate.criterion.Restrictions;
-import org.hsqldb.jdbc.JDBCDataSource;
 import org.joda.time.LocalDate;
-import org.joda.time.LocalDate.Property;
 
 public class HibernateHourRegDao implements HourRegDao{
 
@@ -56,7 +46,9 @@ public class HibernateHourRegDao implements HourRegDao{
 	@Override
 	public List<HourRegistration> getAllHoursForDate(int person_id, LocalDate date) {
 		//This actually just gets all registrations in the database, so the parameters are useless atm
-		List<HourRegistrationEntity> entityList = session().createCriteria(HourRegistrationEntity.class).list();
+		Criteria criteria = session().createCriteria(HourRegistrationEntity.class);
+		criteria.add(Restrictions.and(Restrictions.eq("personId", person_id),Restrictions.eq("regDate", date)));
+		List<HourRegistrationEntity> entityList = criteria.list();
 		
 		//I have not figured out how to make a query using hibernate that searches for the specific date. 
 		//Giving up for now... under I will remove the elements with wrong date from the list
@@ -64,9 +56,9 @@ public class HibernateHourRegDao implements HourRegDao{
 		//This is very ugly, but it's ok for now since all of this is only for local testing
 		List<HourRegistration> list = new LinkedList<HourRegistration>();
 		for (HourRegistrationEntity hr: entityList) {
-			if(hr.getDate().equals(date)) {
+			//if(hr.getDate().equals(date)) {
 				list.add(hr.createHourRegistrationFromEntity());
-			}		
+			//}		
 		}
 		return list;
 	}
@@ -108,6 +100,7 @@ public class HibernateHourRegDao implements HourRegDao{
 		LocalDate date2 = LocalDate.parse("2012-07-12");
 		LocalDate date3 = LocalDate.parse("2012-07-13");
 		LocalDate date4 = LocalDate.parse("2012-07-14");
+		LocalDate date5 = LocalDate.parse("2012-07-15");
 		
 		List<WeekRegistration> weeklist = new LinkedList<WeekRegistration>();
 		weeklist = new ArrayList();
@@ -115,7 +108,7 @@ public class HibernateHourRegDao implements HourRegDao{
 		weeklist.add(new WeekRegistration(2, date2, 9));
 		weeklist.add(new WeekRegistration(2, date3, 2));
 		weeklist.add(new WeekRegistration(2, date4, 3));
-		//weeklist.add(2, 2, weekyear, 8);
+		weeklist.add(new WeekRegistration(2, date5, 7));
 		System.out.println(weeklist.toString());
 		return weeklist;
 		

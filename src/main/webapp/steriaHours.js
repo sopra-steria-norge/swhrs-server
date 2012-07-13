@@ -58,12 +58,12 @@ $(document).ready(function() {
 	favVar = $('#fav');
 	hoursVar = $('#hours');
 
-	var dayArray=new Array("Monday","Tuesday","Wednesday", "Thursday");
-	var dateArray=new Array("02.07.2012","03.07.2012","04.07.2012", "06.07.2012");
-	var hourArray=new Array(2,7,8, 8);
+	//var dayArray=new Array("Monday","Tuesday","Wednesday", "Thursday");
+	//var dateArray=new Array("02.07.2012","03.07.2012","04.07.2012", "06.07.2012");
+	//var hourArray=new Array(2,7,8, 8);
 	//updateWeekList(dayArray, dateArray, hourArray);
 	
-	hdrDayVar.children('h1').text(day + '.' + month + '.' + year);
+	hdrDayVar.children('h1').text('13.07.' + year);
 	
 	
 	/*
@@ -92,6 +92,8 @@ $(document).ready(function() {
 	});
 	
 	$("#updateBtn").click(function() {
+		var today = $('#hdrDay').children('h1').text();
+		console.log(today);
 		getDayList();
 	});
 	
@@ -207,14 +209,14 @@ function prevDay(){
 	var prevDay = currDay - 1;
 	//$('#hdrH1').text(dates+1);
 	//$('#hdrH1').text(prevDay+"/"+myDate.getMonth()+"/"+myDate.getFullYear());
-	$('#hdrDay').children('h1').text(prevDay);
+	$('#hdrDay').children('h1').text(prevDay+".07.2012");
 }
 
 function nextDay(){
 	var currDay = $('#hdrDay').children('h1').text();
 	currDay = parseInt(currDay);
 	var nextDay = currDay + 1;
-	$('#hdrDay').children('h1').text(nextDay);
+	$('#hdrDay').children('h1').text(nextDay+".07.2012");
 	resetDay();
 	
 }
@@ -247,15 +249,16 @@ function loadWeekList(){
 			console.log(data);
 			var dateArray = new Array();
 			var hoursArray = new Array();
-			var dayArray = new Array("Monday","Tuesday","Wednesday","Thursday");
+			var dayArray = new Array("Monday","Tuesday","Wednesday","Thursday","Friday");
 			for (var key in data) {
-				dateArray.push(key);
-				hoursArray.push(data[key]);
-				  
+				if (data.hasOwnProperty(key)) {
+					dateArray.push(key);
+					hoursArray.push(data[key]);
+				} 
 				/*if (data.hasOwnProperty(key)) {
 				    alert(key + " -> " + data[key]);
 				  }*/
-				}
+			}
 			updateWeekList(dayArray, dateArray, hoursArray);
 		}
 		
@@ -268,10 +271,10 @@ function updateWeekList(day, date, dayHours){
 	console.log('test2');
 	for(i=0; i<day.length; i++){
 		if(dayHours[i] < 8){
-			$('#weekList').append($("<li data-theme='e'></li>").html('<a href=""><b>' + 
+			$('#weekList').append($("<li data-theme='c'></li>").html('<a href="#dayPage"><b>' + 
 						day[i] + '</b><p>'+date[i]+'</p></a><span class="ui-li-count">' + dayHours[i] + ' timer'+'</span>')).listview('refresh');
 			}else{	
-			$('#weekList').append($("<li></li>").html('<a href=""><b>' + 
+			$('#weekList').append($("<li></li>").html('<a href="#dayPage"><b>' + 
 					day[i] + '</b><p>'+date[i]+'</p></a><span class="ui-li-count">' + dayHours[i] + ' timer'+'</span>')).listview('refresh');
 		}
 	}
@@ -287,19 +290,28 @@ function updateWeekList(day, date, dayHours){
 function updateDayList(fav, hour, lunch){
 	var lunchText = "Lunch";
 	if(lunch == 1){
-		$('#dayList').append($("<li></li>").html('<b>' +
-	            lunchText + '<span class="ui-li-count"> 0.5 timer '+'</span>')).listview('refresh');
+		$('#dayList').append($("<li></li>").html('<a href="#dialogPopUp" data-rel="dialog" data-transition="pop" data-role="button"><b>' +
+	            lunchText + '</b><span class="ui-li-count"> 0.5 timer '+'</span></a>')).listview('refresh');
 		
 		$('#lunch').val(0);
 		$('#lunch').slider('refresh');		
 	}
-	$('#dayList').append($("<li></li>").html('<b>' +
-            fav + '</b><span class="ui-li-count">' + hour + ' timer '+'</span>')).listview('refresh');
+	$('#dayList').append($("<li></li>").html('<a href="#dialogPopUp" data-rel="dialog" data-transition="pop" data-role="button"><b>' +
+            fav + '</b><span class="ui-li-count">' + hour + ' timer '+'</span></a>')).listview('refresh');
 }
 
 function getDayList() {
 	//Hardkoder inn prosjektene her for å printe ut prosjektnavn, fjern dette når vi har databaseoppslag
 	var projects = {'10': 'ZZ', '1093094': 'LARM', '1112890': 'OSL CDM', '19': 'Javazone', '1337': 'Timeforing app', '19': 'Steria Intern', '1': 'Lunch'};
+	
+	/*$.ajax(function(){
+		type: "POST",
+		url: 'hours/list',
+		data: week,
+		success: function(data){
+			
+		}
+	});*/	
 	
 	$.getJSON("hours/list", function(json) {
 		for(var key in json) {
