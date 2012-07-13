@@ -291,8 +291,7 @@ function updateDayList(fav, hour, lunch){
 	var lunchText = "Lunch";
 	if(lunch == 1){
 		$('#dayList').append($("<li></li>").html('<a href="#dialogPopUp" data-rel="dialog" data-transition="pop" data-role="button"><b>' +
-	            lunchText + '</b><span class="ui-li-count"> 0.5 timer '+'</span></a>')).listview('refresh');
-		
+	            lunchText + '</b><span class="ui-li-count"> 0.5 timer '+'</span></a>')).listview('refresh');	
 		$('#lunch').val(0);
 		$('#lunch').slider('refresh');		
 	}
@@ -301,7 +300,7 @@ function updateDayList(fav, hour, lunch){
 }
 
 function getDayList() {
-	//Hardkoder inn prosjektene her for å printe ut prosjektnavn, fjern dette når vi har databaseoppslag
+	//Hardkoder inn prosjektene her for aa printe ut prosjektnavn, fjern dette naar vi har databaseoppslag
 	var projects = {'10': 'ZZ', '1093094': 'LARM', '1112890': 'OSL CDM', '19': 'Javazone', '1337': 'Timeforing app', '19': 'Steria Intern', '1': 'Lunch'};
 	
 	/*$.ajax(function(){
@@ -325,13 +324,55 @@ function getDayList() {
 	});
 }
 
+$("#editRegBtn").click(function() {
+	
+});
+
+$("#deleteRegBtn").click(function() {
+	
+});
+
+$("#cancelBtn").click(function() {
+
+});
+
+
+/**$(document).delegate('#dialogPopUp', 'click', function() {
+	  $(this).simpledialog({
+	    'mode' : 'bool',
+	    'prompt' : 'Edit registration?',
+	    'useModal': true,
+	    'buttons' : {
+	      'editRegBtn': {
+	        click: function () {
+	          $('#dialogoutput').text('Edit');
+	        }
+	      },
+	      'deleteRegBtn': {
+		        click: function () {
+		          $('#dialogoutput').text('Delete');
+		        }
+		      },
+	      'cancelBtn': {
+	        click: function () {
+	          $('#dialogoutput').text('Cancel');
+	        },
+	        icon: "delete",
+	        theme: "c"
+	      }
+	    }
+	  })
+	})**/
+
 function resetDay(){
 	$('#dayList').children().remove('li');
-	$('#lunch').val(1);
+//	$('#lunch').val(1);
 	$('#lunch').slider('refresh');
 	$('#hours').val(0);
 	$('#hours').slider('refresh');
-	//$('#fav').val('10 : ZZ').removeAttr('checked').removeAttr('selected');
+	$('#fav').val('').removeAttr('selected').find('option:first');
+//	$('#fav').val('').removeAttr('checked').removeAttr('selected');
+//	$('#fav').val('10 : ZZ').removeAttr('checked').removeAttr('selected');
 }
 
 function resetDay2(){

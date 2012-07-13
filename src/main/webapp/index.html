@@ -46,8 +46,8 @@
 			
 		<div id="favDiv" data-role="fieldcontain">
 			<label id="favLabel" for="fav">Choose project</label>
-			<select id="fav" name="fav_r" tabindex="2" data-theme="c" >
-				<option value="10 : ZZ">Select a favourite</option>
+			<select id="fav" name="fav_r" tabindex="2" data-theme="c"  data-native-menu="false">
+				<option selected="selected" value="10 : ZZ">Select a favourite</option>
 				<option value="1093094 : LARM">1093094: LARM</option>
 				<option value="1112890 : OSL CDM">1112890: OSL CDM</option>
 				<option value="19 : JavaZone">19: JavaZone</option>
@@ -77,8 +77,10 @@
 
 	</form>
 	<ul id="dayList" data-role="listview" data-inset="true" data-theme="c">
+		<!--  <li> <a href="#dialogPopUp" data-rel="dialog" data-role="button"></li> -->
 	</ul>
 	</div> <!--  contentDay -->
+	
 	
 	<!-- Mainpage footer -->
 	<div id="ftrDay" data-role="footer" data-position="fixed" >
@@ -91,8 +93,7 @@
 		</ul>
 		</div>
 	</div> 
-</div> <!-- dayPage end -->		
-
+</div> <!-- dayPage end -->	
 
 <!-- Weekpage: Showing an overview over the current week -->		
 <div data-role="page" data-theme="a" id="weekPage" data-needs-auth="true">
@@ -293,8 +294,6 @@
 </div><!-- /content -->
 
 </div><!-- /page -->
-
-
 
 
 </body>
