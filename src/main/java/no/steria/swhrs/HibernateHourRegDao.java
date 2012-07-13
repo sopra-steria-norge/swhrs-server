@@ -16,7 +16,6 @@ import org.joda.time.LocalDate;
 public class HibernateHourRegDao implements HourRegDao{
 
 	private SessionFactory sessionFactory;
-	private Person loggedInUser = Person.createDummyPerson("Ola Nordmann");
 	
 	public HibernateHourRegDao(String jndi) {
 		Configuration configuration = new Configuration();
@@ -48,6 +47,7 @@ public class HibernateHourRegDao implements HourRegDao{
 		//This actually just gets all registrations in the database, so the parameters are useless atm
 		Criteria criteria = session().createCriteria(HourRegistrationEntity.class);
 		criteria.add(Restrictions.and(Restrictions.eq("personId", person_id),Restrictions.eq("regDate", date)));
+		@SuppressWarnings("unchecked")
 		List<HourRegistrationEntity> entityList = criteria.list();
 		
 		//I have not figured out how to make a query using hibernate that searches for the specific date. 
@@ -102,8 +102,8 @@ public class HibernateHourRegDao implements HourRegDao{
 		LocalDate date4 = LocalDate.parse("2012-07-14");
 		LocalDate date5 = LocalDate.parse("2012-07-15");
 		
-		List<WeekRegistration> weeklist = new LinkedList<WeekRegistration>();
-		weeklist = new ArrayList();
+		List<WeekRegistration> weeklist;
+		weeklist = new ArrayList<WeekRegistration>();
 		weeklist.add(new WeekRegistration(2, date1, 8));
 		weeklist.add(new WeekRegistration(2, date2, 2));
 		weeklist.add(new WeekRegistration(2, date3, 9));
