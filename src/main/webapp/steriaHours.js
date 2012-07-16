@@ -252,30 +252,44 @@ function loadWeekList(){
 			var dateArray = new Array();
 			var hoursArray = new Array();
 			var dayArray = new Array("Monday","Tuesday","Wednesday","Thursday","Friday");
+			
 			for (var key in data) {
 				if (data.hasOwnProperty(key)) {
 					dateArray.push(key);
 					hoursArray.push(data[key]);
+					console.log("dato"+key);
+					console.log("timer"+data[key]);
 				} 
-				/*if (data.hasOwnProperty(key)) {
-				    alert(key + " -> " + data[key]);
-				  }*/
 			}
-			updateWeekList(dayArray, dateArray, hoursArray);
+			hoursArray.sort();
+			dateArray.sort();
+			splitArray(hoursArray, dayArray, dateArray);
 		}
 		
 	});
 }
 
+function splitArray(hourArray, dayArray, dateArray){
+	var hSortArray = new Array();
+	console.log(hourArray.length);
+	for(i=0; i<hourArray.length; i++){
+		hSortArray.push(hourArray[i].substring(2));
+	}
+	updateWeekList(dayArray, dateArray, hSortArray);
+}
+
+
 function updateWeekList(day, date, dayHours){
-	console.log('test');
 	console.log($('#weekList'));
-	console.log('test2');
+	for(i=0; i<day.length; i++){
+		console.log("Dag: "+day[i]+" - Dato: "+date[i]+" - dayHours: "+dayHours[i]);
+	}
+	
 	for(i=0; i<day.length; i++){
 		if(dayHours[i] < 8){
 			$('#weekList').append($("<li data-theme='c'></li>").html('<a href="#dayPage"><b>' + 
 						day[i] + '</b><p>'+date[i]+'</p></a><span class="ui-li-count">' + dayHours[i] + ' timer'+'</span>')).listview('refresh');
-			}else{	
+			}else{
 			$('#weekList').append($("<li></li>").html('<a href="#dayPage"><b>' + 
 					day[i] + '</b><p>'+date[i]+'</p></a><span class="ui-li-count">' + dayHours[i] + ' timer'+'</span>')).listview('refresh');
 		}
@@ -283,7 +297,7 @@ function updateWeekList(day, date, dayHours){
 	
 	var total = 0;
 	$.each(dayHours,function() {
-	    total += this;
+	    total += parseFloat(this);
 	});
 	$('#weekDescription').children('b').text("You have logged "+total+" hours this week");
 	
@@ -325,8 +339,8 @@ function getDayList() {
 				$('#lunch').val(0);
 				$('#lunch').slider('refresh');	
 			}
-			$('#dayList').append($("<li></li>").html('<b>' +
-					projects[key] + '</b><span class="ui-li-count">' + json[key] + ' timer '+'</span>')).listview('refresh');
+			$('#dayList').append($("<li></li>").html('<a href="#dialogPopUp" data-rel="dialog" data-transition="pop" data-role="button"><b>' +
+					key+" : "+projects[key] + '</b><span class="ui-li-count">' + json[key] + ' timer '+'</span></a>')).listview('refresh');
 		}
 	});
 }
