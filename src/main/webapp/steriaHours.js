@@ -102,6 +102,8 @@ $(document).ready(function() {
 		// Reset highlighted form elements
 		favLabelVar.removeClass(MISSING);
 		hoursLabelVar.removeClass(MISSING);
+		$.mobile.silentScroll(100);
+
 		
 		if(favVar.val()==NO_FAV){
 			favLabelVar.addClass(MISSING);
@@ -290,14 +292,19 @@ function updateWeekList(day, date, dayHours){
 function updateDayList(fav, hour, lunch){
 	var lunchText = "Lunch";
 	if(lunch == 1){
-		$('#dayList').append($("<li></li>").html('<a href="#dialogPopUp" data-rel="dialog" data-transition="pop" data-role="button"><b>' +
-	            lunchText + '</b><span class="ui-li-count"> 0.5 timer '+'</span></a>')).listview('refresh');	
+		$('#dayList').append($("<li></li>").html('<a href="" data-split-theme="c" data-split-icon="delete"><b>' +
+	            lunchText + '</b><span class="ui-li-count"> 0.5 timer '+'</span></a><a href="#weekPage"></a>')).listview('refresh');	
 		$('#lunch').val(0);
 		$('#lunch').slider('refresh');		
 	}
-	$('#dayList').append($("<li></li>").html('<a href="#dialogPopUp" data-rel="dialog" data-transition="pop" data-role="button"><b>' +
-            fav + '</b><span class="ui-li-count">' + hour + ' timer '+'</span></a>')).listview('refresh');
+	$('#dayList').append($("<li></li>").html('<a href="" data-split-theme="c" data-split-icon="delete"><b>' +
+            fav + '</b><span class="ui-li-count">' + hour + ' timer '+'</span></a><a href="#weekPage"></a>')).listview('refresh');
+//	$('.deleteMe').live('click', function(){
+//	    $(this).parent().remove();
+//	    $('#dayList').listview('refresh');
+//	});
 }
+
 
 function getDayList() {
 	//Hardkoder inn prosjektene her for aa printe ut prosjektnavn, fjern dette naar vi har databaseoppslag
@@ -324,45 +331,6 @@ function getDayList() {
 	});
 }
 
-$("#editRegBtn").click(function() {
-	
-});
-
-$("#deleteRegBtn").click(function() {
-	
-});
-
-$("#cancelBtn").click(function() {
-
-});
-
-
-/**$(document).delegate('#dialogPopUp', 'click', function() {
-	  $(this).simpledialog({
-	    'mode' : 'bool',
-	    'prompt' : 'Edit registration?',
-	    'useModal': true,
-	    'buttons' : {
-	      'editRegBtn': {
-	        click: function () {
-	          $('#dialogoutput').text('Edit');
-	        }
-	      },
-	      'deleteRegBtn': {
-		        click: function () {
-		          $('#dialogoutput').text('Delete');
-		        }
-		      },
-	      'cancelBtn': {
-	        click: function () {
-	          $('#dialogoutput').text('Cancel');
-	        },
-	        icon: "delete",
-	        theme: "c"
-	      }
-	    }
-	  })
-	})**/
 
 function resetDay(){
 	$('#dayList').children().remove('li');

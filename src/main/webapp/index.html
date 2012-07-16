@@ -71,15 +71,15 @@
 	
 	<fieldset class="ui-grid-a">
 		<div class="ui-block-a"><button id="saveBtnID" name="saveButton" type="submit" data-theme="a">Save</button></div>
-		<div class="ui-block-b"><button id="resetDayBtn" name="resetDayBtn" type="button" data-theme="a">Reset</button> </div>
+		<div class="ui-block-b" ><a href="#overtimePage"  data-theme="a" data-transition="fade" data-role="button">Overtime</a></div>
 		<div class="ui-block-a"><button id="updateBtn" name="updateButton" type="button" data-theme="a">Update</button></div> 
 	</fieldset>
 
 	</form>
-	<ul id="dayList" data-role="listview" data-inset="true" data-theme="c">
-		<!--  <li> <a href="#dialogPopUp" data-rel="dialog" data-role="button"></li> -->
+	<ul id="dayList" data-role="listview" data-inset="true" data-theme="c" data-split-icon="delete" data-split-theme="b" >
+		
 	</ul>
-	</div> <!--  contentDay -->
+	</div> <!-- contentDay -->
 	
 	
 	<!-- Mainpage footer -->
@@ -165,6 +165,8 @@
 	
 	<!-- FavpageContent -->
 	<div data-role="content" id="contentFav" name="contentFav">
+	<ul id="favList" data-role="listview" data-filter="true" data-theme="c"  >
+	</ul>
 	</div>
 	
 	<!-- Favpage footer -->
@@ -188,8 +190,7 @@
 	
 	<!-- AddpageContent -->
 	<div data-role="content" id="contentAdd" name="contentAdd">
-	<a href="#overtimePage" data-role="button" data-theme="b" data-transition="fade">Overtime</a>
-	</div>
+		</div>
 	
 	<!-- Addpage footer -->
 	<div data-role="footer" data-position="fixed">
@@ -270,14 +271,14 @@
 </div>
 
 <!-- Dialog box -->
-
+<!--  
 <div data-role="dialog" id="dialogPopUp">
 
 <div data-role="header">
 
 <h1>Edit hour registration?</h1>
 
-</div><!-- /header -->
+</div><!
 
 <div data-role="content"> 
 
@@ -291,10 +292,10 @@
 
 </fieldset> 
 
-</div><!-- /content -->
+</div>
 
-</div><!-- /page -->
-
+</div>
+	-->
 
 </body>
 </html>
