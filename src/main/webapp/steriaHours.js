@@ -143,9 +143,19 @@ $(document).ready(function() {
 		resetDay2();
 	});
 	
+	$('#dayList').on('click', 'li', function() {
+	    var dayString = $(this).text();
+	    var mySplitResult = dayString.split(":");
+		$(this).remove();
+		
+		deleteRegistration(mySplitResult[0]);
+		
+		
+	});
 	
-	
+
 });
+
 
 
 /*
@@ -304,21 +314,35 @@ function updateWeekList(day, date, dayHours){
 }
 
 function updateDayList(fav, hour, lunch){
-	var lunchText = "Lunch";
+	var lunchText = "1 : Lunch";
 	if(lunch == 1){
 		$('#dayList').append($("<li></li>").html('<a href="" data-split-theme="c" data-split-icon="delete"><b>' +
-	            lunchText + '</b><span class="ui-li-count"> 0.5 timer '+'</span></a><a href="#weekPage"></a>')).listview('refresh');	
+	            lunchText + '</b><span class="ui-li-count"> 0.5 timer '+'</span></a><a href=""></a>')).listview('refresh');	
 		$('#lunch').val(0);
 		$('#lunch').slider('refresh');		
 	}
 	$('#dayList').append($("<li></li>").html('<a href="" data-split-theme="c" data-split-icon="delete"><b>' +
-            fav + '</b><span class="ui-li-count">' + hour + ' timer '+'</span></a><a href="#weekPage"></a>')).listview('refresh');
+            fav + ' </b><span class="ui-li-count">' + hour + ' timer '+'</span></a><a href=""></a>')).listview('refresh');
 //	$('.deleteMe').live('click', function(){
 //	    $(this).parent().remove();
 //	    $('#dayList').listview('refresh');
 //	});
 }
 
+
+function deleteRegistration(project_id){
+	console.log(project_id);
+	var delreg = {projectID: project_id}
+	$.ajax({
+		type: "POST",
+		url: 'hours/delete',
+		data: delreg,
+		success: function(data){	
+		}
+	});
+	
+
+}
 
 function getDayList() {
 	//Hardkoder inn prosjektene her for aa printe ut prosjektnavn, fjern dette naar vi har databaseoppslag
@@ -329,9 +353,12 @@ function getDayList() {
 		url: 'hours/list',
 		data: week,
 		success: function(data){
+			for(var key in json){
+				if(key === "1"){}
+			}
 			
 		}
-	});*/	
+	});	*/
 	
 	$.getJSON("hours/list", function(json) {
 		for(var key in json) {

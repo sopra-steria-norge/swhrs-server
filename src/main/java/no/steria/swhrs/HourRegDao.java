@@ -20,7 +20,7 @@ public interface HourRegDao {
 	
 	boolean updataHourRegistration(int person_id, String project_id, LocalDate date);
 	
-	boolean deleteHourRegistration(int person_id, String project_id, LocalDate date);
+	void deleteHourRegistration(String project_id);
 
 	List<WeekRegistration> getWeekSummary(String week);
 	

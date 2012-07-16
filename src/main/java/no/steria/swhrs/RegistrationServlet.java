@@ -2,7 +2,6 @@ package no.steria.swhrs;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -12,7 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.joda.time.LocalDate;
-import org.json.JSONArray;
 import org.json.simple.JSONObject;
 
 
@@ -106,6 +104,12 @@ public class RegistrationServlet extends HttpServlet{
 			PrintWriter writer = resp.getWriter();
 			String jsonText = json.toString();
 			writer.append(jsonText);
+		}
+		
+		if(req.getRequestURL().toString().contains(("hours/delete"))){
+			String projectID = req.getParameter("projectID");
+			System.out.println(projectID);
+			db.deleteHourRegistration(projectID);
 		}
 		
  	}

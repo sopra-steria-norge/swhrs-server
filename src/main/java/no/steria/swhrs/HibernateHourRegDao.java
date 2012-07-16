@@ -88,10 +88,8 @@ public class HibernateHourRegDao implements HourRegDao{
 	}
 
 	@Override
-	public boolean deleteHourRegistration(int person_id, String project_id,
-			LocalDate date) {
+	public void deleteHourRegistration(String projectID) {
 		// TODO Auto-generated method stub
-		return false;
 	}
 
 	public List<WeekRegistration> getWeekSummary(String week) {
