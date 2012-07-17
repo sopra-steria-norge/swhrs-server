@@ -14,7 +14,7 @@ public interface HourRegDao {
 	
 	List<HourRegistration> getAllHoursForDate(int person_id, LocalDate date);
 
-	boolean validateUser(String username, String password);
+	boolean validateUser(String username, String password, String country);
 	
 	HourRegistration getHourRegistration(int person_id, String project_id, LocalDate date);
 	

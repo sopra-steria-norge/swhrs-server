@@ -23,6 +23,7 @@ public class HibernateHourRegDao implements HourRegDao{
 		configuration.setProperty(Environment.CURRENT_SESSION_CONTEXT_CLASS, ThreadLocalSessionContext.class.getName());
 		//configuration.addAnnotatedClass(Person.class);
 		configuration.addAnnotatedClass(HourRegistrationEntity.class);
+		configuration.addAnnotatedClass(UserEntity.class);
 		sessionFactory = configuration.buildSessionFactory();		
 	}
 	
@@ -50,7 +51,7 @@ public class HibernateHourRegDao implements HourRegDao{
 		@SuppressWarnings("unchecked")
 		List<HourRegistrationEntity> entityList = criteria.list();
 		
-		//I have not figured out how to make a query using hibernate that searches for the specific date. 
+		//I have not figured out how to make a query using HiberNate that searches for the specific date. 
 		//Giving up for now... under I will remove the elements with wrong date from the list
 		
 		//This is very ugly, but it's ok for now since all of this is only for local testing
@@ -64,9 +65,16 @@ public class HibernateHourRegDao implements HourRegDao{
 	}
 	
 	@Override
-	public boolean validateUser(String username, String password){
-		//Validate the user in the database
-		return true;
+	public boolean validateUser(String username, String password, String country){
+		Criteria crit = session().createCriteria(UserEntity.class);
+		crit.add(Restrictions.eq("username", username));
+		crit.add(Restrictions.eq("password", password));
+		crit.add(Restrictions.eq("country", country));
+		
+		UserEntity user = (UserEntity)crit.uniqueResult();
+		Long userid = user.getUserid();
+		if(userid != null)return true;
+		return false;
 	}
 	
 	private Session session(){

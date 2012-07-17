@@ -13,11 +13,6 @@
 
 	<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script> 
 	<script type="text/javascript" src="http://code.jquery.com/mobile/latest/jquery.mobile.min.js"></script>
-	
-	<script type="text/javascript" src="http://dev.jtsage.com/cdn/datebox/latest/jqm-datebox.core.min.js"></script>
-	<script type="text/javascript" src="http://dev.jtsage.com/cdn/datebox/latest/jqm-datebox.mode.calbox.min.js"></script>
-	<script type="text/javascript" src="http://dev.jtsage.com/cdn/datebox/i18n/jquery.mobile.datebox.i18n.en_US.utf8.js"></script>
-	
 	<script type="text/javascript" charset="utf-8" src="steriaHours.js"></script>	
 	
 	<style>
@@ -30,18 +25,22 @@
         }
     </style>
 </head>
-<body>
 
-<!-- Mainpage: Showing the dayview where you can log hours -->
+<body><!-- Body start -->
+
+
+<!-- ********************************************************************************** -->
+<!-- dayPage: Showing the dayView where you can log hours -->
+<!-- ********************************************************************************** -->
 <div data-role="page" data-theme="a" id="dayPage" data-needs-auth="true" >
-	<div data-role="header" id="hdrDay" name="hdrDay" data-nobackbtn="false" data-theme="a" data-position="fixed">
+	<div data-role="header" id="hdrDay" data-nobackbtn="false" data-theme="a" data-position="fixed">
 		<a href="javascript:prevDay()" data-icon="arrow-l">Previous</a>
 		<h1></h1>
 		<a href="javascript:nextDay()" data-icon="arrow-r">Next</a>
 	</div>
 
 	<!-- DayContent: Contains the form that shall be submitted, project, hours worked, lunch, submit and overtime button -->
-	<div data-role="content" id="contentDay" name="contentDay">
+	<div data-role="content" id="contentDay">
 		<form id="dayForm">
 			
 		<div id="favDiv" data-role="fieldcontain">
@@ -95,55 +94,28 @@
 	</div> 
 </div> <!-- dayPage end -->	
 
-<!-- Weekpage: Showing an overview over the current week -->		
+
+<!-- ********************************************************************************** -->
+<!-- weekPage: Showing an overview over the current week -->
+<!-- ********************************************************************************** -->		
 <div data-role="page" data-theme="a" id="weekPage" data-needs-auth="true">
-	<div data-role="header" id="hdrWeek" name="hdrWeek" data-nobackbtn="false" data-theme="a" data-position="fixed">
+	<div data-role="header" id="hdrWeek" data-nobackbtn="false" data-theme="a" data-position="fixed">
 		<a href="javascript:prevWeek()" data-icon="arrow-l" data-direction="reverse" data-transition="slide">Previous</a>
 		<h1>28</h1>
 		<a href="javascript:nextWeek()" data-icon="arrow-r" data-transition="slide">Next</a>
 	</div>
 	
 	<!-- WeekpageContent: List of the weekdays and the current status -->
-	<div data-role="content" id="contentWeek" name="contentWeek" >
-		<ul id="weekList" data-role="listview" data-inset="true">
-		
-			<!-- 
-			<li><a href="" ><h3>Monday</h3>
-			<p>Something something</p></a>
-			<span class="ui-li-count">8 timer</span></li>
-			
-			<li><a href="" ><h3>Tuesday</h3>
-			<p>Something something</p></a>
-			<span class="ui-li-count">8 timer</span></li>
-			
-			<li><a href="" ><h3>Wednesday</h3>
-			<p>Something something</p></a>
-			<span class="ui-li-count">8 timer</span></li>
-			
-			<li><a href="" ><h3>Thursday</h3>
-			<p>Something something</p></a>
-			<span class="ui-li-count">8 timer</span></li>
-			
-			<li><a href="" ><h3>Friday</h3>
-			<p>Something something</p></a>
-			<span class="ui-li-count">8 timer</span></li>
-			
-			<li><a href="" ><h3>Saturday</h3>
-			<p>Something something</p></a>
-			<span class="ui-li-count">0 timer</span></li>
-			
-			<li><a href="" ><h3>Sunday</h3>
-			<p>Something something</p></a>
-			<span class="ui-li-count">0 timer</span></li>
-			 -->															
+	<div data-role="content" id="contentWeek" >
+		<ul id="weekList" data-role="listview" data-inset="true">														
 		</ul>
 		<div id="weekDescription" align="center">
 			<b></b>
 		</div>
-		<button id="loginBtn" name="submitBtn" data-theme="a">Submit</button>
-	</div>
+		<a href="#dialogPopUp" data-role="button" id="submitPeriod" data-rel="dialog" data-transition="pop">Submit period</a>
+	</div>	
 	
-	<!-- Weekpage footer -->
+	<!-- weekPage footer -->
 	<div data-role="footer" data-position="fixed">
 		<div data-role="navbar">
 		<ul>
@@ -158,14 +130,16 @@
 </div> <!-- weekPage end -->
 
 
-<!-- Favpage: Contains nothing atm -->
+<!-- ********************************************************************************** -->
+<!-- Favpage: Contains a searchable list over all projects -->
+<!-- ********************************************************************************** -->
 <div data-role="page" data-theme="a" id="favPage">
-	<div data-role="header" id="hdrFav" name="hdrFav" data-nobackbtn="false" data-theme="a" data-position="fixed">
+	<div data-role="header" id="hdrFav" data-nobackbtn="false" data-theme="a" data-position="fixed">
 		<h1>Steriatime</h1>
 	</div>
 	
 	<!-- FavpageContent -->
-	<div data-role="content" id="contentFav" name="contentFav">
+	<div data-role="content" id="contentFav">
 	<ul id="favList" data-role="listview" data-filter="true" data-theme="c"  >
 	</ul>
 	</div>
@@ -183,14 +157,17 @@
 	</div>
 </div><!-- Favpage end -->
 
+
+<!-- ********************************************************************************** -->
 <!-- Addpage: Contains nothing atm -->
+<!-- ********************************************************************************** -->
 <div data-role="page" data-theme="a" id="addPage">
-	<div data-role="header" id="hdrAdd" name="hdrAdd" data-nobackbtn="false" data-theme="a" data-position="fixed">
+	<div data-role="header" id="hdrAdd" data-nobackbtn="false" data-theme="a" data-position="fixed">
 		<h1>Steriatime</h1>
 	</div>
 	
 	<!-- AddpageContent -->
-	<div data-role="content" id="contentAdd" name="contentAdd">
+	<div data-role="content" id="contentAdd">
 		</div>
 	
 	<!-- Addpage footer -->
@@ -207,16 +184,17 @@
 </div><!-- Addpage end -->
 
 
-
+<!-- ********************************************************************************** -->
 <!-- Subpages -->
 <!-- Overtime page: Add overtime by type and hours -->
+<!-- ********************************************************************************** -->
 <div data-role="page" data-theme="a" id="overtimePage"  data-rel="back">
-	<div data-role="header" id="hdrOvertime" name="hdrOvertime" data-add-back-btn="true" data-theme="a" data-position="fixed">
+	<div data-role="header" id="hdrOvertime" data-add-back-btn="true" data-theme="a" data-position="fixed">
 		<h1>Steriatime</h1>
 	</div>
 	
 	<!-- Overtimepage content -->
-	<div data-role="content" id="contentOvertime" name="contentOvertime">
+	<div data-role="content" id="contentOvertime">
 		<form id="overtimeForm">
 		<div id="overtimeDiv" data-role="fieldcontain">
 			<label id="otimeLabel" for="otime">Choose overtime type</label>
@@ -242,12 +220,16 @@
 		
 </div>
 
+
+<!-- ********************************************************************************** -->
+<!-- Login page: Enter username/password and country of origin to enter the application -->
+<!-- ********************************************************************************** -->
 <div data-role="page" id="loginPage" data-theme="a">
-	<div data-role="header" id="hdrLogin" name="hdrLogin" data-theme="a">
+	<div data-role="header" id="hdrLogin" data-theme="a">
 		<h1>Login Steriatime</h1>
 	</div>
 	
-	<div data-role="content" id="contentLogin" name="contentLogin">
+	<div data-role="content" id="contentLogin">
 		<form id="loginForm" >
 			<div data-role="controlgroup" data-type="horizontal" >		
 				<input type="radio" name="radioCountry" id="radNorway" value="norway" checked="checked" />
@@ -271,32 +253,24 @@
 	</div>
 </div>
 
-<!-- Dialog box -->
-<!--  
+
+<!-- ********************************************************************************** -->
+<!-- Dialog box: Dialogbox to confirm if you want to confirm your hours for the period -->  
+<!-- ********************************************************************************** -->
 <div data-role="dialog" id="dialogPopUp">
-
-<div data-role="header">
-
-<h1>Edit hour registration?</h1>
-
-</div><!
-
-<div data-role="content"> 
-
-<fieldset class="ui-grid-a" data-type="vertical">
-
-<div class="ui-block-a"><button id="editRegBtn" name="editButton" type="button" data-theme="a">Edit</button></div>
-
-<div class="ui-block-b"><button id="deleteRegBtn" name="deleteDayBtn" type="button" data-theme="a">Delete</button> </div>
-
-<div class="ui-block-c"><button id="cancelBtn" name="cancelButton" type="button" data-theme="a">Cancel</button></div> 
-
-</fieldset> 
-
+	<div id="hdrDia" data-role="header">
+		<h1></h1>
+	</div>
+	
+	<div id="contentDia" data-role="content">
+		<p></p> 
+		<fieldset class="ui-grid-a" data-type="vertical">
+			<div class="ui-block-a"><button id="okBtn" name="okButton" type="button" data-theme="a">OK</button></div>
+			<div class="ui-block-b"><button id="cancelBtn" name="cancelBtn" type="button" data-theme="a" data-rel="back">Cancel</button> </div>
+		</fieldset> 
+	</div>	
 </div>
 
-</div>
-	-->
 
-</body>
-</html>
+</body><!-- End body -->
+</html><!-- End html -->

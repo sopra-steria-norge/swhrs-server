@@ -23,7 +23,6 @@ public class RegistrationServlet extends HttpServlet{
 		db = new HibernateHourRegDao(Parameters.DB_JNDI);
 	}
 	
-
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
@@ -38,6 +37,11 @@ public class RegistrationServlet extends HttpServlet{
 			String jsonText = json.toString();
 			System.out.println(jsonText);
 			resp.getWriter().write(jsonText);
+		}
+		
+		if (req.getRequestURL().toString().contains(("hours/projects"))) { 
+			resp.setContentType("application/json");
+			//TODO return a list of all projects.
 		}
 		
 	}
@@ -72,19 +76,20 @@ public class RegistrationServlet extends HttpServlet{
 		if (req.getRequestURL().toString().contains(("hours/login"))) {
 			String username = req.getParameter("username");
 			String password = req.getParameter("password");
-			System.out.println("Username:" +username+" Password: "+password);
+			String country = req.getParameter("country");
+			System.out.println("Username: " +username+" Password: "+password+" Country: "+country);
 			int autoLoginExpire = (60*60*24);
 			//Change this when database is up
-			//if(db.validateUser(username, password) == true){
-			if(username.equals("steria") && password.equals("123")){
+			//if(db.validateUser(username, password, country) == true){
+			if(username.equals("steria") && password.equals("123") && country.equals("norway")){
 				Cookie loginCookie = new Cookie("USERNAME", username);
 				loginCookie.setMaxAge(autoLoginExpire);
 				resp.setContentType("text/plain");
 				PrintWriter writer = resp.getWriter();
-				writer.append("Login ok");
+				writer.append("Login approved");
 			}else{
 				resp.setStatus(403);
-				System.out.println("FAIL");
+				System.out.println("You dont fool me, fool");
 			}
 		}
 		

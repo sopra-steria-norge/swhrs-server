@@ -46,4 +46,11 @@ public class HibernateHourRegDaoTest {
 		
 		personDao.endTransaction(true);
 	}
+	
+	
+	@Test
+	public void shouldApproveLogin() throws Exception {
+		
+	}
+	
 }

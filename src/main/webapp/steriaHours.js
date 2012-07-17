@@ -1,79 +1,46 @@
 // Declare global variables
-// Remember 
-/*
- 	$('#hdrDay').children('h1').text('new text');
-  
- */
-	var hdrDayVar = null;
-	var contentDayVar = null;
-	var ftrDayVar = null;
-	var favLabelVar = null;
-	var hoursLabelVar = null;
-	var dayformVar = null;
-	var favVar = null;
-	var hoursVar = null;
-	
-	var date = new Date();
-	var day = date.getDay();
-	var month = date.getMonth();
-	var year = date.getFullYear();
-	
+var favLabelVar = null;
+var hoursLabelVar = null;
+var favVar = null;
+var hoursVar = null;
 
-	var contentTransitionVar = null;
-	var confirmationVar = null;
-	var contentDialogVar = null;
-	var hdrConfirmationVar = null; 
-	var contentConfirmationVar = null;
-	var ftrConfirmationVar = null;
-	
-	var favForm = null;
-	var hourForm = null;
-	var lunchForm = null;
-	
-	var myDate = null;
-	var dates = null;
-	
-	var username = null;
-	var password = null;
-	
-	var pageVar = "";
-	var pageVar2 = "weekPage";
-	var pageVars = {}
-	
-	
-	// Constants
-	var MISSING = "missing";
-	var NO_FAV = "10 : ZZ";
-	var EMPTY = "";
-	var ZERO = 0;	
+var date = new Date();
+var day = date.getDay();
+var month = date.getMonth();
+var year = date.getFullYear();
+
+var favForm = null;
+var hourForm = null;
+var lunchForm = null;
+
+var username = null;
+var password = null;
+
+var pageVar = "";
+var pageVars = {}
+
+// Constants
+var MISSING = "missing";
+var NO_FAV = "10 : ZZ";
+var ZERO = 0;	
 
 $(document).ready(function() {
-	//Assign gloabal variables
-	hdrDayVar = $('#hdrDay');
-	contentDayVar = $('#contentDay');
-	ftrDayVar = $('#ftrDay');
 	favLabelVar = $('#favLabel');
 	hoursLabelVar = $('#hoursLabel');
-	dayformVar = $('#dayForm');
 	favVar = $('#fav');
 	hoursVar = $('#hours');
-
-	//var dayArray=new Array("Monday","Tuesday","Wednesday", "Thursday");
-	//var dateArray=new Array("02.07.2012","03.07.2012","04.07.2012", "06.07.2012");
-	//var hourArray=new Array(2,7,8, 8);
-	//updateWeekList(dayArray, dateArray, hourArray);
 	
-	hdrDayVar.children('h1').text('13.07.' + year);
-	
+	$('#hdrDay').children('h1').text('13.07.' + year);
 	
 	/*
+	 * #loginPage
 	 * Loginform submit 
 	 * Sends the input username and password to the servlet(url: hours/login).
 	 * If the username and password is approved, the function SuccessLogin is executed.
 	 */
 	$('#loginForm').submit(function(){
 		var loginErr = false;
-		var jsonLogin = {username: $('[name=username]').val() , password: $('[name=password]').val(), country: $('[name=radioCountry]').val()}	
+		var jsonLogin = {username: $('[name=username]').val() , password: $('[name=password]').val(), country: $('input[name=radioCountry]:checked').val()}	
 		console.log(jsonLogin);
 		
 		$.ajax({
@@ -91,12 +58,24 @@ $(document).ready(function() {
 		return false;
 	});
 	
+	
+	/*
+	 * #dayPage
+	 * Update button click
+	 * Returns stored database hour registrations
+	 */
 	$("#updateBtn").click(function() {
 		var today = $('#hdrDay').children('h1').text();
-		console.log(today);
 		getDayList();
 	});
 	
+	
+	/*
+	 * #dayPage
+	 * Daypageform submit
+	 * Sends the input to the servlet(url: hours/registration)
+	 * Stores the input as a HourRegistration object in the database
+	 */
 	$('#dayForm').submit(function(){
 		var err = false;
 		// Reset highlighted form elements
@@ -124,7 +103,7 @@ $(document).ready(function() {
 		favForm = $("#fav").val();
 		hourForm = $("#hours").val();
 		lunchForm = $("#lunch").val();
-		projectNr = favForm.split(':')[0];
+		projectNr = "2"; //favForm.split(':')[0];
 		personId = 1;
 		
 		updateDayList(favForm, hourForm, lunchForm);		
@@ -139,27 +118,45 @@ $(document).ready(function() {
 		return false;
 	});
 	
+	
+	/*
+	 * #dayPage
+	 * Reset button click
+	 * Clears the daypage form
+	 */
 	$('#resetDayBtn').click(function(){
-		resetDay2();
+		clearForm();
 	});
 	
+	
+	/*
+	 * #dayPage
+	 * Daylist click
+	 * Deletes the hourRegistration entry from the database
+	 */
 	$('#dayList').on('click', 'li', function() {
 	    var dayString = $(this).text();
 	    var mySplitResult = dayString.split(":");
 		$(this).remove();
-		
 		deleteRegistration(mySplitResult[0]);
-		
-		
 	});
 	
-
+	
+	/*
+	 * #weekPage
+	 * Period submit 
+	 * Submits the period for approval
+	 */
+	$('#submitPeriod').click(function(){
+		console.log("YEY");
+	});
+	
 });
-
 
 
 /*
  * Checks if the page is secured, if so checks if the user is authenticated.
+ * If not, redirects to login page
  */
 $(document).bind("pagebeforechange", function (event, data) {
     if (typeof data.toPage == 'object' && data.toPage.attr('data-needs-auth') == 'true') {
@@ -179,14 +176,14 @@ $(document).bind("pagebeforechange", function (event, data) {
     	}
     }
     if (typeof data.toPage != "string" && data.toPage.attr("id") == "weekPage") {
-    	console.log("to weekPage");
     	loadWeekList();
     }
     
 });
 
+
 /*
- * SuccessLogin - Executed after a successful login response
+ * SuccessLogin(data) - Executed after a successful login response
  * Checks if the response data is null, if not return to the page requested before login.
  */
 function SuccessLogin(data) {
@@ -203,6 +200,10 @@ function SuccessLogin(data) {
 }
     
 
+/*
+ * postHourRegistration(mydata)
+ * Sends hourRegistration data to the servlet
+ */
 function postHourRegistration(myData) {
 	$.ajax({
 		type:"POST",
@@ -215,13 +216,16 @@ function postHourRegistration(myData) {
 }
 
 
+/*
+ * prevDay() & nextDay()
+ * Resets the dayPage and updates date and previous registrations
+ */
 function prevDay(){
 	var currDay = $('#hdrDay').children('h1').text();
 	currDay = parseInt(currDay);
 	var prevDay = currDay - 1;
-	//$('#hdrH1').text(dates+1);
-	//$('#hdrH1').text(prevDay+"/"+myDate.getMonth()+"/"+myDate.getFullYear());
 	$('#hdrDay').children('h1').text(prevDay+".07.2012");
+	resetDay();
 }
 
 function nextDay(){
@@ -230,9 +234,13 @@ function nextDay(){
 	var nextDay = currDay + 1;
 	$('#hdrDay').children('h1').text(nextDay+".07.2012");
 	resetDay();
-	
 }
 
+
+/*
+ * prevWeek & nextWeek
+ * Updates the period with new dates
+ */
 function prevWeek(){
 	var currDay = $('#hdrWeek').children('h1').text();
 	currDay = parseInt(currDay);
@@ -248,6 +256,12 @@ function nextWeek(){
 	
 }
 
+
+/*
+ * loadWeekList()
+ * Passes data to the servlet(Period)
+ * If success: Loads new period data.  
+ */
 function loadWeekList(){
 	var week = {week: $('#hdrWeek').children('h1').text()}
 	$('#weekList').children().remove('li');
@@ -257,8 +271,6 @@ function loadWeekList(){
 		url: 'hours/week',
 		data: week,
 		success: function(data){
-			console.log('loadWeekList success');
-			console.log(data);
 			var dateArray = new Array();
 			var hoursArray = new Array();
 			var dayArray = new Array("Monday","Tuesday","Wednesday","Thursday","Friday");
@@ -267,8 +279,6 @@ function loadWeekList(){
 				if (data.hasOwnProperty(key)) {
 					dateArray.push(key);
 					hoursArray.push(data[key]);
-					console.log("dato"+key);
-					console.log("timer"+data[key]);
 				} 
 			}
 			hoursArray.sort();
@@ -279,9 +289,13 @@ function loadWeekList(){
 	});
 }
 
+
+/*
+ * splitArray
+ * Splits hourArray to only contain hours and be sorted.
+ */
 function splitArray(hourArray, dayArray, dateArray){
 	var hSortArray = new Array();
-	console.log(hourArray.length);
 	for(i=0; i<hourArray.length; i++){
 		hSortArray.push(hourArray[i].substring(2));
 	}
@@ -289,12 +303,11 @@ function splitArray(hourArray, dayArray, dateArray){
 }
 
 
+/*
+ * updateWeekList
+ * Appends the new week entries to the weekList
+ */
 function updateWeekList(day, date, dayHours){
-	console.log($('#weekList'));
-	for(i=0; i<day.length; i++){
-		console.log("Dag: "+day[i]+" - Dato: "+date[i]+" - dayHours: "+dayHours[i]);
-	}
-	
 	for(i=0; i<day.length; i++){
 		if(dayHours[i] < 8){
 			$('#weekList').append($("<li data-theme='c'></li>").html('<a href="#dayPage"><b>' + 
@@ -304,15 +317,20 @@ function updateWeekList(day, date, dayHours){
 					day[i] + '</b><p>'+date[i]+'</p></a><span class="ui-li-count">' + dayHours[i] + ' timer'+'</span>')).listview('refresh');
 		}
 	}
-	
 	var total = 0;
 	$.each(dayHours,function() {
 	    total += parseFloat(this);
 	});
 	$('#weekDescription').children('b').text("You have logged "+total+" hours this week");
-	
+	$('#hdrDia').children('h1').text("Do you want to Submit?");
+	$('#contentDia').children('p').text("You have registered "+total+" hours in period. Norm time is unknown.");
 }
 
+
+/*
+ * updateDayList
+ * Appends the new day entries to the dayList
+ */
 function updateDayList(fav, hour, lunch){
 	var lunchText = "1 : Lunch";
 	if(lunch == 1){
@@ -323,13 +341,13 @@ function updateDayList(fav, hour, lunch){
 	}
 	$('#dayList').append($("<li></li>").html('<a href="" data-split-theme="c" data-split-icon="delete"><b>' +
             fav + ' </b><span class="ui-li-count">' + hour + ' timer '+'</span></a><a href=""></a>')).listview('refresh');
-//	$('.deleteMe').live('click', function(){
-//	    $(this).parent().remove();
-//	    $('#dayList').listview('refresh');
-//	});
 }
 
 
+/*
+ * deleteRegistration()
+ * sends an hourRegistration to the servlet to be deleted in the database
+ */
 function deleteRegistration(project_id){
 	console.log(project_id);
 	var delreg = {projectID: project_id}
@@ -340,10 +358,13 @@ function deleteRegistration(project_id){
 		success: function(data){	
 		}
 	});
-	
-
 }
 
+
+/*
+ * getDayList()
+ * Sends a date to the servlet to return all entries on a specific day
+ */
 function getDayList() {
 	//Hardkoder inn prosjektene her for aa printe ut prosjektnavn, fjern dette naar vi har databaseoppslag
 	var projects = {'10': 'ZZ', '1093094': 'LARM', '1112890': 'OSL CDM', '19': 'Javazone', '1337': 'Timeforing app', '19': 'Steria Intern', '1': 'Lunch'};
@@ -373,25 +394,22 @@ function getDayList() {
 }
 
 
+/*
+ * resetDay() & clearForm()
+ * Two functions to reset the daypage
+ */
 function resetDay(){
 	$('#dayList').children().remove('li');
-//	$('#lunch').val(1);
-	$('#lunch').slider('refresh');
-	$('#hours').val(0);
-	$('#hours').slider('refresh');
-	$('#fav').val('').removeAttr('selected').find('option:first');
-//	$('#fav').val('').removeAttr('checked').removeAttr('selected');
-//	$('#fav').val('10 : ZZ').removeAttr('checked').removeAttr('selected');
-}
-
-function resetDay2(){
 	$('#lunch').val(1);
 	$('#lunch').slider('refresh');
 	$('#hours').val(0);
 	$('#hours').slider('refresh');
-	//$('#fav').val('').removeAttr('checked').removeAttr('selected');
+	$('#fav').val('').removeAttr('selected').find('option:first');
 }
 
-/*document.ontouchmove = function(e){
-    e.preventDefault();
-}*/	
+function clearForm(){
+	$('#lunch').val(1);
+	$('#lunch').slider('refresh');
+	$('#hours').val(0);
+	$('#hours').slider('refresh');
+}
