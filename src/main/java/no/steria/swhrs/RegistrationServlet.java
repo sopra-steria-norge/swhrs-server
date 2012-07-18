@@ -18,7 +18,8 @@ public class RegistrationServlet extends HttpServlet{
 	
 	private static final long serialVersionUID = -1090477374982937503L;
 	private HourRegDao db;
-		
+	LocalDate date = LocalDate.now();
+	
 	public void init() throws ServletException {
 		db = new HibernateHourRegDao(Parameters.DB_JNDI);
 	}
@@ -27,17 +28,6 @@ public class RegistrationServlet extends HttpServlet{
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		
-		if (req.getRequestURL().toString().contains(("hours/list"))) { 
-			resp.setContentType("application/json");
-			//TODO currently hardcoded as LocalDate.now() change to get date parameter from javascript
-			List<HourRegistration> hrlist = db.getAllHoursForDate(1, LocalDate.now());
-			
-			JSONObject json = createJsonObjectFromHours(hrlist);
-			
-			String jsonText = json.toString();
-			System.out.println(jsonText);
-			resp.getWriter().write(jsonText);
-		}
 		
 		if (req.getRequestURL().toString().contains(("hours/projects"))) { 
 			resp.setContentType("application/json");
@@ -47,11 +37,13 @@ public class RegistrationServlet extends HttpServlet{
 	}
 
 	@SuppressWarnings("unchecked")
-	private JSONObject createJsonObjectFromHours(List<HourRegistration> hrlist) {
+	private JSONObject createJsonObjectFromHours(List<HourRegistration> hrlist, String stringDate) {
 		JSONObject json = new JSONObject();
 		for (HourRegistration hr: hrlist) {
+			System.out.println(hr.getProjectnumber());
 			json.put(Integer.toString(hr.getProjectnumber()), hr.getHours());
 		}
+		json.put("date", stringDate);
 		return json;
 	}
 	
@@ -60,17 +52,36 @@ public class RegistrationServlet extends HttpServlet{
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		
+		if(req.getRequestURL().toString().contains(("hours/daylist"))){
+			String newDay = req.getParameter("day");
+			System.out.println(newDay);
+			
+			resp.setContentType("application/json");
+			if(newDay.equals("prevDay")) date = date.minusDays(1);
+			if(newDay.equals("nextDay")) date = date.plusDays(1);
+			System.out.println(date);
+			List<HourRegistration> hrlist = db.getAllHoursForDate(1, date);
+			
+			String stringDate = date.toString();
+			JSONObject json = createJsonObjectFromHours(hrlist, stringDate);
+
+			PrintWriter writer = resp.getWriter();
+			String jsonText = json.toString();
+			writer.append(jsonText);
+			
+		}
+		
 		
 		if (req.getRequestURL().toString().contains(("hours/registration"))) {
 			int personId = Integer.parseInt(req.getParameter("personId"));
 			String pNr = req.getParameter("projectNr");
 			int projectNr = Integer.parseInt(req.getParameter("projectNr").trim());
 			double hours = Double.parseDouble(req.getParameter("hours"));
-			req.getParameter("date");
+			//req.getParameter("date");
 			
 			System.out.println("Trying to save project: " + pNr);
 			//TODO currently hardcoded as LocalDate.now() change to get date parameter from javascript
-			saveRegToDatabase(personId, projectNr, LocalDate.now(), hours);
+			saveRegToDatabase(personId, projectNr, date, hours);
 		}
 		
 		if (req.getRequestURL().toString().contains(("hours/login"))) {
@@ -94,9 +105,14 @@ public class RegistrationServlet extends HttpServlet{
 		}
 		
 		if(req.getRequestURL().toString().contains(("hours/week"))){
+			System.out.println("Dagens uke:" +date.getWeekOfWeekyear());
 			String week = req.getParameter("week");		
 			resp.setContentType("application/text");
-			List<WeekRegistration> weeklist = db.getWeekSummary(week);
+			if(week.equals("nextWeek")) date = date.plusWeeks(1);
+			if(week.equals("prevWeek")) date = date.minusWeeks(1);
+			String weekString = ""+date.getWeekOfWeekyear();
+			System.out.println(weekString);
+			List<WeekRegistration> weeklist = db.getWeekSummary(weekString);
 			JSONObject json = new JSONObject();
 			int order = 0;
 			
@@ -105,6 +121,7 @@ public class RegistrationServlet extends HttpServlet{
 				System.out.println("Date"+wr.getDate()+" Hours:"+wr.getWeekHours());
 				json.put(wr.getDate(), order+":"+wr.getWeekHours());
 			}
+			json.put("weekNumber", date.getWeekOfWeekyear());
 			resp.setContentType("text/json");
 			PrintWriter writer = resp.getWriter();
 			String jsonText = json.toString();
@@ -122,8 +139,8 @@ public class RegistrationServlet extends HttpServlet{
 
 	private void saveRegToDatabase(int personId, int projectNr, LocalDate date, double hours) {
 		HourRegistration reg = HourRegistration.createRegistration(personId, projectNr, date, hours);
+		System.out.println("Saving registration with data: " + projectNr + "," +hours+ ", " +date);
 		db.saveHours(reg);
-		System.out.println("Saving registration with data: " + projectNr + "," +hours+ ", " +LocalDate.now());
 	}
 	
 	@Override

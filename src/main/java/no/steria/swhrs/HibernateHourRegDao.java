@@ -43,6 +43,7 @@ public class HibernateHourRegDao implements HourRegDao{
 		session().save(newEntity);
 	}
 
+	
 	@Override
 	public List<HourRegistration> getAllHoursForDate(int person_id, LocalDate date) {
 		//This actually just gets all registrations in the database, so the parameters are useless atm

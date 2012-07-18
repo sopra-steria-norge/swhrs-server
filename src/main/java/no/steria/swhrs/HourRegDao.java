@@ -22,6 +22,6 @@ public interface HourRegDao {
 	
 	void deleteHourRegistration(String project_id);
 
-	List<WeekRegistration> getWeekSummary(String week);
+	List<WeekRegistration> getWeekSummary(String weekNumber);
 	
 }

@@ -3,6 +3,7 @@ var favLabelVar = null;
 var hoursLabelVar = null;
 var favVar = null;
 var hoursVar = null;
+var dateCounter = 0;
 
 var date = new Date();
 var day = date.getDay();
@@ -29,8 +30,8 @@ $(document).ready(function() {
 	hoursLabelVar = $('#hoursLabel');
 	favVar = $('#fav');
 	hoursVar = $('#hours');
-	
-	$('#hdrDay').children('h1').text('13.07.' + year);
+	var today = "today";
+	getDayList(today);
 	
 	/*
 	 * #loginPage
@@ -65,8 +66,8 @@ $(document).ready(function() {
 	 * Returns stored database hour registrations
 	 */
 	$("#updateBtn").click(function() {
-		var today = $('#hdrDay').children('h1').text();
-		getDayList();
+		var today = "today"
+		getDayList(today);
 	});
 	
 	
@@ -82,7 +83,6 @@ $(document).ready(function() {
 		favLabelVar.removeClass(MISSING);
 		hoursLabelVar.removeClass(MISSING);
 		$.mobile.silentScroll(100);
-
 		
 		if(favVar.val()==NO_FAV){
 			favLabelVar.addClass(MISSING);
@@ -103,7 +103,7 @@ $(document).ready(function() {
 		favForm = $("#fav").val();
 		hourForm = $("#hours").val();
 		lunchForm = $("#lunch").val();
-		projectNr = "2"; //favForm.split(':')[0];
+		projectNr = favForm.split(':')[0];
 		personId = 1;
 		
 		updateDayList(favForm, hourForm, lunchForm);		
@@ -176,7 +176,8 @@ $(document).bind("pagebeforechange", function (event, data) {
     	}
     }
     if (typeof data.toPage != "string" && data.toPage.attr("id") == "weekPage") {
-    	loadWeekList();
+    	var thisWeek = "thisWeek";
+    	getWeekList(thisWeek);
     }
     
 });
@@ -192,10 +193,9 @@ function SuccessLogin(data) {
     	
     	if (pageVars && pageVars.returnAfterLogin) {
             	$.mobile.changePage(pageVars.returnAfterLogin.toPage);
-            }
-            else {
+        }else{
                 $.mobile.changePage("#weekPage", { changeHash: false });
-            }
+        }
 	}
 }
     
@@ -221,18 +221,16 @@ function postHourRegistration(myData) {
  * Resets the dayPage and updates date and previous registrations
  */
 function prevDay(){
-	var currDay = $('#hdrDay').children('h1').text();
-	currDay = parseInt(currDay);
-	var prevDay = currDay - 1;
-	$('#hdrDay').children('h1').text(prevDay+".07.2012");
+	var prevDay = "prevDay"
+	$('#lunch').val(1);
+	getDayList(prevDay);
 	resetDay();
 }
 
 function nextDay(){
-	var currDay = $('#hdrDay').children('h1').text();
-	currDay = parseInt(currDay);
-	var nextDay = currDay + 1;
-	$('#hdrDay').children('h1').text(nextDay+".07.2012");
+	var nextDay = "nextDay"
+	$('#lunch').val(1);
+	getDayList(nextDay);
 	resetDay();
 }
 
@@ -242,18 +240,13 @@ function nextDay(){
  * Updates the period with new dates
  */
 function prevWeek(){
-	var currDay = $('#hdrWeek').children('h1').text();
-	currDay = parseInt(currDay);
-	var prevDay = currDay - 1;
-	$('#hdrWeek').children('h1').text(prevDay);
+	var prevWeek = "prevWeek";
+	getWeekList(prevWeek);
 }
 
 function nextWeek(){
-	var currDay = $('#hdrWeek').children('h1').text();
-	currDay = parseInt(currDay);
-	var prevDay = currDay + 1;
-	$('#hdrWeek').children('h1').text(prevDay);
-	
+	var nextWeek = "nextWeek";
+	getWeekList(nextWeek);
 }
 
 
@@ -262,8 +255,9 @@ function nextWeek(){
  * Passes data to the servlet(Period)
  * If success: Loads new period data.  
  */
-function loadWeekList(){
-	var week = {week: $('#hdrWeek').children('h1').text()}
+function getWeekList(newWeek){
+	//var week = {week: $('#hdrWeek').children('h1').text()}
+	var week = {week: newWeek};
 	$('#weekList').children().remove('li');
 	console.log(week);
 	$.ajax({
@@ -277,8 +271,12 @@ function loadWeekList(){
 			
 			for (var key in data) {
 				if (data.hasOwnProperty(key)) {
-					dateArray.push(key);
-					hoursArray.push(data[key]);
+					if(key === "weekNumber"){	
+						$('#hdrWeek').children('h1').text("Week: "+data[key]);
+					}else{
+						dateArray.push(key);
+						hoursArray.push(data[key]);
+					}
 				} 
 			}
 			hoursArray.sort();
@@ -322,7 +320,7 @@ function updateWeekList(day, date, dayHours){
 	    total += parseFloat(this);
 	});
 	$('#weekDescription').children('b').text("You have logged "+total+" hours this week");
-	$('#hdrDia').children('h1').text("Do you want to Submit?");
+	$('#hdrDia').children('h1').text("Want to Submit?");
 	$('#contentDia').children('p').text("You have registered "+total+" hours in period. Norm time is unknown.");
 }
 
@@ -337,10 +335,13 @@ function updateDayList(fav, hour, lunch){
 		$('#dayList').append($("<li></li>").html('<a href="" data-split-theme="c" data-split-icon="delete"><b>' +
 	            lunchText + '</b><span class="ui-li-count"> 0.5 timer '+'</span></a><a href=""></a>')).listview('refresh');	
 		$('#lunch').val(0);
-		$('#lunch').slider('refresh');		
+		$('#lunch').slider('refresh');
+		
 	}
 	$('#dayList').append($("<li></li>").html('<a href="" data-split-theme="c" data-split-icon="delete"><b>' +
             fav + ' </b><span class="ui-li-count">' + hour + ' timer '+'</span></a><a href=""></a>')).listview('refresh');
+	$('#hours').val(0);
+	$('#hours').slider('refresh');
 }
 
 
@@ -365,32 +366,36 @@ function deleteRegistration(project_id){
  * getDayList()
  * Sends a date to the servlet to return all entries on a specific day
  */
-function getDayList() {
+function getDayList(newDay) {
 	//Hardkoder inn prosjektene her for aa printe ut prosjektnavn, fjern dette naar vi har databaseoppslag
-	var projects = {'10': 'ZZ', '1093094': 'LARM', '1112890': 'OSL CDM', '19': 'Javazone', '1337': 'Timeforing app', '19': 'Steria Intern', '1': 'Lunch'};
+	var projects = {'10': 'ZZ', '1093094': 'LARM', '1112890': 'OSL CDM', '19': 'Javazone', '1337': 'Timeforing app', '11': 'Steria Intern', '1': 'Lunch'};
 	
-	/*$.ajax(function(){
+	var newDay = {day: newDay};
+	$.ajax({
 		type: "POST",
-		url: 'hours/list',
-		data: week,
+		url: 'hours/daylist',
+		data: newDay,
 		success: function(data){
-			for(var key in json){
-				if(key === "1"){}
-			}
-			
-		}
-	});	*/
-	
-	$.getJSON("hours/list", function(json) {
-		for(var key in json) {
-			if (key === "1") {
-				$('#lunch').val(0);
+			console.log("whatwhat");
+			console.log(data);
+			for (var key in data) {
+				if (key === "1") {
+					console.log("kommer hit?");
+					$('#lunch').val(0);
+				}
 				$('#lunch').slider('refresh');	
-			}
-			$('#dayList').append($("<li></li>").html('<a href="#dialogPopUp" data-rel="dialog" data-transition="pop" data-role="button"><b>' +
-					key+" : "+projects[key] + '</b><span class="ui-li-count">' + json[key] + ' timer '+'</span></a>')).listview('refresh');
-		}
-	});
+				if(key === "date"){
+					$('#hdrDay').children('h1').text(data[key]);
+				}else{
+				$('#dayList').append($("<li></li>").html('<a href="" data-split-theme="c" data-split-icon="delete"><b>' +
+			            key+" : "+projects[key] + ' </b><span class="ui-li-count">' + data[key] + ' timer '+'</span></a><a href=""></a>')).listview('refresh');
+				}
+			} 
+		},
+		error: function(data){
+			console.log("dayList error");
+		} 
+	});	
 }
 
 
@@ -400,8 +405,6 @@ function getDayList() {
  */
 function resetDay(){
 	$('#dayList').children().remove('li');
-	$('#lunch').val(1);
-	$('#lunch').slider('refresh');
 	$('#hours').val(0);
 	$('#hours').slider('refresh');
 	$('#fav').val('').removeAttr('selected').find('option:first');
