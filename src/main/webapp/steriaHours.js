@@ -133,13 +133,13 @@ $(document).ready(function() {
 	 * #dayPage
 	 * Daylist click
 	 * Deletes the hourRegistration entry from the database
-	 */
+	 
 	$('#dayList').on('click', 'li', function() {
 	    var dayString = $(this).text();
 	    var mySplitResult = dayString.split(":");
 		$(this).remove();
 		deleteRegistration(mySplitResult[0]);
-	});
+	});*/
 	
 	
 	/*
@@ -198,7 +198,12 @@ function SuccessLogin(data) {
         }
 	}
 }
-    
+
+function deleteEntry(){
+	console.log("WANNA DELETE");
+	$(this).remove();
+}
+
 
 /*
  * postHourRegistration(mydata)
@@ -259,7 +264,6 @@ function getWeekList(newWeek){
 	//var week = {week: $('#hdrWeek').children('h1').text()}
 	var week = {week: newWeek};
 	$('#weekList').children().remove('li');
-	console.log(week);
 	$.ajax({
 		type: "POST",
 		url: 'hours/week',
@@ -268,12 +272,14 @@ function getWeekList(newWeek){
 			var dateArray = new Array();
 			var hoursArray = new Array();
 			var dayArray = new Array("Monday","Tuesday","Wednesday","Thursday","Friday");
-			
 			for (var key in data) {
 				if (data.hasOwnProperty(key)) {
 					if(key === "weekNumber"){	
 						$('#hdrWeek').children('h1').text("Week: "+data[key]);
+					}else if(key === "hoho"){
+						$('#hdrDay').children('h1').text(data[key]);
 					}else{
+						console.log("data");
 						dateArray.push(key);
 						hoursArray.push(data[key]);
 					}
@@ -332,14 +338,14 @@ function updateWeekList(day, date, dayHours){
 function updateDayList(fav, hour, lunch){
 	var lunchText = "1 : Lunch";
 	if(lunch == 1){
-		$('#dayList').append($("<li></li>").html('<a href="" data-split-theme="c" data-split-icon="delete"><b>' +
-	            lunchText + '</b><span class="ui-li-count"> 0.5 timer '+'</span></a><a href=""></a>')).listview('refresh');	
+		$('#dayList').append($("<li></li>").html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
+	            lunchText + '</b><span class="ui-li-count"> 0.5 timer '+'</span></a><a href="javascript:deleteEntry()"></a>')).listview('refresh');	
 		$('#lunch').val(0);
 		$('#lunch').slider('refresh');
 		
 	}
-	$('#dayList').append($("<li></li>").html('<a href="" data-split-theme="c" data-split-icon="delete"><b>' +
-            fav + ' </b><span class="ui-li-count">' + hour + ' timer '+'</span></a><a href=""></a>')).listview('refresh');
+	$('#dayList').append($("<li></li>").html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
+            fav + ' </b><span class="ui-li-count">' + hour + ' timer '+'</span></a><a href="javascript:deleteEntry()"></a>')).listview('refresh');
 	$('#hours').val(0);
 	$('#hours').slider('refresh');
 }
@@ -387,7 +393,7 @@ function getDayList(newDay) {
 				if(key === "date"){
 					$('#hdrDay').children('h1').text(data[key]);
 				}else{
-				$('#dayList').append($("<li></li>").html('<a href="" data-split-theme="c" data-split-icon="delete"><b>' +
+				$('#dayList').append($("<li></li>").html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
 			            key+" : "+projects[key] + ' </b><span class="ui-li-count">' + data[key] + ' timer '+'</span></a><a href=""></a>')).listview('refresh');
 				}
 			} 

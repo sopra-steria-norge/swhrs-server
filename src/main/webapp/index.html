@@ -34,7 +34,7 @@
 <!-- ********************************************************************************** -->
 <div data-role="page" data-theme="a" id="dayPage" data-needs-auth="true" >
 	<div data-role="header" id="hdrDay" data-nobackbtn="false" data-theme="a" data-position="fixed">
-		<a href="javascript:prevDay()" data-icon="arrow-l">Previous</a>
+		<a href="javascript:prevDay()" data-icon="arrow-l">Prev</a>
 		<h1></h1>
 		<a href="javascript:nextDay()" data-icon="arrow-r">Next</a>
 	</div>
@@ -57,7 +57,7 @@
 		
 	<div id="hoursDiv" data-role="fieldcontain">
 		<label id="hoursLabel" for="hours">Hours worked:</label>
-		<input type="range" name="hours" id="hours" value="" min="0" max="12" step="0.5" data-highlight="true" data-theme="" />
+		<input type="range" name="hours" id="hours" value="" min="0" max="16" step="0.5" data-highlight="true" data-theme="" />
 	</div>
 	
 	<div id="lunchDiv" data-role="fieldcontain">
@@ -86,7 +86,7 @@
 		<div data-role="navbar">
 		<ul>
 			<li><a href="#" data-theme="a" data-icon="home" class="ui-btn-active ui-state-persist">Day</a>
-			<li><a href="#weekPage" id="weekLink" data-theme="a" data-icon="grid" data-transition="slide">Week</a>
+			<li><a href="#weekPage" id="weekLink" data-theme="a" data-icon="grid" >Week</a>
 			<li><a href="#favPage" data-theme="a" data-icon="star" data-transition="slide">Fav</a>
 			<li><a href="#addPage" data-theme="a" data-icon="gear" data-transition="slide">Settings</a>
 		</ul>
@@ -100,7 +100,7 @@
 <!-- ********************************************************************************** -->		
 <div data-role="page" data-theme="a" id="weekPage" data-needs-auth="true">
 	<div data-role="header" id="hdrWeek" data-nobackbtn="false" data-theme="a" data-position="fixed">
-		<a href="javascript:prevWeek()" data-icon="arrow-l" data-direction="reverse" data-transition="slide">Previous</a>
+		<a href="javascript:prevWeek()" data-icon="arrow-l" data-direction="reverse" data-transition="slide">Prev</a>
 		<h1></h1>
 		<a href="javascript:nextWeek()" data-icon="arrow-r" data-transition="slide">Next</a>
 	</div>

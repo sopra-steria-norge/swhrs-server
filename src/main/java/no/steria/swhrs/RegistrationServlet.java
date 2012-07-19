@@ -4,11 +4,14 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
 
 import org.joda.time.LocalDate;
 import org.json.simple.JSONObject;
@@ -18,10 +21,22 @@ public class RegistrationServlet extends HttpServlet{
 	
 	private static final long serialVersionUID = -1090477374982937503L;
 	private HourRegDao db;
+	private HourRegRepository hourRegRepository;
+	
 	LocalDate date = LocalDate.now();
 	
 	public void init() throws ServletException {
 		db = new HibernateHourRegDao(Parameters.DB_JNDI);
+		
+		try {
+			setHourRegRepository(new HourRegJdbcRepository((DataSource) new InitialContext().lookup("jdbc/registerHoursDS")));
+		} catch (NamingException e) {
+			throw new ServletException(e);
+		}
+	}
+	
+	public void setHourRegRepository(HourRegRepository hourRegRepository){
+		this.hourRegRepository = hourRegRepository;
 	}
 	
 	@Override
@@ -105,23 +120,21 @@ public class RegistrationServlet extends HttpServlet{
 		}
 		
 		if(req.getRequestURL().toString().contains(("hours/week"))){
-			System.out.println("Dagens uke:" +date.getWeekOfWeekyear());
 			String week = req.getParameter("week");		
 			resp.setContentType("application/text");
 			if(week.equals("nextWeek")) date = date.plusWeeks(1);
 			if(week.equals("prevWeek")) date = date.minusWeeks(1);
 			String weekString = ""+date.getWeekOfWeekyear();
-			System.out.println(weekString);
 			List<WeekRegistration> weeklist = db.getWeekSummary(weekString);
 			JSONObject json = new JSONObject();
 			int order = 0;
 			
 			for (WeekRegistration wr: weeklist) {
 				order++;
-				System.out.println("Date"+wr.getDate()+" Hours:"+wr.getWeekHours());
 				json.put(wr.getDate(), order+":"+wr.getWeekHours());
 			}
 			json.put("weekNumber", date.getWeekOfWeekyear());
+			json.put("hoho", ""+date);
 			resp.setContentType("text/json");
 			PrintWriter writer = resp.getWriter();
 			String jsonText = json.toString();
@@ -132,6 +145,7 @@ public class RegistrationServlet extends HttpServlet{
 			String projectID = req.getParameter("projectID");
 			System.out.println(projectID);
 			db.deleteHourRegistration(projectID);
+			hourRegRepository.deleteHourRegistration(projectID);
 		}
 		
  	}
