@@ -321,13 +321,13 @@ function updateWeekList(day, date, dayHours){
 					day[i] + '</b><p>'+date[i]+'</p></a><span class="ui-li-count">' + dayHours[i] + ' timer'+'</span>')).listview('refresh');
 		}
 	}
-	var total = 0;
+	var totalWeek = 0;
 	$.each(dayHours,function() {
-	    total += parseFloat(this);
+	    totalWeek += parseFloat(this);
 	});
-	$('#weekDescription').children('b').text("You have logged "+total+" hours this week");
-	$('#hdrDia').children('h1').text("Want to Submit?");
-	$('#contentDia').children('p').text("You have registered "+total+" hours in period. Norm time is unknown.");
+	$('#weekDescription').children('b').text("You have logged "+totalWeek+" hours this week");
+	$('#hdrDia').children('h1').text("Do you want to Submit?");
+	$('#contentDia').children('p').text("You have registered "+totalWeek+" hours in period. Norm time is unknown.");
 }
 
 
@@ -337,6 +337,14 @@ function updateWeekList(day, date, dayHours){
  */
 function updateDayList(fav, hour, lunch){
 	var lunchText = "1 : Lunch";
+	var totalDay = 0;
+		
+	$.each(hour,function() {
+	    totalDay += (this);
+	});
+	
+	$('#dayDescription').children('b').text("Total "+totalDay+" hours");
+	
 	if(lunch == 1){
 		$('#dayList').append($("<li></li>").html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
 	            lunchText + '</b><span class="ui-li-count"> 0.5 timer '+'</span></a><a href="javascript:deleteEntry()"></a>')).listview('refresh');	
