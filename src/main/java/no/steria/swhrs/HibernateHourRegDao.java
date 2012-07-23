@@ -45,7 +45,7 @@ public class HibernateHourRegDao implements HourRegDao{
 
 	
 	@Override
-	public List<HourRegistration> getAllHoursForDate(int person_id, LocalDate date) {
+	public List<HourRegistration> getAllHoursForDate(String person_id, String date) {
 		//This actually just gets all registrations in the database, so the parameters are useless atm
 		Criteria criteria = session().createCriteria(HourRegistrationEntity.class);
 		criteria.add(Restrictions.and(Restrictions.eq("personId", person_id),Restrictions.eq("regDate", date)));
@@ -66,11 +66,10 @@ public class HibernateHourRegDao implements HourRegDao{
 	}
 	
 	@Override
-	public boolean validateUser(String username, String password, String country){
+	public boolean validateUser(String username, String password){
 		Criteria crit = session().createCriteria(UserEntity.class);
 		crit.add(Restrictions.eq("username", username));
 		crit.add(Restrictions.eq("password", password));
-		crit.add(Restrictions.eq("country", country));
 		
 		UserEntity user = (UserEntity)crit.uniqueResult();
 		Long userid = user.getUserid();
@@ -83,8 +82,7 @@ public class HibernateHourRegDao implements HourRegDao{
 	}
 
 	@Override
-	public HourRegistration getHourRegistration(int person_id,
-			String project_id, LocalDate date) {
+	public HourRegistration getHourRegistration(int person_id, LocalDate date) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -97,7 +95,8 @@ public class HibernateHourRegDao implements HourRegDao{
 	}
 
 	@Override
-	public void deleteHourRegistration(String projectID) {
+	public boolean deleteHourRegistration(String projectID) {
+		return false;
 		// TODO Auto-generated method stub
 	}
 
@@ -108,7 +107,8 @@ public class HibernateHourRegDao implements HourRegDao{
 		LocalDate date3 = LocalDate.parse("2012-07-13");
 		LocalDate date4 = LocalDate.parse("2012-07-14");
 		LocalDate date5 = LocalDate.parse("2012-07-15");
-		
+		List<WeekRegistration> list = null;
+		/*
 		List<WeekRegistration> weeklist;
 		weeklist = new ArrayList<WeekRegistration>();
 		weeklist.add(new WeekRegistration(2, date1, 8));
@@ -118,6 +118,20 @@ public class HibernateHourRegDao implements HourRegDao{
 		weeklist.add(new WeekRegistration(2, date5, 7));
 		System.out.println(weeklist.toString());
 		return weeklist;
-		
+		*/
+		return list ;
+	}
+
+	@Override
+	public List<UserFavourites> getUserFavouirtes(String userName) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<WeekRegistration> getWeekList(String userName, String dateFrom,
+			String dateTo) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

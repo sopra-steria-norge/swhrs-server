@@ -21,23 +21,22 @@ public class RegistrationServlet extends HttpServlet{
 	
 	private static final long serialVersionUID = -1090477374982937503L;
 	private HourRegDao db;
-	private HourRegRepository hourRegRepository;
 	
 	LocalDate date = LocalDate.now();
 	
 	public void init() throws ServletException {
-		db = new HibernateHourRegDao(Parameters.DB_JNDI);
-		
-		try {
-			setHourRegRepository(new HourRegJdbcRepository((DataSource) new InitialContext().lookup("jdbc/registerHoursDS")));
-		} catch (NamingException e) {
-			throw new ServletException(e);
+		if ("true".equals(System.getProperty("swhrs.useSqlServer"))) {
+			try {
+				db = new MSSQLHourRegDao((DataSource) new InitialContext().lookup("jdbc/registerHoursDS"));
+			} catch (NamingException e) {
+				throw new ServletException(e);
+			}
+		} else {
+			db = new HibernateHourRegDao(Parameters.DB_JNDI);
 		}
+		
 	}
 	
-	public void setHourRegRepository(HourRegRepository hourRegRepository){
-		this.hourRegRepository = hourRegRepository;
-	}
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -75,7 +74,7 @@ public class RegistrationServlet extends HttpServlet{
 			if(newDay.equals("prevDay")) date = date.minusDays(1);
 			if(newDay.equals("nextDay")) date = date.plusDays(1);
 			System.out.println(date);
-			List<HourRegistration> hrlist = db.getAllHoursForDate(1, date);
+			List<HourRegistration> hrlist = db.getAllHoursForDate("AK", "2012-05-30 00:00:00.0");
 			
 			String stringDate = date.toString();
 			JSONObject json = createJsonObjectFromHours(hrlist, stringDate);
@@ -129,10 +128,10 @@ public class RegistrationServlet extends HttpServlet{
 			JSONObject json = new JSONObject();
 			int order = 0;
 			
-			for (WeekRegistration wr: weeklist) {
+			/*for (WeekRegistration wr: weeklist) {
 				order++;
 				json.put(wr.getDate(), order+":"+wr.getWeekHours());
-			}
+			}*/
 			json.put("weekNumber", date.getWeekOfWeekyear());
 			json.put("hoho", ""+date);
 			resp.setContentType("text/json");
@@ -145,7 +144,6 @@ public class RegistrationServlet extends HttpServlet{
 			String projectID = req.getParameter("projectID");
 			System.out.println(projectID);
 			db.deleteHourRegistration(projectID);
-			hourRegRepository.deleteHourRegistration(projectID);
 		}
 		
  	}

@@ -1,4 +1,4 @@
-package no.steria.swhrs;
+ package no.steria.swhrs;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -35,7 +35,7 @@ public class HibernateHourRegDaoTest {
 		//saves the date we don't want to get
 		personDao.saveHours(dummyHourRegNow);
 		
-		List<HourRegistration> regs = personDao.getAllHoursForDate(1, LocalDate.parse("2012-07-03"));
+		List<HourRegistration> regs = personDao.getAllHoursForDate("1", "LocalDate.parse(2012-07-03)");
 
 		assertThat(regs.size()).isEqualTo(1);
 		//check if the HourRegistration object has correct data
