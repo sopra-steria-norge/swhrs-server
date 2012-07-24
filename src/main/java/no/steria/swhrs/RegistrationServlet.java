@@ -21,9 +21,9 @@ public class RegistrationServlet extends HttpServlet{
 	
 	private static final long serialVersionUID = -1090477374982937503L;
 	private HourRegDao db;
+	private String username = null;
 	
 	LocalDate date = LocalDate.now();
-	
 	public void init() throws ServletException {
 		if ("true".equals(System.getProperty("swhrs.useSqlServer"))) {
 			try {
@@ -45,6 +45,7 @@ public class RegistrationServlet extends HttpServlet{
 		
 		if (req.getRequestURL().toString().contains(("hours/projects"))) { 
 			resp.setContentType("application/json");
+			//List favList = db.getUserFavouirtes(User.getUsername);
 			//TODO return a list of all projects.
 		}
 		
@@ -54,8 +55,8 @@ public class RegistrationServlet extends HttpServlet{
 	private JSONObject createJsonObjectFromHours(List<HourRegistration> hrlist, String stringDate) {
 		JSONObject json = new JSONObject();
 		for (HourRegistration hr: hrlist) {
-			System.out.println(hr.getProjectnumber());
-			json.put(Integer.toString(hr.getProjectnumber()), hr.getHours());
+			//json.put(hr.getItem(), hr.getHours());
+			json.put(hr.getItem()+": "+hr.getDescription(), hr.getHours());
 		}
 		json.put("date", stringDate);
 		return json;
@@ -74,7 +75,7 @@ public class RegistrationServlet extends HttpServlet{
 			if(newDay.equals("prevDay")) date = date.minusDays(1);
 			if(newDay.equals("nextDay")) date = date.plusDays(1);
 			System.out.println(date);
-			List<HourRegistration> hrlist = db.getAllHoursForDate("AK", "2012-05-30 00:00:00.0");
+			List<HourRegistration> hrlist = db.getAllHoursForDate(username, date.toString());
 			
 			String stringDate = date.toString();
 			JSONObject json = createJsonObjectFromHours(hrlist, stringDate);
@@ -85,28 +86,44 @@ public class RegistrationServlet extends HttpServlet{
 			
 		}
 		
+		if(req.getRequestURL().toString().contains(("hours/favourite"))){
+			resp.setContentType("application/json");
+			List<UserFavourites> userList = db.getUserFavourites("AK");
+			JSONObject json = createJsonObjectFromFavourites(userList);
+
+			PrintWriter writer = resp.getWriter();
+			String jsonText = json.toString();
+			System.out.println(jsonText);
+			writer.append(jsonText);
+		}
+		
 		
 		if (req.getRequestURL().toString().contains(("hours/registration"))) {
-			int personId = Integer.parseInt(req.getParameter("personId"));
-			String pNr = req.getParameter("projectNr");
-			int projectNr = Integer.parseInt(req.getParameter("projectNr").trim());
+			String projectNumber = req.getParameter("projectNr");
 			double hours = Double.parseDouble(req.getParameter("hours"));
-			//req.getParameter("date");
+			String lunchNumber = req.getParameter("lunchNumber");
+			String description = req.getParameter("description");
 			
-			System.out.println("Trying to save project: " + pNr);
+			db.addHourRegistrations(projectNumber, "2", username, "", date.toString(), hours, description, 0, 0, 1, 10101, 0, 0, "HRA", "", projectNumber, "", 0, 0, "", "", "2012-05-30", "HRA", "", 0, 0);
+			//req.getParameter("date");
+			System.out.println(lunchNumber);
+			if(lunchNumber.equals("1")){
+				db.addHourRegistrations(lunchNumber, "1", username, "", date.toString(), 0.5, "Lunsj", 0, 0, 1, 10101, 0, 0, "HRA", "", projectNumber, "", 0, 0, "", "", "2012-05-30", "HRA", "", 0, 0);
+			}
+			System.out.println("Trying to save project: " + projectNumber);
 			//TODO currently hardcoded as LocalDate.now() change to get date parameter from javascript
-			saveRegToDatabase(personId, projectNr, date, hours);
+			//saveRegToDatabase(personId, projectNr, date, hours);
 		}
 		
 		if (req.getRequestURL().toString().contains(("hours/login"))) {
-			String username = req.getParameter("username");
+			username = req.getParameter("username");
 			String password = req.getParameter("password");
 			String country = req.getParameter("country");
 			System.out.println("Username: " +username+" Password: "+password+" Country: "+country);
 			int autoLoginExpire = (60*60*24);
 			//Change this when database is up
-			//if(db.validateUser(username, password, country) == true){
-			if(username.equals("steria") && password.equals("123") && country.equals("norway")){
+			if(db.validateUser(username, password) == true){
+			//if(username.equals("steria") && password.equals("123") && country.equals("norway")){
 				Cookie loginCookie = new Cookie("USERNAME", username);
 				loginCookie.setMaxAge(autoLoginExpire);
 				resp.setContentType("text/plain");
@@ -143,18 +160,31 @@ public class RegistrationServlet extends HttpServlet{
 		}
 		
 		if(req.getRequestURL().toString().contains(("hours/delete"))){
-			String projectID = req.getParameter("projectID");
-			System.out.println(projectID);
-			db.deleteHourRegistration(projectID);
+			String taskNumber = req.getParameter("projectID");
+			System.out.println(taskNumber);
+			db.deleteHourRegistration(taskNumber);
 		}
 		
  	}
 
 
+	@SuppressWarnings("unchecked")
+	private JSONObject createJsonObjectFromFavourites(
+			List<UserFavourites> userList) {
+		JSONObject json = new JSONObject();
+		for (UserFavourites ul: userList) {
+			//json.put(hr.getItem(), hr.getHours());
+			json.put(ul.getProjectNumber(), ul.getActivityCode()+": "+ul.getDescription());
+		}
+		return json;
+		
+	}
+
+
 	private void saveRegToDatabase(int personId, int projectNr, LocalDate date, double hours) {
-		HourRegistration reg = HourRegistration.createRegistration(personId, projectNr, date, hours);
+		//HourRegistration reg = HourRegistration.createRegistration(personId, projectNr, date, hours);
 		System.out.println("Saving registration with data: " + projectNr + "," +hours+ ", " +date);
-		db.saveHours(reg);
+		//db.saveHours(reg);
 	}
 	
 	@Override

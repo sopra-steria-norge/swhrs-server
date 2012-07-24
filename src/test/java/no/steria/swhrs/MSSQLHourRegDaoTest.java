@@ -60,7 +60,7 @@ public class MSSQLHourRegDaoTest {
 	@Test
 	public void shouldValidateUser() throws Exception {
 		String username = "AK";
-		String password = "bingo521";
+		String password = "password";
 		hourRegDao.beginTransaction();
 		boolean validate = hourRegDao.validateUser(username, password);
 		hourRegDao.endTransaction(false);
@@ -79,7 +79,7 @@ public class MSSQLHourRegDaoTest {
 	@Test
 	public void shouldGetUserFavourites() throws Exception {
 		hourRegDao.beginTransaction();
-		List<UserFavourites> userFavourites = hourRegDao.getUserFavouirtes("AK");
+		List<UserFavourites> userFavourites = hourRegDao.getUserFavourites("AK");
 		hourRegDao.endTransaction(false);
 		assertThat(userFavourites).hasSize(25);
 		

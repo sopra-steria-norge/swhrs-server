@@ -16,14 +16,14 @@ public class MSSQLHourRegDao implements HourRegDao {
 	
 	private final DataSource datasource;
 	private Connection connection = null;
-	private static final String SELECT_USERS = "select * from \"Norge$Resource\" where No_ = ? and \"WEB Password\" = ?";
+	private static final String SELECT_USERS = "select No_, \"WEB Password\" from \"Norge$Resource\" where No_ = ? and \"WEB Password\" = ?";
 	private static final String SELECT_REGISTRATIONS = "SELECT * FROM \"Norge$Time Entry\" WHERE Ressourcekode = ? AND Dato = ?";
 	private static final String SELECT_FAVOURITES = "select \"Norge$Favourite Task\".Projektnr_, \"Norge$Favourite Task\".Aktivitetskode, \"Norge$Tasklist\".Beskrivelse from \"Norge$Favourite Task\"  INNER JOIN \"Norge$Tasklist\" ON \"Norge$Favourite Task\".Projektnr_= \"Norge$Tasklist\".Projektnr_ AND \"Norge$Favourite Task\".Aktivitetskode = \"Norge$Tasklist\".Kode WHERE \"Norge$Favourite Task\".Resourcekode = ?";
 	//private static final String SELECT_PROJECTS = "select \"Norge$Tasklist\".Projektnr_, \"Norge$Tasklist\".Kode, \"Norge$Tasklist\".Beskrivelse FROM \"Norge$Tasklist\" WHERE Type=0 and Afsluttet=0 and Spærret=0 and Vis=1 and Status=2";
 	private static final String SELECT_WEEKREGISTRATIONS = "select \"Norge$Time Entry\".Løbenr_, Beskrivelse, Antal, Godkendt, Dato from \"Norge$Time Entry\" where Ressourcekode = ? AND Dato Between ? AND ? ORDER BY Dato";
 	private static final String SELECT_SEARCHPROJECTS = "select \"Norge$Tasklist\".Projektnr_, \"Norge$Tasklist\".Kode, \"Norge$Tasklist\".Beskrivelse FROM \"Norge$Tasklist\" WHERE Beskrivelse like ? OR Projektnr_ like ? ORDER BY Beskrivelse";
 	private static final String SELECT_PERIODS = "select * from \"Norge$Time Periods\" WHERE Ressource = ? AND Startdato < ? AND Slutdato > ?";
-	private static final String DELETE_REGISTRATION = "delete from \"Norge$Time Entry\" where Løbenr_ = ?";
+	private static final String DELETE_REGISTRATION = "delete from \"Norge$Time Entry\" where Løbenr_ = ? AND Godkendt = 0 AND Bogført = 0";
 	private static final String INSERT_FAVOURITE = "insert into \"Norge$Favourite Task\" (Resourcekode, Projektnr_, Aktivitetskode) VALUES(?, ?, ?)";
 //	private static final String INSERT_REGISTRATION = "insert into \"Norge$Time Entry\" (Projektnr_, Aktivitetskode, Ressourcekode, Arbejdstype, Dato, Antal, Beskrivelse) Values(?, ?, ?, ?, ?, ?, ?)";
 	private static final String INSERT_REGISTRATION = "insert into \"Norge$Time Entry\" (Projektnr_, Aktivitetskode, Ressourcekode, Arbejdstype, Dato, Antal, Beskrivelse, Godkendt, Bogført, Fakturerbart, Linienr_, \"Internt projekt\", \"Læg til norm tid\", Afdelingsleder, \"Shortcut Dimension 1 Code\", \"Shortcut Dimension 2 Code\", \"Ressource Gruppe Nr_\", \"Exportert Tieto\", \"Ikke godkjent\", \"Ikke godkjent Beskrivelse\", \"Ikke godkjent av\", \"Endret dato\", \"Endret av\", \"Transferdate Tieto\", \"Approved By LM_PM\", \"Adjust flex limit\") VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -46,8 +46,8 @@ public class MSSQLHourRegDao implements HourRegDao {
 	@Override
 	public void endTransaction(boolean b) {
 		try {
-			//connection.commit();
-			connection.rollback();
+			connection.commit();
+			//connection.rollback();
 			connection.close();
 			connection = null;
 		} catch (SQLException e) {
@@ -66,7 +66,6 @@ public class MSSQLHourRegDao implements HourRegDao {
 			String date) {
 		List<HourRegistration> result = new ArrayList<HourRegistration>();
 		
-		
 		PreparedStatement statement = null;
 		try {
 			statement = connection.prepareStatement(SELECT_REGISTRATIONS);
@@ -74,7 +73,13 @@ public class MSSQLHourRegDao implements HourRegDao {
 			statement.setString(2, date);
 			ResultSet res = statement.executeQuery();
 			while(res.next()){
-				HourRegistration hourReg = new HourRegistration();
+				int item = res.getInt(2);
+				String projectNumber = res.getString(3);
+				String activityCode = res.getString(4);
+				double hours = res.getDouble(8);
+				String description = res.getString(9);
+				
+				HourRegistration hourReg = new HourRegistration(item, projectNumber, activityCode, hours, description);
 				result.add(hourReg);	
 			}
 		} catch (SQLException e) {
@@ -93,7 +98,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 	@Override
 	public boolean validateUser(String username, String password) {
 		PreparedStatement statement = null;
-		boolean userBoolean = false;
+		Users users = new Users();
 		String user = null;
 		try {
 			statement = connection.prepareStatement(SELECT_USERS);
@@ -101,8 +106,9 @@ public class MSSQLHourRegDao implements HourRegDao {
 			statement.setString(2, password);
 			ResultSet res = statement.executeQuery();
 			while(res.next()){
-				System.out.println(res.getString(2)+":"+res.getString(4));
-				user = res.getString(2);
+				System.out.println(res.getString(1)+":"+res.getString(2));
+				users.setUsername(res.getString(1));
+				user = res.getString(1);
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
@@ -142,7 +148,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 
 
 	@Override
-	public List<UserFavourites> getUserFavouirtes(String userName) {
+	public List<UserFavourites> getUserFavourites(String userName) {
 		List<UserFavourites> result = new ArrayList<UserFavourites>();
 		PreparedStatement statement = null;
 		int counter = 0;
@@ -151,9 +157,11 @@ public class MSSQLHourRegDao implements HourRegDao {
 			statement.setString(1, userName);
 			ResultSet res = statement.executeQuery();
 			while(res.next()){
-				UserFavourites userFav = new UserFavourites();
+				String projectNumber = res.getString(1);
+				String activityCode = res.getString(2);
+				String description = res.getString(3);
+				UserFavourites userFav = new UserFavourites(projectNumber, activityCode, description);
 				result.add(userFav);
-				counter++;
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException(e);

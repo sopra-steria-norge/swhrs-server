@@ -39,8 +39,8 @@ public class HibernateHourRegDao implements HourRegDao{
 
 	@Override
 	public void saveHours(HourRegistration reg) {
-		HourRegistrationEntity newEntity = HourRegistrationEntity.createRegistration(reg);
-		session().save(newEntity);
+		//HourRegistrationEntity newEntity = HourRegistrationEntity.createRegistration(reg);
+		//session().save(newEntity);
 	}
 
 	
@@ -59,7 +59,7 @@ public class HibernateHourRegDao implements HourRegDao{
 		List<HourRegistration> list = new LinkedList<HourRegistration>();
 		for (HourRegistrationEntity hr: entityList) {
 			//if(hr.getDate().equals(date)) {
-				list.add(hr.createHourRegistrationFromEntity());
+				//list.add(hr.createHourRegistrationFromEntity());
 			//}		
 		}
 		return list;
@@ -110,11 +110,7 @@ public class HibernateHourRegDao implements HourRegDao{
 		return list ;
 	}
 
-	@Override
-	public List<UserFavourites> getUserFavouirtes(String userName) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+
 
 	@Override
 	public List<WeekRegistration> getWeekList(String userName, String dateFrom,
@@ -162,5 +158,11 @@ public class HibernateHourRegDao implements HourRegDao{
 			String transferedTieto, int approvedByLMPM, int adjustFlexLimit) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public List<UserFavourites> getUserFavourites(String userName) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

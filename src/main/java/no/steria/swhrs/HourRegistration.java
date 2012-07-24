@@ -4,34 +4,30 @@ import org.joda.time.LocalDate;
 
 
 public class HourRegistration {
-
-	private int personId;
-	private int projectnumber; //maybe this will be changed to type "Project" later
-	private LocalDate date;
+	
+	private int item;
+	private String projectnumber; //maybe this will be changed to type "Project" later
+	private String activityCode;
+	private String date;
 	private double hours;
+	private String description;
 	
-	public static HourRegistration createRegistration(int personId, int projectnumber, LocalDate date, double hours){
-		HourRegistration hr = new HourRegistration ();
-		hr.personId = personId;
-		hr.projectnumber = projectnumber;
-		hr.date = date;
-		hr.hours = hours;
-		return hr;
+	
+	
+	public HourRegistration(int item2, String projectNumber2,
+			String activityCode2, double hours2, String description2) {
+		this.item = item2;
+		this.projectnumber = projectNumber2;
+		this.activityCode = activityCode2;
+		this.hours = hours2;
+		this.description = description2;
 	}
-	
-	public int getPersonId() {
-		return personId;
-	}
-	
-	public void setPersonId(int personId) {
-		this.personId = personId;
-	}
-	
-	public LocalDate getDate() {
+
+	public String getDate() {
 		return date;
 	}
 	
-	public void setDate(LocalDate date) {
+	public void setDate(String date) {
 		this.date = date;
 	}
 	
@@ -43,11 +39,35 @@ public class HourRegistration {
 		this.hours = hours;
 	}
 	
-	public int getProjectnumber() {
+	public String getProjectnumber() {
 		return projectnumber;
 	}
 	
-	public void setProjectnumber(int projectnumber) {
+	public void setProjectnumber(String projectnumber) {
 		this.projectnumber = projectnumber;
+	}
+
+	public int getItem() {
+		return item;
+	}
+
+	public void setItem(int item) {
+		this.item = item;
+	}
+
+	public String getActivityCode() {
+		return activityCode;
+	}
+
+	public void setActivityCode(String activityCode) {
+		this.activityCode = activityCode;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }

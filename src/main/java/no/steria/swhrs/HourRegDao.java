@@ -2,7 +2,6 @@ package no.steria.swhrs;
 
 import java.util.List;
 
-import org.joda.time.LocalDate;
 
 public interface HourRegDao {
 
@@ -14,8 +13,6 @@ public interface HourRegDao {
 	
 	List<HourRegistration> getAllHoursForDate(String person_id, String date);
 	
-	List<UserFavourites> getUserFavouirtes(String userName);
-
 	boolean validateUser(String username, String password);
 	
 	boolean deleteHourRegistration(String project_id);
@@ -33,8 +30,12 @@ public interface HourRegDao {
 			String workType, String date, String username, double hours,
 			String description);
 
+	
+
+	List<UserFavourites> getUserFavourites(String userName);
+
 	boolean addHourRegistrations(String projectNumber, String activityCode,
-			String workType, String date, String username, double hours,
+			String username, String workType, String date, double hours,
 			String description, int submitted, int approved, int billable,
 			int linenumber, int internalProject, int addNormTime,
 			String departmentManager, String shortcutDimensionOneCode,

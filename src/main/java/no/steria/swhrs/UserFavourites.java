@@ -7,13 +7,11 @@ public class UserFavourites {
 	private String activityCode;
 	private String description;
 	
-	public static UserFavourites createFavouriteList(String userName, String projectNumber, String activityCode, String description){
-		UserFavourites uf = new UserFavourites();
-		uf.userName = userName;
-		uf.projectNumber = projectNumber;
-		uf.activityCode = activityCode;
-		uf.description = description;
-		return uf;
+	public UserFavourites(String projectNumber2, String activityCode2,
+			String description2) {
+		this.projectNumber = projectNumber2;
+		this.activityCode = activityCode2;
+		this.description = description2;
 	}
 	
 	public String getUserName() {

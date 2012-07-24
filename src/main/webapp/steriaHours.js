@@ -51,6 +51,8 @@ $(document).ready(function() {
 			success: function(data){
 				SuccessLogin(data);
 				console.log(data);
+				getFavouriteList();
+				
 			},
 			error: function(data){
 				$('#loginErr').text("Wrong username/password");
@@ -104,17 +106,19 @@ $(document).ready(function() {
 		hourForm = $("#hours").val();
 		lunchForm = $("#lunch").val();
 		projectNr = favForm.split(':')[0];
+		description = favForm.split(':')[1];
+		$.trim(description);
 		personId = 1;
 		
 		updateDayList(favForm, hourForm, lunchForm);		
 		
 		if (lunchForm == 1) {
-			var myData = {'personId': personId, 'projectNr': "1", 'hours': "0.5", 'date': dateForm};		
+			var myData = {'projectNr': projectNr, 'description': description, 'hours': hourForm, 'date': dateForm, 'lunchNumber': "1"};		
+			postHourRegistration(myData);
+		}else{
+			var myData = {'projectNr': projectNr, 'description': description, 'hours': hourForm, 'date': dateForm, 'lunchNumber': "0"};		
 			postHourRegistration(myData);
 		}
-		var myData = {'personId': personId, 'projectNr': projectNr, 'hours': hourForm, 'date': dateForm};		
-		postHourRegistration(myData);
-		
 		return false;
 	});
 	
@@ -133,13 +137,13 @@ $(document).ready(function() {
 	 * #dayPage
 	 * Daylist click
 	 * Deletes the hourRegistration entry from the database
-	 
+	 */
 	$('#dayList').on('click', 'li', function() {
 	    var dayString = $(this).text();
 	    var mySplitResult = dayString.split(":");
 		$(this).remove();
 		deleteRegistration(mySplitResult[0]);
-	});*/
+	});
 	
 	
 	/*
@@ -376,13 +380,31 @@ function deleteRegistration(project_id){
 }
 
 
+function getFavouriteList(){
+	$.ajax({
+		type: "POST",
+		url: 'hours/favourite',
+		success: function(data){
+			console.log("favourites")
+			console.log(data);
+			for(var key in data){
+				console.log(key);
+				console.log(data[key]);
+			}
+		},
+		error: function(data){
+			console.log("dayList error");
+		} 
+	});
+}
+
 /*
  * getDayList()
  * Sends a date to the servlet to return all entries on a specific day
  */
 function getDayList(newDay) {
 	//Hardkoder inn prosjektene her for aa printe ut prosjektnavn, fjern dette naar vi har databaseoppslag
-	var projects = {'10': 'ZZ', '1093094': 'LARM', '1112890': 'OSL CDM', '19': 'Javazone', '1337': 'Timeforing app', '11': 'Steria Intern', '1': 'Lunch'};
+	//var projects = {'10': 'ZZ', '1093094': 'LARM', '1112890': 'OSL CDM', '19': 'Javazone', '1337': 'Timeforing app', '11': 'Steria Intern', '1': 'Lunch'};
 	
 	var newDay = {day: newDay};
 	$.ajax({
@@ -399,10 +421,11 @@ function getDayList(newDay) {
 				}
 				$('#lunch').slider('refresh');	
 				if(key === "date"){
+					console.log(data[key]);
 					$('#hdrDay').children('h1').text(data[key]);
 				}else{
 				$('#dayList').append($("<li></li>").html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
-			            key+" : "+projects[key] + ' </b><span class="ui-li-count">' + data[key] + ' timer '+'</span></a><a href=""></a>')).listview('refresh');
+			            key+' </b><span class="ui-li-count">' + data[key] + ' timer '+'</span></a><a href=""></a>')).listview('refresh');
 				}
 			} 
 		},

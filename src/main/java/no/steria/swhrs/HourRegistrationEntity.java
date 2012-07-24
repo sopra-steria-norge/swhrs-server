@@ -27,7 +27,7 @@ public class HourRegistrationEntity {
 //		hr.hours = hours;
 //		return hr;
 //	}
-	
+	/*
 	public static HourRegistrationEntity createRegistration(HourRegistration hr){
 		HourRegistrationEntity hrEnt = new HourRegistrationEntity ();
 		hrEnt.personId = hr.getPersonId();
@@ -41,7 +41,7 @@ public class HourRegistrationEntity {
 		HourRegistration hr = HourRegistration.createRegistration(getPersonId(), getProjectnumber(), getDate(), getHours());
 		return hr;
 	}
-
+	*/
 	public int getPersonId() {
 		return personId;
 	}

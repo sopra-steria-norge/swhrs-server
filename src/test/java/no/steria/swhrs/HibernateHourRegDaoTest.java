@@ -10,6 +10,7 @@ import org.eclipse.jetty.plus.jndi.EnvEntry;
 import org.hibernate.cfg.Environment;
 import org.hsqldb.jdbc.JDBCDataSource;
 import org.joda.time.LocalDate;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class HibernateHourRegDaoTest {
@@ -23,8 +24,9 @@ public class HibernateHourRegDaoTest {
 		new EnvEntry("jdbc/personDaoTest", jdbcDataSource);
 		return new HibernateHourRegDao("jdbc/personDaoTest");
 	}
-
+	/*
 	@Test
+	@Ignore
 	public void shouldGetHoursFromDate() throws Exception {
 		HourRegDao personDao = createHourRegDao();
 		personDao.beginTransaction();
@@ -46,7 +48,7 @@ public class HibernateHourRegDaoTest {
 		
 		personDao.endTransaction(true);
 	}
-	
+	*/
 	
 	@Test
 	public void shouldApproveLogin() throws Exception {
