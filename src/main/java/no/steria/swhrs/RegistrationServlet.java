@@ -162,7 +162,11 @@ public class RegistrationServlet extends HttpServlet{
 		if(req.getRequestURL().toString().contains(("hours/delete"))){
 			String taskNumber = req.getParameter("projectID");
 			System.out.println(taskNumber);
-			db.deleteHourRegistration(taskNumber);
+			boolean success = db.deleteHourRegistration(taskNumber);
+			if (!success) {
+				resp.setContentType("text/plain");
+				resp.getWriter().append("submitted");
+			}
 		}
 		
  	}

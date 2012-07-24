@@ -374,7 +374,8 @@ function deleteRegistration(project_id){
 		type: "POST",
 		url: 'hours/delete',
 		data: delreg,
-		success: function(data){	
+		success: function(data){
+			console.log(data);
 		}
 	});
 }

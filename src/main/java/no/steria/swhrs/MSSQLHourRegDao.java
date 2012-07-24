@@ -131,8 +131,13 @@ public class MSSQLHourRegDao implements HourRegDao {
 		try {
 			statement = connection.prepareStatement(DELETE_REGISTRATION);
 			statement.setString(1, project_id);
-			statement.executeUpdate();
-			return true;
+			int delResult = statement.executeUpdate();
+			if (delResult == 0) {
+				return false;
+			} else {
+				return true;
+			}
+			
 			
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
