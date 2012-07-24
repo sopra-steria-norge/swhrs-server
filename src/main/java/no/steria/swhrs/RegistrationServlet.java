@@ -3,6 +3,7 @@ package no.steria.swhrs;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Locale;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -14,6 +15,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
 import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.json.simple.JSONObject;
 
 
@@ -45,7 +49,6 @@ public class RegistrationServlet extends HttpServlet{
 		
 		if (req.getRequestURL().toString().contains(("hours/projects"))) { 
 			resp.setContentType("application/json");
-			//List favList = db.getUserFavouirtes(User.getUsername);
 			//TODO return a list of all projects.
 		}
 		
@@ -76,9 +79,10 @@ public class RegistrationServlet extends HttpServlet{
 			if(newDay.equals("nextDay")) date = date.plusDays(1);
 			System.out.println(date);
 			List<HourRegistration> hrlist = db.getAllHoursForDate(username, date.toString());
-			
+
 			String stringDate = date.toString();
-			JSONObject json = createJsonObjectFromHours(hrlist, stringDate);
+			System.out.println(date.getDayOfWeek());
+			JSONObject json = createJsonObjectFromHours(hrlist, date.getDayOfWeek()+" "+stringDate);
 
 			PrintWriter writer = resp.getWriter();
 			String jsonText = json.toString();
@@ -88,7 +92,7 @@ public class RegistrationServlet extends HttpServlet{
 		
 		if(req.getRequestURL().toString().contains(("hours/favourite"))){
 			resp.setContentType("application/json");
-			List<UserFavourites> userList = db.getUserFavourites("AK");
+			List<UserFavourites> userList = db.getUserFavourites(username);
 			JSONObject json = createJsonObjectFromFavourites(userList);
 
 			PrintWriter writer = resp.getWriter();
@@ -105,25 +109,18 @@ public class RegistrationServlet extends HttpServlet{
 			String description = req.getParameter("description");
 			
 			db.addHourRegistrations(projectNumber, "2", username, "", date.toString(), hours, description, 0, 0, 1, 10101, 0, 0, "HRA", "", projectNumber, "", 0, 0, "", "", "2012-05-30", "HRA", "", 0, 0);
-			//req.getParameter("date");
 			System.out.println(lunchNumber);
 			if(lunchNumber.equals("1")){
-				db.addHourRegistrations(lunchNumber, "1", username, "", date.toString(), 0.5, "Lunsj", 0, 0, 1, 10101, 0, 0, "HRA", "", projectNumber, "", 0, 0, "", "", "2012-05-30", "HRA", "", 0, 0);
+				db.addHourRegistrations(lunchNumber, "1", username, "", date.toString(), 0.5, "Lunsj", 0, 0, 1, 10101, 0, 0, "HRA", "", lunchNumber, "", 0, 0, "", "", "2012-05-30", "HRA", "", 0, 0);
 			}
 			System.out.println("Trying to save project: " + projectNumber);
-			//TODO currently hardcoded as LocalDate.now() change to get date parameter from javascript
-			//saveRegToDatabase(personId, projectNr, date, hours);
 		}
 		
 		if (req.getRequestURL().toString().contains(("hours/login"))) {
 			username = req.getParameter("username");
 			String password = req.getParameter("password");
-			String country = req.getParameter("country");
-			System.out.println("Username: " +username+" Password: "+password+" Country: "+country);
 			int autoLoginExpire = (60*60*24);
-			//Change this when database is up
 			if(db.validateUser(username, password) == true){
-			//if(username.equals("steria") && password.equals("123") && country.equals("norway")){
 				Cookie loginCookie = new Cookie("USERNAME", username);
 				loginCookie.setMaxAge(autoLoginExpire);
 				resp.setContentType("text/plain");
@@ -181,12 +178,6 @@ public class RegistrationServlet extends HttpServlet{
 	}
 
 
-	private void saveRegToDatabase(int personId, int projectNr, LocalDate date, double hours) {
-		//HourRegistration reg = HourRegistration.createRegistration(personId, projectNr, date, hours);
-		System.out.println("Saving registration with data: " + projectNr + "," +hours+ ", " +date);
-		//db.saveHours(reg);
-	}
-	
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {

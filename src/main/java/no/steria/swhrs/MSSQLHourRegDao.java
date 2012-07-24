@@ -22,7 +22,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 	//private static final String SELECT_PROJECTS = "select \"Norge$Tasklist\".Projektnr_, \"Norge$Tasklist\".Kode, \"Norge$Tasklist\".Beskrivelse FROM \"Norge$Tasklist\" WHERE Type=0 and Afsluttet=0 and Spærret=0 and Vis=1 and Status=2";
 	private static final String SELECT_WEEKREGISTRATIONS = "select \"Norge$Time Entry\".Løbenr_, Beskrivelse, Antal, Godkendt, Dato from \"Norge$Time Entry\" where Ressourcekode = ? AND Dato Between ? AND ? ORDER BY Dato";
 	private static final String SELECT_SEARCHPROJECTS = "select \"Norge$Tasklist\".Projektnr_, \"Norge$Tasklist\".Kode, \"Norge$Tasklist\".Beskrivelse FROM \"Norge$Tasklist\" WHERE Beskrivelse like ? OR Projektnr_ like ? ORDER BY Beskrivelse";
-	private static final String SELECT_PERIODS = "select * from \"Norge$Time Periods\" WHERE Ressource = ? AND Startdato < ? AND Slutdato > ?";
+	private static final String SELECT_PERIODS = "select Startdato, Slutdato, Beskrivelse, Bogført from \"Norge$Time Periods\" WHERE Ressource = ? AND Startdato < ? AND Slutdato > ?";
 	private static final String DELETE_REGISTRATION = "delete from \"Norge$Time Entry\" where Løbenr_ = ? AND Godkendt = 0 AND Bogført = 0";
 	private static final String INSERT_FAVOURITE = "insert into \"Norge$Favourite Task\" (Resourcekode, Projektnr_, Aktivitetskode) VALUES(?, ?, ?)";
 //	private static final String INSERT_REGISTRATION = "insert into \"Norge$Time Entry\" (Projektnr_, Aktivitetskode, Ressourcekode, Arbejdstype, Dato, Antal, Beskrivelse) Values(?, ?, ?, ?, ?, ?, ?)";

@@ -19,6 +19,7 @@ var password = null;
 
 var pageVar = "";
 var pageVars = {}
+var favList = new Array();
 
 // Constants
 var MISSING = "missing";
@@ -203,11 +204,6 @@ function SuccessLogin(data) {
 	}
 }
 
-function deleteEntry(){
-	console.log("WANNA DELETE");
-	$(this).remove();
-}
-
 
 /*
  * postHourRegistration(mydata)
@@ -351,13 +347,13 @@ function updateDayList(fav, hour, lunch){
 	
 	if(lunch == 1){
 		$('#dayList').append($("<li></li>").html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
-	            lunchText + '</b><span class="ui-li-count"> 0.5 timer '+'</span></a><a href="javascript:deleteEntry()"></a>')).listview('refresh');	
+	            lunchText + '</b><span class="ui-li-count"> 0.5 timer '+'</span></a><a href=""></a>')).listview('refresh');	
 		$('#lunch').val(0);
 		$('#lunch').slider('refresh');
 		
 	}
 	$('#dayList').append($("<li></li>").html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
-            fav + ' </b><span class="ui-li-count">' + hour + ' timer '+'</span></a><a href="javascript:deleteEntry()"></a>')).listview('refresh');
+            fav + ' </b><span class="ui-li-count">' + hour + ' timer '+'</span></a><a href=""></a>')).listview('refresh');
 	$('#hours').val(0);
 	$('#hours').slider('refresh');
 }
@@ -381,6 +377,8 @@ function deleteRegistration(project_id){
 
 
 function getFavouriteList(){
+	
+	
 	$.ajax({
 		type: "POST",
 		url: 'hours/favourite',
@@ -388,15 +386,23 @@ function getFavouriteList(){
 			console.log("favourites")
 			console.log(data);
 			for(var key in data){
+				favList.push(key+" : "+data[key]);
 				console.log(key);
 				console.log(data[key]);
 			}
+			/*
+			for (i=0; i<5; i++) {
+				$("#fav").append('<option value="' + i + '">Option ' + (i+1) + '</option>');
+			}
+			$("#fav") .prop('disabled',false);
+			console.log(favList[2]);*/
 		},
 		error: function(data){
 			console.log("dayList error");
 		} 
 	});
 }
+
 
 /*
  * getDayList()
@@ -405,6 +411,7 @@ function getFavouriteList(){
 function getDayList(newDay) {
 	//Hardkoder inn prosjektene her for aa printe ut prosjektnavn, fjern dette naar vi har databaseoppslag
 	//var projects = {'10': 'ZZ', '1093094': 'LARM', '1112890': 'OSL CDM', '19': 'Javazone', '1337': 'Timeforing app', '11': 'Steria Intern', '1': 'Lunch'};
+	var weekDays = new Array("", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 	
 	var newDay = {day: newDay};
 	$.ajax({
@@ -421,8 +428,10 @@ function getDayList(newDay) {
 				}
 				$('#lunch').slider('refresh');	
 				if(key === "date"){
-					console.log(data[key]);
-					$('#hdrDay').children('h1').text(data[key]);
+					var hdrDayText = data[key].split(' ')[0];
+					var hdrDateText = data[key].split(' ')[1];
+					var dateText = hdrDateText.split('-')[2]+"."+hdrDateText.split('-')[1]+"."+hdrDateText.split('-')[0]
+					$('#hdrDay').children('h1').text(weekDays[hdrDayText]+" "+ dateText);
 				}else{
 				$('#dayList').append($("<li></li>").html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
 			            key+' </b><span class="ui-li-count">' + data[key] + ' timer '+'</span></a><a href=""></a>')).listview('refresh');
@@ -435,6 +444,9 @@ function getDayList(newDay) {
 	});	
 }
 
+function reverse(s){
+    return s.split("").reverse().join("");
+}
 
 /*
  * resetDay() & clearForm()
