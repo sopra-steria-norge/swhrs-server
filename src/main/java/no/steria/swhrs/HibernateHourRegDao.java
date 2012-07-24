@@ -81,18 +81,6 @@ public class HibernateHourRegDao implements HourRegDao{
 		return sessionFactory.getCurrentSession();
 	}
 
-	@Override
-	public HourRegistration getHourRegistration(int person_id, LocalDate date) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean updataHourRegistration(int person_id, String project_id,
-			LocalDate date) {
-		// TODO Auto-generated method stub
-		return false;
-	}
 
 	@Override
 	public boolean deleteHourRegistration(String projectID) {
@@ -133,5 +121,46 @@ public class HibernateHourRegDao implements HourRegDao{
 			String dateTo) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public boolean addFavourites(String username, String project_id,
+			String activityCode) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public List<Projects> getProjects(String projectName) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public DatePeriod getPeriod(String userid, String date) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean addHourRegistrations(String projectNumber,
+			String activityCode, String workType, String date, String username,
+			double hours, String description) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean addHourRegistrations(String projectNumber,
+			String activityCode, String workType, String date, String username,
+			double hours, String description, int submitted, int approved,
+			int billable, int linenumber, int internalProject, int addNormTime,
+			String departmentManager, String shortcutDimensionOneCode,
+			String shortcutDimensionTwoCode, String resourceGroupNumber,
+			int exportTieto, int notApproved, String notApprovedDescription,
+			String notApprovedBy, String changedDate, String changedBy,
+			String transferedTieto, int approvedByLMPM, int adjustFlexLimit) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

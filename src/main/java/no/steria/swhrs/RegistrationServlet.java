@@ -124,7 +124,9 @@ public class RegistrationServlet extends HttpServlet{
 			if(week.equals("nextWeek")) date = date.plusWeeks(1);
 			if(week.equals("prevWeek")) date = date.minusWeeks(1);
 			String weekString = ""+date.getWeekOfWeekyear();
-			List<WeekRegistration> weeklist = db.getWeekSummary(weekString);
+			String dateFrom = date.toString();
+			String dateTo = date.toString();
+			List<WeekRegistration> weeklist = db.getWeekList(weekString, dateFrom, dateTo);
 			JSONObject json = new JSONObject();
 			int order = 0;
 			
