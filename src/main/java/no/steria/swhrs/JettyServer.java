@@ -41,7 +41,6 @@ public class JettyServer {
 		
 			JDBCDataSource jdbcDataSource = new JDBCDataSource();
 			jdbcDataSource.setDatabase("jdbc:hsqldb:mem:testDb");
-	//		jdbcDataSource.setDatabase("jdbc:sqlserver://localhost;databaseName=SuperComputer;integratedSecurity=true;");
 			jdbcDataSource.setUser("sa");
 			jdbcDataSource.setPassword("");
 			System.setProperty(Environment.HBM2DDL_AUTO, "create");
