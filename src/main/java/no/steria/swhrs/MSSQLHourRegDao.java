@@ -24,6 +24,9 @@ public class MSSQLHourRegDao implements HourRegDao {
 	private static final String SELECT_SEARCHPROJECTS = "select \"Norge$Tasklist\".Projektnr_, \"Norge$Tasklist\".Kode, \"Norge$Tasklist\".Beskrivelse FROM \"Norge$Tasklist\" WHERE Beskrivelse like ? OR Projektnr_ like ? ORDER BY Beskrivelse";
 	private static final String SELECT_PERIODS = "select * from \"Norge$Time Periods\" WHERE Ressource = ? AND Startdato < ? AND Slutdato > ?";
 	private static final String DELETE_REGISTRATION = "delete from \"Norge$Time Entry\" where Løbenr_ = ?";
+	private static final String INSERT_FAVOURITE = "insert into \"Norge$Favourite Task\" (Resourcekode, Projektnr_, Aktivitetskode) VALUES(?, ?, ?)";
+//	private static final String INSERT_REGISTRATION = "insert into \"Norge$Time Entry\" (Projektnr_, Aktivitetskode, Ressourcekode, Arbejdstype, Dato, Antal, Beskrivelse) Values(?, ?, ?, ?, ?, ?, ?)";
+	private static final String INSERT_REGISTRATION = "insert into \"Norge$Time Entry\" (Projektnr_, Aktivitetskode, Ressourcekode, Arbejdstype, Dato, Antal, Beskrivelse, Godkendt, Bogført, Fakturerbart, Linienr_, \"Internt projekt\", \"Læg til norm tid\", Afdelingsleder, \"Shortcut Dimension 1 Code\", \"Shortcut Dimension 2 Code\", \"Ressource Gruppe Nr_\", \"Exportert Tieto\", \"Ikke godkjent\", \"Ikke godkjent Beskrivelse\", \"Ikke godkjent av\", \"Endret dato\", \"Endret av\", \"Transferdate Tieto\", \"Approved By LM_PM\", \"Adjust flex limit\") VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	
 	public MSSQLHourRegDao(DataSource datasource) {
 		this.datasource = datasource;
@@ -43,6 +46,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 	@Override
 	public void endTransaction(boolean b) {
 		try {
+			//connection.commit();
 			connection.rollback();
 			connection.close();
 			connection = null;
@@ -114,18 +118,6 @@ public class MSSQLHourRegDao implements HourRegDao {
 		return false;	
 	}
 
-	@Override
-	public HourRegistration getHourRegistration(int person_id, LocalDate date) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean updataHourRegistration(int person_id, String project_id,
-			LocalDate date) {
-		// TODO Auto-generated method stub
-		return false;
-	}
 
 	@Override
 	public boolean deleteHourRegistration(String project_id) {
@@ -134,6 +126,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 			statement = connection.prepareStatement(DELETE_REGISTRATION);
 			statement.setString(1, project_id);
 			statement.executeUpdate();
+			return true;
 			
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
@@ -145,15 +138,8 @@ public class MSSQLHourRegDao implements HourRegDao {
 				throw new RuntimeException(e);
 			}
 		}
-		return true;
-
 	}
 
-	@Override
-	public List<WeekRegistration> getWeekSummary(String weekNumber) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public List<UserFavourites> getUserFavouirtes(String userName) {
@@ -182,7 +168,8 @@ public class MSSQLHourRegDao implements HourRegDao {
 		System.out.println(counter);
 		return result;
 	}
-
+	
+	@Override
 	public List<Projects> getProjects(String projectName) {
 		List<Projects> result = new ArrayList<Projects>();
 		System.out.println(projectName);
@@ -213,7 +200,8 @@ public class MSSQLHourRegDao implements HourRegDao {
 		System.out.println(counter);
 		return result;
 	}
-
+	
+	@Override
 	public List<WeekRegistration> getWeekList(String userName, String dateFrom,
 			String dateTo) {
 		List<WeekRegistration> result = new ArrayList<WeekRegistration>();
@@ -244,7 +232,8 @@ public class MSSQLHourRegDao implements HourRegDao {
 		return result;
 		
 	}
-
+	
+	@Override
 	public DatePeriod getPeriod(String userid, String date) {
 		DatePeriod datePeriod = new DatePeriod();
 		PreparedStatement statement = null;
@@ -273,6 +262,92 @@ public class MSSQLHourRegDao implements HourRegDao {
 		}
 		System.out.println(counter);
 		return datePeriod;
+	}
+	
+	@Override
+	public boolean addFavourites(String username, String project_id, String activityCode) {
+		
+		PreparedStatement statement = null;
+		try {
+			statement = connection.prepareStatement(INSERT_FAVOURITE);
+			statement.setString(1, username);
+			statement.setString(2, project_id);
+			statement.setString(3, activityCode);
+			statement.executeUpdate();
+			return true;
+			
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+		finally{
+			try {
+				if(statement != null)statement.close();
+			} catch (SQLException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
+	
+	@Override
+	public boolean addHourRegistrations(String projectNumber, String activityCode,
+			String username, String workType, String date, double hours, String description, 
+			int submitted, int approved , int billable, int linenumber, int internalProject, 
+			int addNormTime, String departmentManager, String shortcutDimensionOneCode, 
+			String shortcutDimensionTwoCode, String resourceGroupNumber, int exportTieto, int notApproved, 
+			String notApprovedDescription, String notApprovedBy, String changedDate, String changedBy, 
+			String transferedTieto, int approvedByLMPM, int adjustFlexLimit) {
+		
+		PreparedStatement statement = null;
+		try {
+			statement = connection.prepareStatement(INSERT_REGISTRATION );
+			statement.setString(1, projectNumber);
+			statement.setString(2, activityCode);
+			statement.setString(3, username);
+			statement.setString(4, workType);
+			statement.setString(5, date);
+			statement.setDouble(6, hours);
+			statement.setString(7, description);
+			statement.setInt(8, submitted);
+			statement.setInt(9, approved);
+			statement.setInt(10, billable);
+			statement.setInt(11, linenumber);
+			statement.setInt(12, internalProject);
+			statement.setInt(13, addNormTime);
+			statement.setString(14, departmentManager);
+			statement.setString(15, shortcutDimensionOneCode);
+			statement.setString(16, shortcutDimensionTwoCode);
+			statement.setString(17, resourceGroupNumber);
+			statement.setInt(18, exportTieto);
+			statement.setInt(19, notApproved);
+			statement.setString(20, notApprovedDescription);
+			statement.setString(21, notApprovedBy);
+			statement.setString(22, changedDate);
+			statement.setString(23, changedBy);
+			statement.setString(24, transferedTieto);
+			statement.setInt(25, approvedByLMPM);
+			statement.setInt(26, adjustFlexLimit);
+			statement.executeUpdate();
+			return true;
+			
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+		finally{
+			try {
+				if(statement != null)statement.close();
+			} catch (SQLException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
+
+	@Override
+	//remove this method later
+	public boolean addHourRegistrations(String projectNumber,
+			String activityCode, String workType, String date, String username,
+			double hours, String description) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

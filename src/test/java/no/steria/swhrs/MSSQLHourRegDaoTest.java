@@ -13,6 +13,7 @@ import net.sourceforge.jtds.jdbc.Driver;
 import net.sourceforge.jtds.jdbcx.JtdsDataSource;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class MSSQLHourRegDaoTest {
@@ -115,5 +116,24 @@ public class MSSQLHourRegDaoTest {
 		hourRegDao.endTransaction(false);
 		assertTrue(deleted);
 	}
+	
+	@Ignore
+	public void shouldAddFavourites() throws Exception {
+		hourRegDao.beginTransaction();
+		boolean addFavourite = hourRegDao.addFavourites("IHH", "1095754", "7");
+		hourRegDao.endTransaction(false);
+		
+		assertTrue(addFavourite);
+		
+	}
 
+	@Test
+	public void shouldAddRegistration() throws Exception {
+		hourRegDao.beginTransaction();
+		boolean isAdded = hourRegDao.addHourRegistrations("1095754", "3", "AK", "","2012-05-25", 6, "Ny insert", 0, 0, 1, 10101, 0, 0, "HRA", "", "1095754", "", 0, 0, "", "", "2012-05-30", "HRA", "", 0, 0);
+		hourRegDao.endTransaction(false);
+		
+		assertTrue(isAdded);
+	}
+	
 }
