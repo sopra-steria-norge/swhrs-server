@@ -399,6 +399,7 @@ function deleteRegistration(project_id){
 			}
 		}
 	});
+	return deleted;
 }
 
 
