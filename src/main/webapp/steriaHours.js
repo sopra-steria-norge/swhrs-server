@@ -141,8 +141,10 @@ $(document).ready(function() {
 	$('#dayList').on('click', 'li', function() {
 	    var dayString = $(this).text();
 	    var mySplitResult = dayString.split(":");
-		$(this).remove();
-		deleteRegistration(mySplitResult[0]);
+		var deleted = deleteRegistration(mySplitResult[0]);
+		if (deleted) {
+			$(this).remove();
+		}
 	});
 	
 	
@@ -368,14 +370,20 @@ function updateDayList(fav, hour, lunch){
  * sends an hourRegistration to the servlet to be deleted in the database
  */
 function deleteRegistration(project_id){
-	console.log(project_id);
+	console.log('Deleting registration with project id ' + project_id);
 	var delreg = {projectID: project_id}
 	$.ajax({
 		type: "POST",
 		url: 'hours/delete',
 		data: delreg,
 		success: function(data){
-			console.log(data);
+			if (data.indexOf('Already submitted') != -1) {
+				console.log(data);
+				$.mobile.changePage($("#dialogPopUpNoDelete"));
+				return false;
+			} else {
+				return true;
+			}
 		}
 	});
 }
