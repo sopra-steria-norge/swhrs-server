@@ -6,12 +6,10 @@ public class WeekRegistration {
 	private int approved;
 	private String date;
 	
-	public static WeekRegistration createWeekList(double hours, int approved, String date){
-		WeekRegistration wl = new WeekRegistration();
-		wl.hours = hours;
-		wl.approved = approved;
-		wl.date = date;
-		return wl;
+	public WeekRegistration(String date2, double hours2, int approved2) {
+		this.date = date2;
+		this.hours = hours2;
+		this.approved = approved2;
 	}
 	
 	public double getHours() {

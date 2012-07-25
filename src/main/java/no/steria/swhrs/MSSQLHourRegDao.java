@@ -20,9 +20,10 @@ public class MSSQLHourRegDao implements HourRegDao {
 	private static final String SELECT_REGISTRATIONS = "SELECT * FROM \"Norge$Time Entry\" WHERE Ressourcekode = ? AND Dato = ?";
 	private static final String SELECT_FAVOURITES = "select \"Norge$Favourite Task\".Projektnr_, \"Norge$Favourite Task\".Aktivitetskode, \"Norge$Tasklist\".Beskrivelse from \"Norge$Favourite Task\"  INNER JOIN \"Norge$Tasklist\" ON \"Norge$Favourite Task\".Projektnr_= \"Norge$Tasklist\".Projektnr_ AND \"Norge$Favourite Task\".Aktivitetskode = \"Norge$Tasklist\".Kode WHERE \"Norge$Favourite Task\".Resourcekode = ?";
 	//private static final String SELECT_PROJECTS = "select \"Norge$Tasklist\".Projektnr_, \"Norge$Tasklist\".Kode, \"Norge$Tasklist\".Beskrivelse FROM \"Norge$Tasklist\" WHERE Type=0 and Afsluttet=0 and Spærret=0 and Vis=1 and Status=2";
-	private static final String SELECT_WEEKREGISTRATIONS = "select \"Norge$Time Entry\".Løbenr_, Beskrivelse, Antal, Godkendt, Dato from \"Norge$Time Entry\" where Ressourcekode = ? AND Dato Between ? AND ? ORDER BY Dato";
+	//private static final String SELECT_WEEKREGISTRATIONS = "select \"Norge$Time Entry\".Løbenr_, Beskrivelse, Antal, Godkendt, Dato from \"Norge$Time Entry\" where Ressourcekode = ? AND Dato Between ? AND ? ORDER BY Dato";
+	private static final String SELECT_WEEKREGISTRATIONS = "select Dato, sum(Antal), Godkendt from \"Norge$Time Entry\" where Ressourcekode = ? AND Dato Between ? AND ? GROUP BY Dato, Godkendt";
 	private static final String SELECT_SEARCHPROJECTS = "select \"Norge$Tasklist\".Projektnr_, \"Norge$Tasklist\".Kode, \"Norge$Tasklist\".Beskrivelse FROM \"Norge$Tasklist\" WHERE Beskrivelse like ? OR Projektnr_ like ? ORDER BY Beskrivelse";
-	private static final String SELECT_PERIODS = "select Startdato, Slutdato, Beskrivelse, Bogført from \"Norge$Time Periods\" WHERE Ressource = ? AND Startdato < ? AND Slutdato > ?";
+	private static final String SELECT_PERIODS = "select Startdato, Slutdato, Beskrivelse, Bogført from \"Norge$Time Periods\" WHERE Ressource = ? AND Startdato <= ? AND Slutdato >= ?";
 	private static final String DELETE_REGISTRATION = "delete from \"Norge$Time Entry\" where Løbenr_ = ? AND Godkendt = 0 AND Bogført = 0";
 	private static final String INSERT_FAVOURITE = "insert into \"Norge$Favourite Task\" (Resourcekode, Projektnr_, Aktivitetskode) VALUES(?, ?, ?)";
 //	private static final String INSERT_REGISTRATION = "insert into \"Norge$Time Entry\" (Projektnr_, Aktivitetskode, Ressourcekode, Arbejdstype, Dato, Antal, Beskrivelse) Values(?, ?, ?, ?, ?, ?, ?)";
@@ -219,7 +220,6 @@ public class MSSQLHourRegDao implements HourRegDao {
 			String dateTo) {
 		List<WeekRegistration> result = new ArrayList<WeekRegistration>();
 		PreparedStatement statement = null;
-		int counter = 0;
 		try {
 			statement = connection.prepareStatement(SELECT_WEEKREGISTRATIONS);
 			statement.setString(1, userName);
@@ -227,9 +227,11 @@ public class MSSQLHourRegDao implements HourRegDao {
 			statement.setString(3, dateTo);
 			ResultSet res = statement.executeQuery();
 			while(res.next()){
-				WeekRegistration weekReg = new WeekRegistration();
+				String date = res.getString(1);
+				double hours = res.getDouble(2);
+				int approved = res.getInt(3);
+				WeekRegistration weekReg = new WeekRegistration(date, hours, approved);
 				result.add(weekReg);
-				counter++;
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
@@ -241,7 +243,6 @@ public class MSSQLHourRegDao implements HourRegDao {
 				throw new RuntimeException(e);
 			}
 		}
-		System.out.println(counter);
 		return result;
 		
 	}
@@ -258,9 +259,9 @@ public class MSSQLHourRegDao implements HourRegDao {
 			statement.setString(3, date);
 			ResultSet res = statement.executeQuery();
 			while(res.next()){
-				datePeriod.setFromDate(res.getString(2));
-				datePeriod.setToDate(res.getString(5));
-				datePeriod.setDescription(res.getString(6));
+				datePeriod.setFromDate(res.getString(1));
+				datePeriod.setToDate(res.getString(2));
+				datePeriod.setDescription(res.getString(3));
 				counter++;
 			}
 		} catch (SQLException e) {

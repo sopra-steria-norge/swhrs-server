@@ -140,16 +140,21 @@ public class RegistrationServlet extends HttpServlet{
 			String weekString = ""+date.getWeekOfWeekyear();
 			String dateFrom = date.toString();
 			String dateTo = date.toString();
-			List<WeekRegistration> weeklist = db.getWeekList(weekString, dateFrom, dateTo);
+			
+			DatePeriod period = db.getPeriod(username, date.toString());
+			System.out.println("fromDate: "+period.getFromDate()+" toDate: "+period.getToDate()+" Description: "+period.getDescription());
+			
+			List<WeekRegistration> weeklist = db.getWeekList(username, period.getFromDate(), period.getToDate());
 			JSONObject json = new JSONObject();
 			int order = 0;
-			
-			/*for (WeekRegistration wr: weeklist) {
+			String weekDescription = period.getDescription();
+			for (WeekRegistration wr: weeklist) {
 				order++;
-				json.put(wr.getDate(), order+":"+wr.getWeekHours());
-			}*/
-			json.put("weekNumber", date.getWeekOfWeekyear());
-			json.put("hoho", ""+date);
+				System.out.println("Date: "+wr.getDate()+" Hours: "+wr.getHours()+" Approved: "+wr.getApproved()); 
+				json.put(wr.getDate(), order+":"+wr.getHours());
+			}
+			json.put("weekNumber", weekDescription);
+			json.put("hoho", date.getDayOfWeek()+" "+date.toString());
 			resp.setContentType("text/json");
 			PrintWriter writer = resp.getWriter();
 			String jsonText = json.toString();
@@ -166,6 +171,7 @@ public class RegistrationServlet extends HttpServlet{
 			}
 		}
 		
+		
  	}
 
 
@@ -175,7 +181,7 @@ public class RegistrationServlet extends HttpServlet{
 		JSONObject json = new JSONObject();
 		for (UserFavourites ul: userList) {
 			//json.put(hr.getItem(), hr.getHours());
-			json.put(ul.getProjectNumber(), ul.getActivityCode()+": "+ul.getDescription());
+			json.put(ul.getProjectNumber(), ul.getActivityCode()+":"+ul.getDescription());
 		}
 		return json;
 		
