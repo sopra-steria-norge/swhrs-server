@@ -1,7 +1,6 @@
 // Declare global variables
 var favLabelVar = null;
 var hoursLabelVar = null;
-var favVar = null;
 var hoursVar = null;
 var dateCounter = 0;
 
@@ -19,19 +18,32 @@ var password = null;
 
 var pageVar = "";
 var pageVars = {}
+var favList = new Array();
+var favourite = 1;
 
 // Constants
 var MISSING = "missing";
 var NO_FAV = "10 : ZZ";
 var ZERO = 0;	
 
+
 $(document).ready(function() {
+	
 	favLabelVar = $('#favLabel');
 	hoursLabelVar = $('#hoursLabel');
-	favVar = $('#fav');
+	var favVar = $('#fav');
 	hoursVar = $('#hours');
 	var today = "today";
+	
 	getDayList(today);
+	
+//	for (var i = 0; i < favList.length; i++) {
+//		var favs = favList[i];
+//		console.log("EASDASAD"+favs);
+//		$('#fav').append('<option value='+favs+'>'+favs+'</option>').selectmenu('refresh', true);
+//	    
+//	}
+	
 	
 	/*
 	 * #loginPage
@@ -43,6 +55,7 @@ $(document).ready(function() {
 		var loginErr = false;
 		var jsonLogin = {username: $('[name=username]').val() , password: $('[name=password]').val(), country: $('input[name=radioCountry]:checked').val()}	
 		console.log(jsonLogin);
+		
 		
 		$.ajax({
 			type:"POST",
@@ -85,15 +98,13 @@ $(document).ready(function() {
 		favLabelVar.removeClass(MISSING);
 		hoursLabelVar.removeClass(MISSING);
 		$.mobile.silentScroll(100);
+		console.log(hoursLabelVar);
 		
 		if(favVar.val()==NO_FAV){
 			favLabelVar.addClass(MISSING);
 			err = true;
 		}
-		if(hoursVar.val()==ZERO){
-			hoursLabelVar.addClass(MISSING);
-			err = true;
-		}
+		
 		
 		// If validation fails, show contentDialog
 		if(err == true){
@@ -105,13 +116,15 @@ $(document).ready(function() {
 		favForm = $("#fav").val();
 		hourForm = $("#hours").val();
 		lunchForm = $("#lunch").val();
+		console.log("TEST: "+favForm);
 		projectNr = favForm.split(':')[0];
-		description = favForm.split(':')[1];
-		$.trim(description);
+		activityCode = favForm.split(':')[1]
+		description = favForm.split(':')[2];
+		console.log(projectNr, activityCode, description);
 		personId = 1;
 		
 		updateDayList(favForm, hourForm, lunchForm);		
-		
+			
 		if (lunchForm == 1) {
 			var myData = {'projectNr': projectNr, 'description': description, 'hours': hourForm, 'date': dateForm, 'lunchNumber': "1"};		
 			postHourRegistration(myData);
@@ -207,11 +220,6 @@ function SuccessLogin(data) {
 	}
 }
 
-function deleteEntry(){
-	console.log("WANNA DELETE");
-	$(this).remove();
-}
-
 
 /*
  * postHourRegistration(mydata)
@@ -269,7 +277,7 @@ function nextWeek(){
  * If success: Loads new period data.  
  */
 function getWeekList(newWeek){
-	//var week = {week: $('#hdrWeek').children('h1').text()}
+	var weekDays = new Array("", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 	var week = {week: newWeek};
 	$('#weekList').children().remove('li');
 	$.ajax({
@@ -283,9 +291,12 @@ function getWeekList(newWeek){
 			for (var key in data) {
 				if (data.hasOwnProperty(key)) {
 					if(key === "weekNumber"){	
-						$('#hdrWeek').children('h1').text("Week: "+data[key]);
+						$('#hdrWeek').children('h1').text(data[key]);
 					}else if(key === "hoho"){
-						$('#hdrDay').children('h1').text(data[key]);
+						var hdrDayText = data[key].split(' ')[0];
+						var hdrDateText = data[key].split(' ')[1];
+						var dateText = hdrDateText.split('-')[2]+"."+hdrDateText.split('-')[1]+"."+hdrDateText.split('-')[0]
+						$('#hdrDay').children('h1').text(weekDays[hdrDayText]+" "+ dateText);
 					}else{
 						console.log("data");
 						dateArray.push(key);
@@ -355,13 +366,13 @@ function updateDayList(fav, hour, lunch){
 	
 	if(lunch == 1){
 		$('#dayList').append($("<li></li>").html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
-	            lunchText + '</b><span class="ui-li-count"> 0.5 timer '+'</span></a><a href="javascript:deleteEntry()"></a>')).listview('refresh');	
+	            lunchText + '</b><span class="ui-li-count"> 0.5 timer '+'</span></a><a href=""></a>')).listview('refresh');	
 		$('#lunch').val(0);
 		$('#lunch').slider('refresh');
 		
 	}
 	$('#dayList').append($("<li></li>").html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
-            fav + ' </b><span class="ui-li-count">' + hour + ' timer '+'</span></a><a href="javascript:deleteEntry()"></a>')).listview('refresh');
+            fav + ' </b><span class="ui-li-count">' + hour + ' timer '+'</span></a><a href=""></a>')).listview('refresh');
 	$('#hours').val(0);
 	$('#hours').slider('refresh');
 }
@@ -399,14 +410,27 @@ function getFavouriteList(){
 			console.log("favourites")
 			console.log(data);
 			for(var key in data){
+				favList.push(key+":"+data[key]);
 				console.log(key);
 				console.log(data[key]);
 			}
+			fillSelect(favList);
+			console.log("favlist2: "+favList[2]);
 		},
 		error: function(data){
 			console.log("dayList error");
 		} 
 	});
+}
+
+function fillSelect(favList){
+		var options = '' ;
+		for (var i = 0; i < favList.length; i++) {
+			var favs = favList[i];
+			console.log("favs"+favs);
+			$('#fav').append('<option value='+favs+'>'+favs+'</option>').selectmenu('refresh', true);
+		    
+		}
 }
 
 /*
@@ -416,6 +440,8 @@ function getFavouriteList(){
 function getDayList(newDay) {
 	//Hardkoder inn prosjektene her for aa printe ut prosjektnavn, fjern dette naar vi har databaseoppslag
 	//var projects = {'10': 'ZZ', '1093094': 'LARM', '1112890': 'OSL CDM', '19': 'Javazone', '1337': 'Timeforing app', '11': 'Steria Intern', '1': 'Lunch'};
+	var weekDays = new Array("", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+	if(newDay == 1)getFavouriteList();
 	
 	var newDay = {day: newDay};
 	$.ajax({
@@ -432,18 +458,29 @@ function getDayList(newDay) {
 				}
 				$('#lunch').slider('refresh');	
 				if(key === "date"){
-					console.log(data[key]);
-					$('#hdrDay').children('h1').text(data[key]);
+					var hdrDayText = data[key].split(' ')[0];
+					var hdrDateText = data[key].split(' ')[1];
+					var dateText = hdrDateText.split('-')[2]+"."+hdrDateText.split('-')[1]+"."+hdrDateText.split('-')[0]
+					$('#hdrDay').children('h1').text(weekDays[hdrDayText]+" "+ dateText);
 				}else{
 				$('#dayList').append($("<li></li>").html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
 			            key+' </b><span class="ui-li-count">' + data[key] + ' timer '+'</span></a><a href=""></a>')).listview('refresh');
 				}
-			} 
+			}
+			
+			
 		},
 		error: function(data){
 			console.log("dayList error");
 		} 
 	});	
+}
+
+function setHdrDay(data, key){
+	var hdrDayText = data[key].split(' ')[0];
+	var hdrDateText = data[key].split(' ')[1];
+	var dateText = hdrDateText.split('-')[2]+"."+hdrDateText.split('-')[1]+"."+hdrDateText.split('-')[0]
+	$('#hdrDay').children('h1').text(weekDays[hdrDayText]+" "+ dateText);
 }
 
 
