@@ -167,7 +167,7 @@ public class RegistrationServlet extends HttpServlet{
 			boolean success = db.deleteHourRegistration(taskNumber);
 			if (!success) {
 				resp.setContentType("text/plain");
-				resp.getWriter().append("submitted");
+				resp.getWriter().append("ERROR: Already submitted");
 			}
 		}
 		

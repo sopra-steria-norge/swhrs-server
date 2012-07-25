@@ -344,7 +344,7 @@
 	<div id="hdrDia2" data-role="header">
 		<h1>Add?</h1>
 	</div>
-<div id="contentDia2" data-role="content">
+	<div id="contentDia2" data-role="content">
 		<h4>Do you want to add this project to your favourite list?</h4>
 		<p></p> 
 		<fieldset class="ui-grid-a" data-type="horizontal">
@@ -355,6 +355,21 @@
 	
 </div>
 
+
+<!-- ********************************************************************************** -->
+<!-- Dialog box: Dialogbox with feedback that the registration is already submitted and can not be deleted -->  
+<!-- ********************************************************************************** -->
+<div data-role="dialog" id="dialogPopUpNoDelete" data-transition="pop">
+	<div id="hdrDia3" data-role="header">
+		<h1>Can not delete</h1>
+	</div>
+	<div id="contentDia3" data-role="content">
+		<h4>The period has been submitted. </h4>
+		<p>If you want to edit this registration you must reopen <br /> the period on the desktop version of the website.</p> 
+		<a href="#dayPage" id="deleteOkBtn" name="deleteOkBtn" type="button" data-theme="a" data-rel="back">Ok</a>
+	</div>	
+	
+</div>
 
 </body><!-- End body -->
 </html><!-- End html -->
