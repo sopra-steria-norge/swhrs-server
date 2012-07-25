@@ -391,7 +391,7 @@ function deleteRegistration(project_id){
 		url: 'hours/delete',
 		data: delreg,
 		success: function(data){
-			if (data.indexOf('Already submitted') != -1) {
+			if (typeof data == 'string' && data.indexOf('Already submitted') != -1) {
 				console.log(data);
 				deleted =  false;
 			} else {
