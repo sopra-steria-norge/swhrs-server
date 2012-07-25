@@ -144,6 +144,8 @@ $(document).ready(function() {
 		var deleted = deleteRegistration(mySplitResult[0]);
 		if (deleted) {
 			$(this).remove();
+		} else {
+			$.mobile.changePage($("#dialogPopUpNoDelete"));
 		}
 	});
 	
@@ -372,6 +374,7 @@ function updateDayList(fav, hour, lunch){
 function deleteRegistration(project_id){
 	console.log('Deleting registration with project id ' + project_id);
 	var delreg = {projectID: project_id}
+	var deleted = false;
 	$.ajax({
 		type: "POST",
 		url: 'hours/delete',
@@ -379,10 +382,9 @@ function deleteRegistration(project_id){
 		success: function(data){
 			if (data.indexOf('Already submitted') != -1) {
 				console.log(data);
-				$.mobile.changePage($("#dialogPopUpNoDelete"));
-				return false;
+				deleted =  false;
 			} else {
-				return true;
+				deleted =  true;
 			}
 		}
 	});
