@@ -123,7 +123,8 @@ $(document).ready(function() {
 		console.log(projectNr, activityCode, description);
 		personId = 1;
 		
-		updateDayList(favForm, hourForm, lunchForm);		
+		//updateDayList(favForm, hourForm, lunchForm);
+		getDayList(today);
 			
 		if (lunchForm == 1) {
 			var myData = {'projectNr': projectNr, 'description': description, 'hours': hourForm, 'date': dateForm, 'lunchNumber': "1"};		
