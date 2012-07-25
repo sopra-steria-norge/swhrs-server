@@ -155,6 +155,7 @@ $(document).ready(function() {
 	    var dayString = $(this).text();
 	    var mySplitResult = dayString.split(":");
 		var deleted = deleteRegistration(mySplitResult[0]);
+		console.log(deleted);
 		if (deleted) {
 			$(this).remove();
 		} else {
@@ -391,7 +392,8 @@ function deleteRegistration(project_id){
 		url: 'hours/delete',
 		data: delreg,
 		success: function(data){
-			if (data.indexOf('Already submitted') != -1) {
+			console.log(typeof data);
+			if (data.indexOf("Already submitted") != -1) {
 				console.log(data);
 				deleted =  false;
 			} else {

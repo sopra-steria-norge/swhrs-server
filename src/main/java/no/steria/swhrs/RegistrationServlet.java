@@ -15,9 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
 import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.json.simple.JSONObject;
 
 
@@ -135,8 +132,12 @@ public class RegistrationServlet extends HttpServlet{
 		if(req.getRequestURL().toString().contains(("hours/week"))){
 			String week = req.getParameter("week");		
 			resp.setContentType("application/text");
-			if(week.equals("nextWeek")) date = date.plusWeeks(1);
-			if(week.equals("prevWeek")) date = date.minusWeeks(1);
+			DatePeriod period2 = db.getPeriod(username, date.toString());
+			LocalDate localFromDate = new LocalDate(period2.getFromDate());
+			LocalDate localToDate = new LocalDate(period2.getToDate());
+			
+			if(week.equals("nextWeek")) date = localToDate.plusDays(1);
+			if(week.equals("prevWeek")) date = localFromDate.minusDays(1);
 			String weekString = ""+date.getWeekOfWeekyear();
 			String dateFrom = date.toString();
 			String dateTo = date.toString();
@@ -170,10 +171,7 @@ public class RegistrationServlet extends HttpServlet{
 				resp.getWriter().append("ERROR: Already submitted");
 			}
 		}
-		
-		
  	}
-
 
 	@SuppressWarnings("unchecked")
 	private JSONObject createJsonObjectFromFavourites(
