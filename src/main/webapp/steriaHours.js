@@ -425,7 +425,7 @@ function getFavouriteList(addToPage){
 				console.log(data[key]);
 			}
 //			fillSelectMenuInDayPage(favList);
-			addToPage(favlist);
+			addToPage(favList);
 			console.log("favlist2: "+favList[2]);
 		},
 		error: function(data){
@@ -437,7 +437,7 @@ function getFavouriteList(addToPage){
 function fillListInFavPage(favlist) {
 //	$('#favList').append($("<li></li>").html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
 //            key+' </b><span class="ui-li-count">' + data[key] + ' timer '+'</span></a><a href=""></a>')).listview('refresh');
-	}
+	
 }
 
 function fillSelectMenuInDayPage(favList){
