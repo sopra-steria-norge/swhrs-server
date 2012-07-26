@@ -64,7 +64,7 @@ $(document).ready(function() {
 			success: function(data){
 				SuccessLogin(data);
 				console.log(data);
-				getFavouriteList();
+				getFavouriteList(fillSelectMenuInDayPage);
 				
 			},
 			error: function(data){
@@ -404,7 +404,7 @@ function deleteRegistration(project_id){
 }
 
 
-function getFavouriteList(){
+function getFavouriteList(addToPage){
 	$.ajax({
 		type: "POST",
 		url: 'hours/favourite',
@@ -416,16 +416,23 @@ function getFavouriteList(){
 				console.log(key);
 				console.log(data[key]);
 			}
-			fillSelect(favList);
+//			fillSelectMenuInDayPage(favList);
+			addToPage(favlist);
 			console.log("favlist2: "+favList[2]);
 		},
 		error: function(data){
-			console.log("dayList error");
+			console.log("favourite list error");
 		} 
 	});
 }
 
-function fillSelect(favList){
+function fillListInFavPage(favlist) {
+//	$('#favList').append($("<li></li>").html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
+//            key+' </b><span class="ui-li-count">' + data[key] + ' timer '+'</span></a><a href=""></a>')).listview('refresh');
+	}
+}
+
+function fillSelectMenuInDayPage(favList){
 		var options = '' ;
 		for (var i = 0; i < favList.length; i++) {
 			var favs = favList[i];
@@ -443,7 +450,7 @@ function getDayList(newDay) {
 	//Hardkoder inn prosjektene her for aa printe ut prosjektnavn, fjern dette naar vi har databaseoppslag
 	//var projects = {'10': 'ZZ', '1093094': 'LARM', '1112890': 'OSL CDM', '19': 'Javazone', '1337': 'Timeforing app', '11': 'Steria Intern', '1': 'Lunch'};
 	var weekDays = new Array("", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
-	if(newDay == 1)getFavouriteList();
+	if(newDay == 1)getFavouriteList(fillSelectMenuInDayPage);
 	
 	var newDay = {day: newDay};
 	$.ajax({
@@ -458,7 +465,7 @@ function getDayList(newDay) {
 					console.log("kommer hit?");
 					$('#lunch').val(0);
 				}
-				$('#lunch').slider('refresh');	
+				$('#lunch').slider('refresh');
 				if(key === "date"){
 					var hdrDayText = data[key].split(' ')[0];
 					var hdrDateText = data[key].split(' ')[1];
