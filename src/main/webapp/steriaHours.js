@@ -429,7 +429,7 @@ function getFavouriteList(addToPage){
 function fillListInFavPage(favlist) {
 //	$('#favList').append($("<li></li>").html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
 //            key+' </b><span class="ui-li-count">' + data[key] + ' timer '+'</span></a><a href=""></a>')).listview('refresh');
-	}
+//	$('#favlist').append($("<li></li>").html()
 }
 
 function fillSelectMenuInDayPage(favList){
