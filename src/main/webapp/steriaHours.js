@@ -196,6 +196,7 @@ $('#weekPage' ).live( 'pageinit',function(event){
  * This will be run each time a favPage is initiated
  */
 $('#favPage' ).live( 'pageinit',function(event){
+	console.log("Starting fav page");
 	getFavouriteList(fillListInFavPage);
 });
 
@@ -434,6 +435,7 @@ function deleteRegistration(project_id, listid){
 
 
 function getFavouriteList(addToPage){
+	console.log("Starting favorite list ajax call");
 	$.ajax({
 		type: "POST",
 		url: 'hours/favourite',
@@ -458,13 +460,14 @@ function getFavouriteList(addToPage){
 function fillListInFavPage(favlist) {
 //	$('#favList').append($("<li></li>").html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
 //            key+' </b><span class="ui-li-count">' + data[key] + ' timer '+'</span></a><a href=""></a>')).listview('refresh');
+	console.log("Starting to fill list of favorites in favPage, length of favorite list: " + favlist.length);
 	for (var i = 0; i < favList.length; i++) {
 		var favs = favList[i];
-		console.log("favs"+favs);
+		console.log("appending "+favs + ' to list view');
 //		$('#fav').append('<option value='+favs+'>'+favs+'</option>').selectmenu('refresh', true);
-		$('#favlist').append($('<li></li>').html('<h3>' + favs + '</h3>'));
+		$('#favList').append($('<li></li>').html('<h3>' + favs + '</h3>')).listview('refresh');
+		
 	}
-	$('#favlist').listview('refresh');
 }
 
 function fillSelectMenuInDayPage(favList){
