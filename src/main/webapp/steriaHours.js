@@ -65,8 +65,6 @@ $(document).ready(function() {
 			success: function(data){
 				SuccessLogin(data);
 				console.log(data);
-				getFavouriteList(fillSelectMenuInDayPage);
-				
 			},
 			error: function(data){
 				$('#loginErr').text("Wrong username/password");
@@ -331,13 +329,11 @@ function getWeekList(newWeek){
  * Splits hourArray to only contain hours and be sorted.
  */
 function splitArray(hourArray, dayArray, dateArray){
-	var hSortArray = new Array();
-	for(i=0; i<hourArray.length; i++){
-		console.log(hourArray[i]);
-		var hours = hourArray[i].split(',')[0];
-		hSortArray.push(hours);
+	for(var i=0; i<hourArray.length; i++){
+		var hours = hourArray[i];
+		hourArray[i] = hours.split(",")[0];
 	}
-	updateWeekList(dayArray, dateArray, hSortArray);
+	updateWeekList(dayArray, dateArray, hourArray);
 }
 
 
