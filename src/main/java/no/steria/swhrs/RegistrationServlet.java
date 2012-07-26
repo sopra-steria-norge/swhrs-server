@@ -2,8 +2,12 @@ package no.steria.swhrs;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -133,14 +137,20 @@ public class RegistrationServlet extends HttpServlet{
 			String week = req.getParameter("week");		
 			resp.setContentType("application/text");
 			DatePeriod period2 = db.getPeriod(username, date.toString());
-			LocalDate localFromDate = new LocalDate(period2.getFromDate());
-			LocalDate localToDate = new LocalDate(period2.getToDate());
+			LocalDate localFromDate = new LocalDate(period2.getFromDate().split(" ")[0]);
+			LocalDate localToDate = new LocalDate(period2.getToDate().split(" ")[0]);
 			
 			if(week.equals("nextWeek")) date = localToDate.plusDays(1);
 			if(week.equals("prevWeek")) date = localFromDate.minusDays(1);
-			String weekString = ""+date.getWeekOfWeekyear();
-			String dateFrom = date.toString();
-			String dateTo = date.toString();
+			
+			LocalDate localFromDate2 = localFromDate;
+			LocalDate localToDate2 = localToDate;
+			
+			ArrayList<String> dateArray = new ArrayList<String>();
+			while(localFromDate2.compareTo(localToDate2) <= 0  ){
+				dateArray.add(localFromDate2.toString()+":"+localFromDate2.getDayOfWeek());
+				localFromDate2 = localFromDate2.plusDays(1);
+			}
 			
 			DatePeriod period = db.getPeriod(username, date.toString());
 			System.out.println("fromDate: "+period.getFromDate()+" toDate: "+period.getToDate()+" Description: "+period.getDescription());
@@ -149,26 +159,64 @@ public class RegistrationServlet extends HttpServlet{
 			JSONObject json = new JSONObject();
 			int order = 0;
 			String weekDescription = period.getDescription();
-			for (WeekRegistration wr: weeklist) {
-				order++;
-				System.out.println("Date: "+wr.getDate()+" Hours: "+wr.getHours()+" Approved: "+wr.getApproved()); 
-				json.put(wr.getDate(), order+":"+wr.getHours());
+			
+			
+			JSONObject obj = new JSONObject();
+			for(int i=0; i<dateArray.size(); i++){
+				String dateArr = dateArray.get(i).toString().split(":")[0];
+				String dayOfWeek = dateArray.get(i).toString().split(":")[1];
+				for(WeekRegistration wr2: weeklist){
+					System.out.println(wr2.getDate().split(" ")[0]+" = "+ dateArr);
+					if(wr2.getDate().split(" ")[0].equals(dateArr)){
+						//json.put(dateArr, wr2.getHours()+":"+dayOfWeek);
+						List list = new LinkedList();
+						list.add(wr2.getHours());
+						list.add(dayOfWeek);
+						obj.put(date, list);
+						System.out.println(obj.toJSONString());
+					}
+					else{
+						List list = new LinkedList();
+						list.add(0);
+						list.add(dayOfWeek);
+						
+						obj.put(date, list);
+						System.out.println("toJSONString" +obj.toJSONString());
+						System.out.println("toString "+obj.toString());
+						//json.put(dateArr, 0.0+":"+dayOfWeek);
+					}
+				}
+				
 			}
-			json.put("weekNumber", weekDescription);
-			json.put("hoho", date.getDayOfWeek()+" "+date.toString());
+			
+//			for (WeekRegistration wr: weeklist) {
+//				order++;
+//				System.out.println("Date: "+wr.getDate()+" Hours: "+wr.getHours()+" Approved: "+wr.getApproved()); 
+//				json.put(wr.getDate(), order+":"+wr.getHours());
+//			}
+			obj.put("weekNumber", weekDescription);
+			obj.put("hoho", date.getDayOfWeek()+" "+date.toString());
+			//json.put("weekNumber", weekDescription);
+			//json.put("hoho", date.getDayOfWeek()+" "+date.toString());
 			resp.setContentType("text/json");
 			PrintWriter writer = resp.getWriter();
-			String jsonText = json.toString();
+			//String jsonText = json.toString();
+			//writer.append(jsonText);
+			String jsonText = obj.toJSONString();
 			writer.append(jsonText);
+			
 		}
 		
 		if(req.getRequestURL().toString().contains(("hours/delete"))){
 			String taskNumber = req.getParameter("projectID");
 			System.out.println(taskNumber);
 			boolean success = db.deleteHourRegistration(taskNumber);
+			System.out.println(success);
+			resp.setContentType("text/plain");
 			if (!success) {
-				resp.setContentType("text/plain");
 				resp.getWriter().append("ERROR: Already submitted");
+			}else{
+				resp.getWriter().append("success");
 			}
 		}
  	}
