@@ -26,6 +26,7 @@ var favourite = 1;
 var MISSING = "missing";
 var NO_FAV = "10 : ZZ";
 var ZERO = 0;	
+var today = "today";
 
 
 $(document).ready(function() {
@@ -34,9 +35,9 @@ $(document).ready(function() {
 	hoursLabelVar = $('#hoursLabel');
 	var favVar = $('#fav');
 	hoursVar = $('#hours');
-	var today = "today";
 	
-	getDayList(today);
+	
+
 	
 //	for (var i = 0; i < favList.length; i++) {
 //		var favs = favList[i];
@@ -64,7 +65,7 @@ $(document).ready(function() {
 			data: jsonLogin,
 			success: function(data){
 				SuccessLogin(data);
-				console.log(data);
+				console.log(data);				
 			},
 			error: function(data){
 				$('#loginErr').text("Wrong username/password");
@@ -175,10 +176,30 @@ $(document).ready(function() {
 	
 });
 
-$( '#dayPage' ).live( 'pageinit',function(event){
+/*
+ * #dayPage
+ * This will be run each time a dayPage is initiated
+ */
+$('#dayPage' ).live( 'pageinit',function(event){
 	getFavouriteList(fillSelectMenuInDayPage);
-	});
+	getDayList(today);
+});
 
+/*
+ * #weekPage
+ * This will be run each time a weekPage is initiated
+ */
+$('#weekPage' ).live( 'pageinit',function(event){
+	//fill in code here
+});
+
+/*
+ * #favPage
+ * This will be run each time a favPage is initiated
+ */
+$('#favPage' ).live( 'pageinit',function(event){
+	getFavouriteList(fillListInFavPage);
+});
 
 /*
  * Checks if the page is secured, if so checks if the user is authenticated.
@@ -285,7 +306,7 @@ function nextWeek(){
  * If success: Loads new period data.  
  */
 function getWeekList(newWeek){
-	var weekDays = new Array("", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+	var weekDays = new Array("", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun");
 	var week = {week: newWeek};
 	$('#weekList').children().remove('li');
 	$.ajax({
@@ -296,6 +317,7 @@ function getWeekList(newWeek){
 			var dateArray = new Array();
 			var hoursArray = new Array();
 			var dayArray = new Array("Monday","Tuesday","Wednesday","Thursday","Friday");
+			var dataArray = new Array();
 			for (var key in data) {
 				if (data.hasOwnProperty(key)) {
 					if(key === "weekNumber"){	
@@ -310,47 +332,38 @@ function getWeekList(newWeek){
 						console.log("data key: "+data[key]);
 						console.log("data key 0: "+data[key][0]);
 						console.log("data key 1: "+data[key][1]);
+						dataArray.push(data[key][0], key, data[key][1]);
 						dateArray.push(key);
 						hoursArray.push(data[key]);
 					}
 				} 
 			}
-			hoursArray.sort();
-			dateArray.sort();
-			splitArray(hoursArray, dayArray, dateArray);
+			updateWeekList(dateArray.sort(), data);
 		}
 		
 	});
 }
 
-
-/*
- * splitArray
- * Splits hourArray to only contain hours and be sorted.
- */
-function splitArray(hourArray, dayArray, dateArray){
-	for(var i=0; i<hourArray.length; i++){
-		var hours = hourArray[i];
-		hourArray[i] = hours.split(",")[0];
-	}
-	updateWeekList(dayArray, dateArray, hourArray);
-}
-
-
 /*
  * updateWeekList
  * Appends the new week entries to the weekList
  */
-function updateWeekList(day, date, dayHours){
-	for(i=0; i<day.length; i++){
-		if(dayHours[i] < 8){
+function updateWeekList(dateArray, data){
+	var weekDays = new Array("", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
+	var dayHours = new Array();
+	for (var i = 0; i < dateArray.length; i++) {
+		var dayNr = data[dateArray[i]][0];
+		var hours = data[dateArray[i]][1];
+		dayHours.push(hours);
+		if(hours < 8){
 			$('#weekList').append($("<li data-theme='c'></li>").html('<a href="#dayPage"><b>' + 
-						day[i] + '</b><p>'+date[i]+'</p></a><span class="ui-li-count">' + dayHours[i] + ' timer'+'</span>')).listview('refresh');
+						weekDays[dayNr] + '</b><p>'+dateArray[i]+'</p></a><span class="ui-li-count">' + hours + ' timer'+'</span>')).listview('refresh');
 			}else{
-			$('#weekList').append($("<li></li>").html('<a href="#dayPage"><b>' + 
-					day[i] + '</b><p>'+date[i]+'</p></a><span class="ui-li-count">' + dayHours[i] + ' timer'+'</span>')).listview('refresh');
+			$('#weekList').append($("<li></li>").html('<a href="#dayPage"><b>' +
+					weekDays[dayNr] + '</b><p>'+dateArray[i]+'</p></a><span class="ui-li-count">' + hours + ' timer'+'</span>')).listview('refresh');
 		}
 	}
+	
 	var totalWeek = 0;
 	$.each(dayHours,function() {
 	    totalWeek += parseFloat(this);
@@ -430,7 +443,8 @@ function getFavouriteList(addToPage){
 		},
 		error: function(data){
 			console.log("favourite list error");
-		} 
+		},
+		async: false
 	});
 }
 
@@ -441,9 +455,8 @@ function fillListInFavPage(favlist) {
 		var favs = favList[i];
 		console.log("favs"+favs);
 //		$('#fav').append('<option value='+favs+'>'+favs+'</option>').selectmenu('refresh', true);
-		$('#favlist').append($('<li></li>').html('<h3>' + favs + '</h3>'));
+		$('#favlist').append($('<li></li>').html('<h3>' + favs + '</h3>')).listview('refresh');
 	}
-	$('#favlist').listview('refresh');
 }
 
 function fillSelectMenuInDayPage(favList){
@@ -493,7 +506,7 @@ function getDayList(newDay) {
 		},
 		error: function(data){
 			console.log("dayList error");
-		} 
+		}
 	});	
 }
 
@@ -505,7 +518,6 @@ function resetDay(){
 	$('#dayList').children().remove('li');
 	$('#hours').val(0);
 	$('#hours').slider('refresh');
-	$('#fav').val('').removeAttr('selected').find('option:first');
 }
 
 function clearForm(){

@@ -137,14 +137,17 @@ public class RegistrationServlet extends HttpServlet{
 			String week = req.getParameter("week");		
 			resp.setContentType("application/text");
 			DatePeriod period2 = db.getPeriod(username, date.toString());
+			
 			LocalDate localFromDate = new LocalDate(period2.getFromDate().split(" ")[0]);
 			LocalDate localToDate = new LocalDate(period2.getToDate().split(" ")[0]);
 			
 			if(week.equals("nextWeek")) date = localToDate.plusDays(1);
 			if(week.equals("prevWeek")) date = localFromDate.minusDays(1);
 			
-			LocalDate localFromDate2 = localFromDate;
-			LocalDate localToDate2 = localToDate;
+			DatePeriod period = db.getPeriod(username, date.toString());
+			
+			LocalDate localFromDate2 = new LocalDate(period.getFromDate().split(" ")[0]);
+			LocalDate localToDate2 = new LocalDate(period.getToDate().split(" ")[0]);
 			
 			ArrayList<String> dateArray = new ArrayList<String>();
 			while(localFromDate2.compareTo(localToDate2) <= 0  ){
@@ -152,7 +155,7 @@ public class RegistrationServlet extends HttpServlet{
 				localFromDate2 = localFromDate2.plusDays(1);
 			}
 			
-			DatePeriod period = db.getPeriod(username, date.toString());
+			
 			System.out.println("fromDate: "+period.getFromDate()+" toDate: "+period.getToDate()+" Description: "+period.getDescription());
 			
 			List<WeekRegistration> weeklist = db.getWeekList(username, period.getFromDate(), period.getToDate());
