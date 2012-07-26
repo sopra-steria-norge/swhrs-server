@@ -3,6 +3,7 @@ var favLabelVar = null;
 var hoursLabelVar = null;
 var hoursVar = null;
 var dateCounter = 0;
+var deleted = false;
 
 var date = new Date();
 var day = date.getDay();
@@ -124,7 +125,6 @@ $(document).ready(function() {
 		personId = 1;
 		
 		//updateDayList(favForm, hourForm, lunchForm);
-		getDayList(today);
 			
 		if (lunchForm == 1) {
 			var myData = {'projectNr': projectNr, 'description': description, 'hours': hourForm, 'date': dateForm, 'lunchNumber': "1"};		
@@ -133,6 +133,7 @@ $(document).ready(function() {
 			var myData = {'projectNr': projectNr, 'description': description, 'hours': hourForm, 'date': dateForm, 'lunchNumber': "0"};		
 			postHourRegistration(myData);
 		}
+		
 		return false;
 	});
 	
@@ -155,10 +156,11 @@ $(document).ready(function() {
 	$('#dayList').on('click', 'li', function() {
 	    var dayString = $(this).text();
 	    var mySplitResult = dayString.split(":");
-		var deleted = deleteRegistration(mySplitResult[0]);
-		if (deleted) {
+		deleteRegistration(mySplitResult[0]);
+		console.log(deleted);
+		if(deleted){
 			$(this).remove();
-		} else {
+		}else{
 			$.mobile.changePage($("#dialogPopUpNoDelete"));
 		}
 	});
@@ -233,6 +235,9 @@ function postHourRegistration(myData) {
 		data: myData,
 		success: function(){
 			console.log(myData);
+			var today = "today";
+			getDayList(today);
+			resetDay();
 		}
 	});
 }
@@ -299,7 +304,8 @@ function getWeekList(newWeek){
 						var dateText = hdrDateText.split('-')[2]+"."+hdrDateText.split('-')[1]+"."+hdrDateText.split('-')[0]
 						$('#hdrDay').children('h1').text(weekDays[hdrDayText]+" "+ dateText);
 					}else{
-						console.log("data");
+						console.log(key);
+						console.log(data[key]);
 						dateArray.push(key);
 						hoursArray.push(data[key]);
 					}
@@ -383,24 +389,26 @@ function updateDayList(fav, hour, lunch){
  * deleteRegistration()
  * sends an hourRegistration to the servlet to be deleted in the database
  */
-function deleteRegistration(project_id){
+function deleteRegistration(project_id, listid){
 	console.log('Deleting registration with project id ' + project_id);
 	var delreg = {projectID: project_id}
-	var deleted = false;
+	
 	$.ajax({
 		type: "POST",
 		url: 'hours/delete',
 		data: delreg,
 		success: function(data){
-			if (typeof data == 'string' && data.indexOf('Already submitted') != -1) {
-				console.log(data);
-				deleted =  false;
+			if (data.indexOf('Already submitted') != -1) {
+				
+				deleted = false;
+				console.log("SETTES TIL FALSE");
 			} else {
-				deleted =  true;
+				deleted = true;
+				console.log("TRUE DAT");
 			}
-		}
+		},
+		async: false
 	});
-	return deleted;
 }
 
 
@@ -417,7 +425,7 @@ function getFavouriteList(addToPage){
 				console.log(data[key]);
 			}
 //			fillSelectMenuInDayPage(favList);
-			addToPage(favlist);
+			addToPage(favList);
 			console.log("favlist2: "+favList[2]);
 		},
 		error: function(data){
@@ -476,8 +484,6 @@ function getDayList(newDay) {
 			            key+' </b><span class="ui-li-count">' + data[key] + ' timer '+'</span></a><a href=""></a>')).listview('refresh');
 				}
 			}
-			
-			
 		},
 		error: function(data){
 			console.log("dayList error");
