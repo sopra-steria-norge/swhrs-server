@@ -177,6 +177,10 @@ $(document).ready(function() {
 	
 });
 
+$( '#dayPage' ).live( 'pageinit',function(event){
+	getFavouriteList(fillSelectMenuInDayPage);
+	});
+
 
 /*
  * Checks if the page is secured, if so checks if the user is authenticated.
@@ -437,7 +441,13 @@ function getFavouriteList(addToPage){
 function fillListInFavPage(favlist) {
 //	$('#favList').append($("<li></li>").html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
 //            key+' </b><span class="ui-li-count">' + data[key] + ' timer '+'</span></a><a href=""></a>')).listview('refresh');
-	
+	for (var i = 0; i < favList.length; i++) {
+		var favs = favList[i];
+		console.log("favs"+favs);
+//		$('#fav').append('<option value='+favs+'>'+favs+'</option>').selectmenu('refresh', true);
+		$('#favlist').append($('<li></li>').html('<h3>' + favs + '</h3>'));
+	}
+	$('#favlist').listview('refresh');
 }
 
 function fillSelectMenuInDayPage(favList){
