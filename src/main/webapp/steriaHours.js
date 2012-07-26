@@ -64,9 +64,7 @@ $(document).ready(function() {
 			data: jsonLogin,
 			success: function(data){
 				SuccessLogin(data);
-				console.log(data);
-				getFavouriteList(fillSelectMenuInDayPage);
-				
+				console.log(data);				
 			},
 			error: function(data){
 				$('#loginErr').text("Wrong username/password");
@@ -177,10 +175,21 @@ $(document).ready(function() {
 	
 });
 
-$( '#dayPage' ).live( 'pageinit',function(event){
+/*
+ * #dayPage
+ * This will be run each time a dayPage is initiated
+ */
+$('#dayPage' ).live( 'pageinit',function(event){
 	getFavouriteList(fillSelectMenuInDayPage);
-	});
+});
 
+/*
+ * #favPage
+ * This will be run each time a favPage is initiated
+ */
+$('#favPage' ).live( 'pageinit',function(event){
+	getFavouriteList(fillListInFavPage);
+});
 
 /*
  * Checks if the page is secured, if so checks if the user is authenticated.
