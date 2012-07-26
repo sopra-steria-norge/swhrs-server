@@ -165,26 +165,25 @@ public class RegistrationServlet extends HttpServlet{
 			for(int i=0; i<dateArray.size(); i++){
 				String dateArr = dateArray.get(i).toString().split(":")[0];
 				String dayOfWeek = dateArray.get(i).toString().split(":")[1];
+				boolean found = false;
 				for(WeekRegistration wr2: weeklist){
 					System.out.println(wr2.getDate().split(" ")[0]+" = "+ dateArr);
 					if(wr2.getDate().split(" ")[0].equals(dateArr)){
 						//json.put(dateArr, wr2.getHours()+":"+dayOfWeek);
 						List list = new LinkedList();
+						list.add(dayOfWeek);
 						list.add(wr2.getHours());
-						list.add(dayOfWeek);
-						obj.put(date, list);
+						obj.put(wr2.getDate().split(" ")[0], list);
 						System.out.println(obj.toJSONString());
+						found = true;
+						break;
 					}
-					else{
-						List list = new LinkedList();
-						list.add(0);
-						list.add(dayOfWeek);
-						
-						obj.put(date, list);
-						System.out.println("toJSONString" +obj.toJSONString());
-						System.out.println("toString "+obj.toString());
-						//json.put(dateArr, 0.0+":"+dayOfWeek);
-					}
+				}
+				if (!found) {
+					List list = new LinkedList();
+					list.add(dayOfWeek);
+					list.add(0);
+					obj.put(dateArr, list);
 				}
 				
 			}
@@ -195,13 +194,14 @@ public class RegistrationServlet extends HttpServlet{
 //				json.put(wr.getDate(), order+":"+wr.getHours());
 //			}
 			obj.put("weekNumber", weekDescription);
-			obj.put("hoho", date.getDayOfWeek()+" "+date.toString());
+			obj.put("dateHdr", date.getDayOfWeek()+" "+date.toString());
 			//json.put("weekNumber", weekDescription);
 			//json.put("hoho", date.getDayOfWeek()+" "+date.toString());
 			resp.setContentType("text/json");
 			PrintWriter writer = resp.getWriter();
 			//String jsonText = json.toString();
 			//writer.append(jsonText);
+			System.out.println("toString "+obj.toString());
 			String jsonText = obj.toJSONString();
 			writer.append(jsonText);
 			

@@ -298,14 +298,16 @@ function getWeekList(newWeek){
 				if (data.hasOwnProperty(key)) {
 					if(key === "weekNumber"){	
 						$('#hdrWeek').children('h1').text(data[key]);
-					}else if(key === "hoho"){
+					}else if(key === "dateHdr"){
 						var hdrDayText = data[key].split(' ')[0];
 						var hdrDateText = data[key].split(' ')[1];
 						var dateText = hdrDateText.split('-')[2]+"."+hdrDateText.split('-')[1]+"."+hdrDateText.split('-')[0]
 						$('#hdrDay').children('h1').text(weekDays[hdrDayText]+" "+ dateText);
 					}else{
 						console.log(key);
-						console.log(data[key]);
+						console.log("data key: "+data[key]);
+						console.log("data key 0: "+data[key][0]);
+						console.log("data key 1: "+data[key][1]);
 						dateArray.push(key);
 						hoursArray.push(data[key]);
 					}
@@ -327,7 +329,9 @@ function getWeekList(newWeek){
 function splitArray(hourArray, dayArray, dateArray){
 	var hSortArray = new Array();
 	for(i=0; i<hourArray.length; i++){
-		hSortArray.push(hourArray[i].substring(2));
+		console.log(hourArray[i]);
+		var hours = hourArray[i].split(',')[0];
+		hSortArray.push(hours);
 	}
 	updateWeekList(dayArray, dateArray, hSortArray);
 }
@@ -392,19 +396,15 @@ function updateDayList(fav, hour, lunch){
 function deleteRegistration(project_id, listid){
 	console.log('Deleting registration with project id ' + project_id);
 	var delreg = {projectID: project_id}
-	
 	$.ajax({
 		type: "POST",
 		url: 'hours/delete',
 		data: delreg,
 		success: function(data){
 			if (data.indexOf('Already submitted') != -1) {
-				
 				deleted = false;
-				console.log("SETTES TIL FALSE");
 			} else {
 				deleted = true;
-				console.log("TRUE DAT");
 			}
 		},
 		async: false
@@ -490,14 +490,6 @@ function getDayList(newDay) {
 		} 
 	});	
 }
-
-function setHdrDay(data, key){
-	var hdrDayText = data[key].split(' ')[0];
-	var hdrDateText = data[key].split(' ')[1];
-	var dateText = hdrDateText.split('-')[2]+"."+hdrDateText.split('-')[1]+"."+hdrDateText.split('-')[0]
-	$('#hdrDay').children('h1').text(weekDays[hdrDayText]+" "+ dateText);
-}
-
 
 /*
  * resetDay() & clearForm()
