@@ -184,6 +184,14 @@ $('#dayPage' ).live( 'pageinit',function(event){
 });
 
 /*
+ * #weekPage
+ * This will be run each time a weekPage is initiated
+ */
+$('#weekPage' ).live( 'pageinit',function(event){
+	//fill in code here
+});
+
+/*
  * #favPage
  * This will be run each time a favPage is initiated
  */
