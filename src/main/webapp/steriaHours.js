@@ -99,6 +99,7 @@ $(document).ready(function() {
 		
 		// If validation fails, show contentDialog
 		if(err == true){
+			console.log("Validation failed");
 			return false;
 		}
 			
