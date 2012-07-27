@@ -24,7 +24,7 @@ var favourite = 1;
 
 // Constants
 var MISSING = "missing";
-var NO_FAV = "10 : ZZ";
+var NO_FAV = "NO_FAV";
 var ZERO = 0;	
 var today = "today";
 
@@ -99,9 +99,14 @@ $(document).ready(function() {
 		hoursLabelVar.removeClass(MISSING);
 		$.mobile.silentScroll(100);
 		console.log(hoursLabelVar);
-		
+		hourForm = $("#hours").val();
 		if(favVar.val()==NO_FAV){
 			favLabelVar.addClass(MISSING);
+			err = true;
+		}
+		console.log("HOURLABEL: "+hoursVar.val());
+		if(hourForm == ZERO){
+			$('#hoursLabel').addClass(MISSING);
 			err = true;
 		}
 		
@@ -115,6 +120,7 @@ $(document).ready(function() {
 		var dateForm = $('#hdrDay').children('h1').text();
 		favForm = $("#fav").val();
 		hourForm = $("#hours").val();
+		console.log("HOURFORM: "+hourForm);
 		lunchForm = $("#lunch").val();
 		console.log("TEST: "+favForm);
 		projectNr = favForm.split(':')[0];
@@ -198,6 +204,7 @@ $('#weekPage' ).live( 'pageinit',function(event){
  * This will be run each time a favPage is initiated
  */
 $('#favPage' ).live( 'pageinit',function(event){
+	console.log("Starting fav page");
 	getFavouriteList(fillListInFavPage);
 });
 
@@ -359,7 +366,7 @@ function updateWeekList(dateArray, data){
 			$('#weekList').append($("<li data-theme='c'></li>").html('<a href="#dayPage"><b>' + 
 						weekDays[dayNr] + '</b><p>'+dateArray[i]+'</p></a><span class="ui-li-count">' + hours + ' timer'+'</span>')).listview('refresh');
 			}else{
-			$('#weekList').append($("<li></li>").html('<a href="#dayPage"><b>' +
+			$('#weekList').append($("<li data-theme='c'></li>").html('<a href="#dayPage"><b>' +
 					weekDays[dayNr] + '</b><p>'+dateArray[i]+'</p></a><span class="ui-li-count">' + hours + ' timer'+'</span>')).listview('refresh');
 		}
 	}
@@ -426,6 +433,8 @@ function deleteRegistration(project_id, listid){
 
 
 function getFavouriteList(addToPage){
+	favList = [];
+	console.log("Starting favorite list ajax call");
 	$.ajax({
 		type: "POST",
 		url: 'hours/favourite',
@@ -433,11 +442,11 @@ function getFavouriteList(addToPage){
 			console.log("favourites")
 			console.log(data);
 			for(var key in data){
-				favList.push(key+":"+data[key]);
-				console.log(key);
-				console.log(data[key]);
+				var favtext = key.split("<:>")[0] + ":" + key.split("<:>")[1] + ":" + data[key];
+				favList.push(favtext);
+				console.log(favtext);
 			}
-//			fillSelectMenuInDayPage(favList);
+			favList.sort();
 			addToPage(favList);
 			console.log("favlist2: "+favList[2]);
 		},
@@ -449,18 +458,24 @@ function getFavouriteList(addToPage){
 }
 
 function fillListInFavPage(favlist) {
-//	$('#favList').append($("<li></li>").html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
-//            key+' </b><span class="ui-li-count">' + data[key] + ' timer '+'</span></a><a href=""></a>')).listview('refresh');
+	console.log("Starting to fill list of favorites in favPage, length of favorite list: " + favlist.length);
 	for (var i = 0; i < favList.length; i++) {
 		var favs = favList[i];
-		console.log("favs"+favs);
-//		$('#fav').append('<option value='+favs+'>'+favs+'</option>').selectmenu('refresh', true);
-		$('#favlist').append($('<li></li>').html('<h3>' + favs + '</h3>')).listview('refresh');
+		console.log("appending "+favs + ' to list view');
+		
+		$('#favList').append($("<li></li>").html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
+	            favs + ' </b></a><a href=""></a>'));
+
+		
 	}
+	
+	$('#favList').listview('refresh');
 }
 
 function fillSelectMenuInDayPage(favList){
-		var options = '' ;
+		var options = "NO_FAV";
+		var select = "Select a favourite"
+		$('#fav').append('<option value='+options+'>'+select+'</option>').selectmenu('refresh', true);
 		for (var i = 0; i < favList.length; i++) {
 			var favs = favList[i];
 			console.log("favs"+favs);
@@ -488,7 +503,8 @@ function getDayList(newDay) {
 			console.log("whatwhat");
 			console.log(data);
 			for (var key in data) {
-				if (key === "1") {
+				console.log(key.split(':')[1]);
+				if (key.split(':')[1] === "Lunsj") {
 					console.log("kommer hit?");
 					$('#lunch').val(0);
 				}

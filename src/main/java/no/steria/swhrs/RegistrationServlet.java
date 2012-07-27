@@ -60,7 +60,7 @@ public class RegistrationServlet extends HttpServlet{
 		JSONObject json = new JSONObject();
 		for (HourRegistration hr: hrlist) {
 			//json.put(hr.getItem(), hr.getHours());
-			json.put(hr.getItem()+": "+hr.getDescription(), hr.getHours());
+			json.put(hr.getItem()+":"+hr.getDescription(), hr.getHours());
 		}
 		json.put("date", stringDate);
 		return json;
@@ -230,7 +230,7 @@ public class RegistrationServlet extends HttpServlet{
 		JSONObject json = new JSONObject();
 		for (UserFavourites ul: userList) {
 			//json.put(hr.getItem(), hr.getHours());
-			json.put(ul.getProjectNumber(), ul.getActivityCode()+":"+ul.getDescription());
+			json.put(ul.getProjectNumber() + "<:>" + ul.getActivityCode(), ul.getDescription());
 		}
 		return json;
 		
