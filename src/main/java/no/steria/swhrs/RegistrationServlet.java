@@ -73,16 +73,22 @@ public class RegistrationServlet extends HttpServlet{
 		
 		if(req.getRequestURL().toString().contains(("hours/daylist"))){
 			String newDay = req.getParameter("day");
-			System.out.println(newDay);
+			System.out.println("NEWDAY ="+newDay);
 			
 			resp.setContentType("application/json");
 			if(newDay.equals("prevDay")) date = date.minusDays(1);
-			if(newDay.equals("nextDay")) date = date.plusDays(1);
-			System.out.println(date);
+			else if(newDay.equals("nextDay")) date = date.plusDays(1);
+			else if(newDay.equals("today")){
+				System.out.println("nothing happens");
+			}else{
+				System.out.println("WEEKNAVIGATION");
+				LocalDate weekDate = new LocalDate(newDay);
+				date = weekDate;
+				System.out.println("NEWWEEKDATE: "+date);
+			}
 			List<HourRegistration> hrlist = db.getAllHoursForDate(username, date.toString());
 
 			String stringDate = date.toString();
-			System.out.println(date.getDayOfWeek());
 			JSONObject json = createJsonObjectFromHours(hrlist, date.getDayOfWeek()+" "+stringDate);
 
 			PrintWriter writer = resp.getWriter();
@@ -98,7 +104,6 @@ public class RegistrationServlet extends HttpServlet{
 
 			PrintWriter writer = resp.getWriter();
 			String jsonText = json.toString();
-			System.out.println(jsonText);
 			writer.append(jsonText);
 		}
 		
@@ -110,7 +115,6 @@ public class RegistrationServlet extends HttpServlet{
 			String description = req.getParameter("description");
 			
 			db.addHourRegistrations(projectNumber, "2", username, "", date.toString(), hours, description, 0, 0, 1, 10101, 0, 0, "HRA", "", projectNumber, "", 0, 0, "", "", "2012-05-30", "HRA", "", 0, 0);
-			System.out.println(lunchNumber);
 			if(lunchNumber.equals("1")){
 				db.addHourRegistrations(lunchNumber, "1", username, "", date.toString(), 0.5, "Lunsj", 0, 0, 1, 10101, 0, 0, "HRA", "", lunchNumber, "", 0, 0, "", "", "2012-05-30", "HRA", "", 0, 0);
 			}
@@ -170,14 +174,12 @@ public class RegistrationServlet extends HttpServlet{
 				String dayOfWeek = dateArray.get(i).toString().split(":")[1];
 				boolean found = false;
 				for(WeekRegistration wr2: weeklist){
-					System.out.println(wr2.getDate().split(" ")[0]+" = "+ dateArr);
 					if(wr2.getDate().split(" ")[0].equals(dateArr)){
 						//json.put(dateArr, wr2.getHours()+":"+dayOfWeek);
 						List list = new LinkedList();
 						list.add(dayOfWeek);
 						list.add(wr2.getHours());
 						obj.put(wr2.getDate().split(" ")[0], list);
-						System.out.println(obj.toJSONString());
 						found = true;
 						break;
 					}
@@ -204,7 +206,6 @@ public class RegistrationServlet extends HttpServlet{
 			PrintWriter writer = resp.getWriter();
 			//String jsonText = json.toString();
 			//writer.append(jsonText);
-			System.out.println("toString "+obj.toString());
 			String jsonText = obj.toJSONString();
 			writer.append(jsonText);
 			
