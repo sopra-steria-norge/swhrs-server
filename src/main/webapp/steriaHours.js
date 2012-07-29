@@ -87,6 +87,7 @@ $(document).ready(function() {
 		hoursLabelVar.removeClass(MISSING);
 		$.mobile.silentScroll(100);
 		hourForm = $("#hours").val();
+		console.log("HOURSFORM: "+hourForm);
 		if(favVar.val()==NO_FAV){
 			favLabelVar.addClass(MISSING);
 			err = true;
@@ -112,6 +113,7 @@ $(document).ready(function() {
 		description = favForm.split(':')[2];
 		personId = 1;
 		
+		console.log('Fav: '+ favForm + ' Projectnr: ' + projectNr + ' actCode: ' + activityCode + ' description: ' + description);
 		//updateDayList(favForm, hourForm, lunchForm);
 			
 		if (lunchForm == 1) {
@@ -147,6 +149,8 @@ $(document).ready(function() {
 		deleteRegistration(mySplitResult[0]);
 		if(deleted){
 			$(this).remove();
+			resetDay();
+			getDayList("today");
 		}else{
 			$.mobile.changePage($("#dialogPopUpNoDelete"));
 		}
@@ -154,13 +158,8 @@ $(document).ready(function() {
 	
 	$('#weekList').on('click', 'li', function() {
 	    var dayString = $(this).html();
-	    
-	    
-	    
-	    
 	    var index = dayString.indexOf('<p class="ui-li-desc">')+'<p class="ui-li-desc">'.length;
 	    var dateString = dayString.substring(index, index+10); 
-	    		//dayString.length-15-index, dayString.length-index-5);
 	    
 		$.mobile.changePage($("#dayPage"));
 		resetDay();
@@ -390,8 +389,9 @@ function updateDayList(fav, hour, lunch){
 	$.each(hour,function() {
 	    totalDay += (this);
 	});
+	console.log(totalDay)
 	
-	$('#dayDescription').children('b').text("Total "+totalDay+" hours");
+	$('#dayDescription').text("Total "+totalDay+" hours");
 	
 	if(lunch == 1){
 		$('#dayList').append($("<li></li>").html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
@@ -411,8 +411,8 @@ function updateDayList(fav, hour, lunch){
  * deleteRegistration()
  * sends an hourRegistration to the servlet to be deleted in the database
  */
-function deleteRegistration(project_id, listid){
-	var delreg = {projectID: project_id}
+function deleteRegistration(taskNr, listid){
+	var delreg = {taskNumber: taskNr}
 	$.ajax({
 		type: "POST",
 		url: 'hours/delete',
@@ -482,7 +482,7 @@ function getDayList(newDay) {
 	//var projects = {'10': 'ZZ', '1093094': 'LARM', '1112890': 'OSL CDM', '19': 'Javazone', '1337': 'Timeforing app', '11': 'Steria Intern', '1': 'Lunch'};
 	var weekDays = new Array("", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 	if(newDay == 1)getFavouriteList(fillSelectMenuInDayPage);
-	
+	var totalHours = 0;
 	var newDay = {day: newDay};
 	$.ajax({
 		type: "POST",
@@ -500,9 +500,13 @@ function getDayList(newDay) {
 					var dateText = hdrDateText.split('-')[2]+"."+hdrDateText.split('-')[1]+"."+hdrDateText.split('-')[0]
 					$('#hdrDay').children('h1').text(weekDays[hdrDayText]+" "+ dateText);
 				}else{
+				totalHours += data[key];	
 				$('#dayList').append($("<li></li>").html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
 			            key+' </b><span class="ui-li-count">' + data[key] + ' hours '+'</span></a><a href=""></a>')).listview('refresh');
 				}
+			}
+			if(totalHours != 0){
+				$('#dayList').prepend($("<li></li>").html('Total hours: <span class="ui-li-count">' + totalHours + ' hours '+'</span>')).listview('refresh');
 			}
 		},
 		error: function(data){
