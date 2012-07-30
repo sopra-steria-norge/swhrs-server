@@ -146,14 +146,20 @@ $(document).ready(function() {
 	$('#dayList').on('click', 'li', function() {
 	    var dayString = $(this).text();
 	    var mySplitResult = dayString.split(":");
-		deleteRegistration(mySplitResult[0]);
-		if(deleted){
-			$(this).remove();
-			resetDay();
-			getDayList("today");
-		}else{
-			$.mobile.changePage($("#dialogPopUpNoDelete"));
-		}
+	    console.log(mySplitResult[0]);
+	    if(mySplitResult[0] == "Total hours"){
+	    	console.log("Cannot delete this");
+	    }else{
+	    	deleteRegistration(mySplitResult[0]);
+			if(deleted){
+				$(this).remove();
+				resetDay();
+				getDayList("today");
+			}else{
+				$.mobile.changePage($("#dialogPopUpNoDelete"));
+			}
+	    }
+		
 	});
 	
 	$('#weekList').on('click', 'li', function() {
@@ -226,6 +232,8 @@ $(document).bind("pagebeforechange", function (event, data) {
     			$.mobile.changePage("#loginPage", { changeHash: false });
     		}else{
     			sessionStorage.setItem('UNameLSKey', localStorage.getItem("UNameLSKey"));
+    			console.log("HAS COOKIES" +localStorage.getItem("UNameLSKey"));
+    			setUsername(localStorage.getItem("UNameLSKey"));
     		}
     	}
     }
@@ -233,11 +241,23 @@ $(document).bind("pagebeforechange", function (event, data) {
     	var thisWeek = "thisWeek";
     	getWeekList(thisWeek);
     }
-    
 });
 
 
 
+function setUsername(username){
+	var details = {UN: username}
+	$.ajax({
+		type:"POST",
+		url: 'hours/setUsername',
+		data: details,
+		success: function(){
+			var today = "today";
+			getDayList(today);
+			resetDay();
+		}
+	});
+}
 
 /*
  * SuccessLogin(data) - Executed after a successful login response
@@ -245,7 +265,7 @@ $(document).bind("pagebeforechange", function (event, data) {
  */
 function SuccessLogin(data) {
     if (data != null) {
-    	localStorage.setItem('UNameLSKey', "Steriatime");
+    	localStorage.setItem('UNameLSKey', "AK");
     	
     	if (pageVars && pageVars.returnAfterLogin) {
             	$.mobile.changePage(pageVars.returnAfterLogin.toPage);

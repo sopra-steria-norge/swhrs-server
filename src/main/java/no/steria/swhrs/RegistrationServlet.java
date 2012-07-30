@@ -3,11 +3,8 @@ package no.steria.swhrs;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -60,7 +57,6 @@ public class RegistrationServlet extends HttpServlet{
 	}
 
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
@@ -78,8 +74,16 @@ public class RegistrationServlet extends HttpServlet{
 			getWeeklistResponseAsJSON(req, resp);
 		} else if(req.getRequestURL().toString().contains(("hours/delete"))){
 			deleteHourRegistrationInDatabase(req, resp);
+		}  else if(req.getRequestURL().toString().contains(("hours/delete"))){
+			setUsername(req, resp);
 		}
  	}
+
+
+	private void setUsername(HttpServletRequest req, HttpServletResponse resp) {
+		String loginUsername = req.getParameter("UN");
+		System.out.println("SKRIVER UT: "+loginUsername);
+	}
 
 
 	/**

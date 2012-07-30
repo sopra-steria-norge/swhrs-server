@@ -9,8 +9,6 @@ public interface HourRegDao {
 
 	void endTransaction(boolean b);
 	
-	void saveHours(HourRegistration reg);
-	
 	List<HourRegistration> getAllHoursForDate(String person_id, String date);
 	
 	boolean validateUser(String username, String password);
