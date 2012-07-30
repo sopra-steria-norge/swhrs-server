@@ -303,12 +303,13 @@ public class RegistrationServlet extends HttpServlet{
 	 * Helper method to create JSON object from a list of UserFavourites objects
 	 * @param userList The list containing user favourite objects stored in the database
 	 * @return JSON object with the format {"projectNumber":{"internalproject":value,"activitycode":value,"description": value,"projectname": value,"customername": value,"billable": value}
-	 *         projectnumber is the key and it contains a map with the rest of the values
+	 *         Keys are generated from 1 and up so it's easy to sort later, they contain a map with the rest of the values
 	 */
 	@SuppressWarnings("unchecked")
 	private JSONObject createJsonObjectFromFavourites(
 			List<UserFavourites> userList) {
 		JSONObject json = new JSONObject();
+		int counter = 1;
 		for (UserFavourites uf: userList) {
 //			json.put(uf.getProjectNumber() + "<:>" + uf.getActivityCode(), uf.getDescription());
 //			List list = new LinkedList();
@@ -321,7 +322,7 @@ public class RegistrationServlet extends HttpServlet{
 			map.put("customername", uf.getCustomer());
 			map.put("internalproject", uf.getInternalProject());
 			
-			json.put(uf.getProjectNumber() + "<:>" + uf.getActivityCode(), map);
+			json.put(counter++, map);
 			
 		}
 		System.out.println(json.toString());

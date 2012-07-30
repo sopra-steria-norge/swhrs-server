@@ -18,16 +18,27 @@ var username = null;
 var password = null;
 
 var pageVar = "";
-var pageVars = {}
-var favList = {}
+var pageVars = {};
+var favList = [];
+var favMap = {};
 var favourite = 1;
 
 // Constants
 var MISSING = "missing";
 var NO_FAV = "NO_FAV";
-var ZERO = 0;	
+var ZERO = 0;
 var today = "today";
 
+//Constructor to make a Favourite object
+function Favourite (projectnumber, activitycode, description, projectname, customername, billable, internalproject) {
+    this.projectnumber;
+    this.activitycode = activitycode;
+    this.description = description;
+    this.projectname = projectname;
+    this.customername = customername;
+    this.billable = billable;
+    this.internalproject = internalproject;
+}
 
 $(document).ready(function() {
 	
@@ -127,7 +138,7 @@ $(document).ready(function() {
 		return false;
 	});
 	
-	$('#favForm').submit(function(){
+	$('#searchForm').submit(function(){
 		var inputSearch = $("#favSearch").val();
 		console.log("FAV SEARCH: "+inputSearch);
 		var search = {search: inputSearch}
@@ -246,7 +257,7 @@ $(document).bind("pagebeforechange", function (event, data) {
     		}else{
     			sessionStorage.setItem('UNameLSKey', localStorage.getItem("UNameLSKey"));
     			console.log("HAS COOKIES" +localStorage.getItem("UNameLSKey"));
-    			setUsername(localStorage.getItem("UNameLSKey"));
+    			//setUsername(localStorage.getItem("UNameLSKey"));
     		}
     	}
     }
@@ -462,16 +473,21 @@ function deleteRegistration(taskNr, listid){
 
 
 function getFavouriteList(addToPage){
-	favList = {};
+	favMap = {};
+	favList = [];
 	$.ajax({
 		type: "POST",
 		url: 'hours/favourite',
 		success: function(data){
 			for(var key in data){
-				var favtext = key.split("<:>")[0] + ":" + key.split("<:>")[1] + ":" + data[key];
+				var jsonMap = data[key];
+				var newFav = new Favourite(jsonMap['projectnumber'], jsonMap['activitycode'], jsonMap['description'], jsonMap['projectname'], jsonMap['customername'], jsonMap['billable'], jsonMap['internalproject']);
+				
+				favMap[key] = newFav;
+				var favtext = newFav.projectname + " ("+ newFav.activitycode + ") " + newFav.description;
 				favList.push(favtext);
 			}
-			favList.sort();
+//			favList.sort();
 			addToPage(favList);
 		},
 		error: function(data){
