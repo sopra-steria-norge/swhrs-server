@@ -120,11 +120,11 @@ public class MSSQLHourRegDao implements HourRegDao {
 
 
 	@Override
-	public boolean deleteHourRegistration(String project_id) {
+	public boolean deleteHourRegistration(String taskNumber) {
 		PreparedStatement statement = null;
 		try {
 			statement = connection.prepareStatement(DELETE_REGISTRATION);
-			statement.setString(1, project_id);
+			statement.setString(1, taskNumber);
 			int delResult = statement.executeUpdate();
 			System.out.println(delResult);
 			if (delResult == 0) {
@@ -160,7 +160,8 @@ public class MSSQLHourRegDao implements HourRegDao {
 				String projectNumber = res.getString(1);
 				String activityCode = res.getString(2);
 				String description = res.getString(3);
-				UserFavourites userFav = new UserFavourites(projectNumber, activityCode, description);
+				String projectName = "Hardcode1337";
+				UserFavourites userFav = new UserFavourites(projectNumber, activityCode, description, projectName);
 				result.add(userFav);
 			}
 		} catch (SQLException e) {

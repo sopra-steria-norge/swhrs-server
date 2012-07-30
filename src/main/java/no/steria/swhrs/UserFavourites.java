@@ -6,12 +6,14 @@ public class UserFavourites {
 	private String projectNumber;
 	private String activityCode;
 	private String description;
+	private String projectName;
 	
 	public UserFavourites(String projectNumber2, String activityCode2,
-			String description2) {
+			String description2, String projectName) {
 		this.projectNumber = projectNumber2;
 		this.activityCode = activityCode2;
 		this.description = description2;
+		this.projectName = projectName;
 	}
 	
 	public String getUserName() {
@@ -41,6 +43,14 @@ public class UserFavourites {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public String getProjectName() {
+		return projectName;
+	}
+
+	public void setProjectName(String projectName) {
+		this.projectName = projectName;
 	}
 
 
