@@ -82,6 +82,7 @@ public class RegistrationServlet extends HttpServlet{
 
 	private void setUsername(HttpServletRequest req, HttpServletResponse resp) {
 		String loginUsername = req.getParameter("UN");
+		username = loginUsername;
 		System.out.println("SKRIVER UT: "+loginUsername);
 	}
 

@@ -253,8 +253,7 @@ function setUsername(username){
 		data: details,
 		success: function(){
 			var today = "today";
-			getDayList(today);
-			resetDay();
+			console.log("DOES IT WORK?");
 		}
 	});
 }
