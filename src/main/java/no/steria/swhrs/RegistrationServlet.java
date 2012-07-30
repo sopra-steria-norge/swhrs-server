@@ -79,17 +79,40 @@ public class RegistrationServlet extends HttpServlet{
 			setUsername(req, resp);
 		} else if(req.getRequestURL().toString().contains(("hours/searchFavourites"))){
 			searchFavourites(req, resp);
+		} else if(req.getRequestURL().toString().contains(("hours/addFavourites"))){
+			addFavourites(req, resp);
 		}
  	}
 
 
+	private void addFavourites(HttpServletRequest req, HttpServletResponse resp) {
+		String projectNumber = req.getParameter("projectNumber");
+		String activityCode = req.getParameter("activityCode");
+		if(db.addFavourites(username, projectNumber, activityCode)){
+			System.out.println("ADDING COMPLETE, WANNA SEND SOME JSON?");
+		}
+	}
+
+
+	@SuppressWarnings("unchecked")
 	private void searchFavourites(HttpServletRequest req,
-			HttpServletResponse resp) {
+			HttpServletResponse resp) throws IOException {
 		String searchInput = req.getParameter("search");
 		List<Projects> project = db.getProjects(searchInput);
+		int counter = 0;
+		JSONObject projectJson = new JSONObject();
 		for(Projects po: project){
-			System.out.println("pNR: "+po.getProjectNumber()+" aCode :"+ po.getActivityCode()+" desc: "+ po.getDescription());
+			HashMap map = new HashMap();
+			map.put("projectnumber", po.getProjectNumber());
+			map.put("activitycode", po.getActivityCode());
+			map.put("description", po.getDescription());
+			counter++;
+			projectJson.put(counter, map);
 		}
+		System.out.println(projectJson.toString());
+		PrintWriter writer = resp.getWriter();
+		String jsonText = projectJson.toString();
+		writer.append(jsonText);
 	}
 
 

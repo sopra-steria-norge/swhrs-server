@@ -137,6 +137,12 @@ $(document).ready(function() {
 			data: search,
 			success: function(data){
 				console.log(data);
+				for (var key in data) {
+					if (data.hasOwnProperty(key)) {
+						console.log(key);
+					}
+				}
+				
 			}
 		});
 	});
@@ -492,6 +498,35 @@ function fillListInFavPage(favlist) {
 	}
 	
 	$('#favList').listview('refresh');
+}
+
+function fillProjectList(projectList){
+	$('#favList').children().remove('li');
+	for(var i=0; i < projectList.length; i++){
+		var projects = projectList[i];
+		$('#favList').append($("<li></li>", {id:""}).html('<a href="#" data-split-theme="c" data-split-icon="add"><b>' +
+				projects + ' </b></a><a href=""></a>'));
+	}
+	$('#favList').listview('refresh');
+}
+
+function addFavourites(pNr, aC){
+	var favourite = {'projectNumber': pNr, 'activityCode': aC}
+	}
+	$.ajax({
+		type:"POST",
+		url: 'hours/addFavourites',
+		data: favourite,
+		success: function(data){
+			console.log(data);
+			for (var key in data) {
+				if (data.hasOwnProperty(key)) {
+					console.log(key);
+				}
+			}
+			
+		}
+	});
 }
 
 function fillSelectMenuInDayPage(favList){
