@@ -127,6 +127,19 @@ $(document).ready(function() {
 		return false;
 	});
 	
+	$('#favForm').submit(function(){
+		var inputSearch = $("#favSearch").val();
+		console.log("FAV SEARCH: "+inputSearch);
+		var search = {search: inputSearch}
+		$.ajax({
+			type:"POST",
+			url: 'hours/searchFavourites',
+			data: search,
+			success: function(data){
+				console.log(data);
+			}
+		});
+	});
 	
 	/*
 	 * #dayPage

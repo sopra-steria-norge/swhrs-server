@@ -6,12 +6,10 @@ public class Projects {
 	private String activityCode;
 	private String description;
 	
-	public static Projects createProjectList(String projectNumber, String activityCode, String description){
-		Projects project= new Projects();
-		project.projectNumber = projectNumber;
-		project.activityCode = activityCode;
-		project.description = description;
-		return project;
+	public Projects (String projectNumber, String activityCode, String description){
+		this.projectNumber = projectNumber;
+		this.activityCode = activityCode;
+		this.description = description;
 	}
 	
 	

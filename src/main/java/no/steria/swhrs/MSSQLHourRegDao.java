@@ -192,7 +192,10 @@ public class MSSQLHourRegDao implements HourRegDao {
 			statement.setString(2, projectName);
 			ResultSet res = statement.executeQuery();
 			while(res.next()){
-				Projects project = new Projects();
+				String projectNumber = res.getString(1);
+				String activityCode = res.getString(2);
+				String description = res.getString(3);
+				Projects project = new Projects(projectNumber, activityCode, description);
 				result.add(project);
 				counter++;
 			}

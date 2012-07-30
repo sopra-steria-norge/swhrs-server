@@ -74,10 +74,22 @@ public class RegistrationServlet extends HttpServlet{
 			getWeeklistResponseAsJSON(req, resp);
 		} else if(req.getRequestURL().toString().contains(("hours/delete"))){
 			deleteHourRegistrationInDatabase(req, resp);
-		}  else if(req.getRequestURL().toString().contains(("hours/delete"))){
+		} else if(req.getRequestURL().toString().contains(("hours/setUsername"))){
 			setUsername(req, resp);
+		} else if(req.getRequestURL().toString().contains(("hours/searchFavourites"))){
+			searchFavourites(req, resp);
 		}
  	}
+
+
+	private void searchFavourites(HttpServletRequest req,
+			HttpServletResponse resp) {
+		String searchInput = req.getParameter("search");
+		List<Projects> project = db.getProjects(searchInput);
+		for(Projects po: project){
+			System.out.println("pNR: "+po.getProjectNumber()+" aCode :"+ po.getActivityCode()+" desc: "+ po.getDescription());
+		}
+	}
 
 
 	private void setUsername(HttpServletRequest req, HttpServletResponse resp) {
