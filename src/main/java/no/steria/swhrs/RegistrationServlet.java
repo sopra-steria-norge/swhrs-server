@@ -3,6 +3,7 @@ package no.steria.swhrs;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -143,8 +144,6 @@ public class RegistrationServlet extends HttpServlet{
 		System.out.println("fromDate: "+period.getFromDate()+" toDate: "+period.getToDate()+" Description: "+period.getDescription());
 		
 		List<WeekRegistration> weeklist = db.getWeekList(username, period.getFromDate(), period.getToDate());
-		JSONObject json = new JSONObject();
-		int order = 0;
 		String weekDescription = period.getDescription();
 		
 		
@@ -291,15 +290,28 @@ public class RegistrationServlet extends HttpServlet{
 	/**
 	 * Helper method to create JSON object from a list of UserFavourites objects
 	 * @param userList The list containing user favourite objects stored in the database
-	 * @return JSON object containing a string of the format "key": projectNumber<:>activityCode value: description
+	 * @return JSON object with the format {"projectNumber":{"internalproject":value,"activitycode":value,"description": value,"projectname": value,"customername": value,"billable": value}
+	 *         projectnumber is the key and it contains a map with the rest of the values
 	 */
 	@SuppressWarnings("unchecked")
 	private JSONObject createJsonObjectFromFavourites(
 			List<UserFavourites> userList) {
 		JSONObject json = new JSONObject();
-		for (UserFavourites ul: userList) {
-			json.put(ul.getProjectNumber() + "<:>" + ul.getActivityCode(), ul.getDescription());
+		for (UserFavourites uf: userList) {
+//			json.put(uf.getProjectNumber() + "<:>" + uf.getActivityCode(), uf.getDescription());
+//			List list = new LinkedList();
+			HashMap map = new HashMap();
+			map.put("activitycode", uf.getActivityCode());
+			map.put("description", uf.getDescription());
+			map.put("billable", uf.getBillable());
+			map.put("projectname", uf.getProjectName());
+			map.put("customername", uf.getCustomer());
+			map.put("internalproject", uf.getInternalProject());
+			
+			json.put(uf.getProjectNumber(), map);
+			
 		}
+		System.out.println(json.toString());
 		return json;
 		
 	}
