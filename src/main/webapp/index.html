@@ -136,7 +136,14 @@
 	
 	<!-- FavpageContent -->
 	<div data-role="content" id="contentFav">
-	<ul id="favList" data-role="listview" data-filter="true" data-inset="true" data-theme="c" data-split-theme="d"> 
+	<form action="favForm">
+	<div id="favDiv" data-role="fieldcontain">
+		<input type="text" name="favSearch" id="favSearch" value="" />
+		<input type="submit" value="Search favourites"/>
+	</div>
+	</form>
+	<br>
+	<ul id="favList" data-role="listview" data-inset="true" data-theme="c" data-split-theme="d"> 
 	
 	</ul>
 	</div>
