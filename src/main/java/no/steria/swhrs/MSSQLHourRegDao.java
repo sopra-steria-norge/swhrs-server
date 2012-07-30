@@ -167,6 +167,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 				String projectNumber = res.getString(1);
 				String activityCode = res.getString(2);
 				String description = res.getString(3);
+				String projectName = "Hardcode1337";
 				UserFavourites userFav = new UserFavourites(projectNumber, activityCode, description);
 				result.add(userFav);
 			}
