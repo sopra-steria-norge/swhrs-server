@@ -19,7 +19,7 @@ var password = null;
 
 var pageVar = "";
 var pageVars = {}
-var favList = new Array();
+var favList = {}
 var favourite = 1;
 
 // Constants
@@ -462,7 +462,7 @@ function deleteRegistration(taskNr, listid){
 
 
 function getFavouriteList(addToPage){
-	favList = [];
+	favList = {};
 	$.ajax({
 		type: "POST",
 		url: 'hours/favourite',

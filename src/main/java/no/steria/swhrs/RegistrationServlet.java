@@ -313,6 +313,7 @@ public class RegistrationServlet extends HttpServlet{
 //			json.put(uf.getProjectNumber() + "<:>" + uf.getActivityCode(), uf.getDescription());
 //			List list = new LinkedList();
 			HashMap map = new HashMap();
+			map.put("projectnumber", uf.getProjectNumber());
 			map.put("activitycode", uf.getActivityCode());
 			map.put("description", uf.getDescription());
 			map.put("billable", uf.getBillable());
@@ -320,7 +321,7 @@ public class RegistrationServlet extends HttpServlet{
 			map.put("customername", uf.getCustomer());
 			map.put("internalproject", uf.getInternalProject());
 			
-			json.put(uf.getProjectNumber(), map);
+			json.put(uf.getProjectNumber() + "<:>" + uf.getActivityCode(), map);
 			
 		}
 		System.out.println(json.toString());
