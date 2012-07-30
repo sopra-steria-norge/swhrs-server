@@ -5,22 +5,27 @@ import org.joda.time.LocalDate;
 
 public class HourRegistration {
 	
-	private int item;
+	private int taskNumber;
 	private String projectnumber; //maybe this will be changed to type "Project" later
 	private String activityCode;
 	private String date;
 	private double hours;
 	private String description;
+	private boolean submitted;
+	private boolean approved;
 	
 	
 	
-	public HourRegistration(int item2, String projectNumber2,
-			String activityCode2, double hours2, String description2) {
-		this.item = item2;
+	public HourRegistration(String date, int item2, String projectNumber2,
+			String activityCode2, double hours2, String description2, boolean submitted, boolean approved) {
+		this.taskNumber = item2;
 		this.projectnumber = projectNumber2;
 		this.activityCode = activityCode2;
 		this.hours = hours2;
 		this.description = description2;
+		this.submitted =submitted;
+		this.approved = approved;
+		this.date = date;
 	}
 
 	public String getDate() {
@@ -47,12 +52,12 @@ public class HourRegistration {
 		this.projectnumber = projectnumber;
 	}
 
-	public int getItem() {
-		return item;
+	public int getTaskNumber() {
+		return taskNumber;
 	}
 
 	public void setItem(int item) {
-		this.item = item;
+		this.taskNumber = item;
 	}
 
 	public String getActivityCode() {
@@ -69,5 +74,21 @@ public class HourRegistration {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public boolean isSubmitted() {
+		return submitted;
+	}
+
+	public void setSubmitted(boolean submitted) {
+		this.submitted = submitted;
+	}
+
+	public boolean isApproved() {
+		return approved;
+	}
+
+	public void setApproved(boolean approved) {
+		this.approved = approved;
 	}
 }

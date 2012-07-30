@@ -9,8 +9,6 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.joda.time.LocalDate;
-
 public class MSSQLHourRegDao implements HourRegDao {
 	
 	
@@ -18,9 +16,8 @@ public class MSSQLHourRegDao implements HourRegDao {
 	private Connection connection = null;
 	private static final String SELECT_USERS = "select No_, \"WEB Password\" from \"Norge$Resource\" where No_ = ? and \"WEB Password\" = ?";
 	private static final String SELECT_REGISTRATIONS = "SELECT * FROM \"Norge$Time Entry\" WHERE Ressourcekode = ? AND Dato = ? AND Projektnr_ NOT LIKE 'FLEX'";
-	private static final String SELECT_FAVOURITES = "select \"Norge$Favourite Task\".Projektnr_, \"Norge$Favourite Task\".Aktivitetskode, \"Norge$Tasklist\".Beskrivelse from \"Norge$Favourite Task\"  INNER JOIN \"Norge$Tasklist\" ON \"Norge$Favourite Task\".Projektnr_= \"Norge$Tasklist\".Projektnr_ AND \"Norge$Favourite Task\".Aktivitetskode = \"Norge$Tasklist\".Kode WHERE \"Norge$Favourite Task\".Resourcekode = ?";
+	private static final String SELECT_FAVOURITES = "select \"Norge$Favourite Task\".Projektnr_, \"Norge$Favourite Task\".Aktivitetskode, \"Norge$Tasklist\".Beskrivelse from \"Norge$Favourite Task\"  INNER JOIN \"Norge$Tasklist\" ON \"Norge$Favourite Task\".Projektnr_= \"Norge$Tasklist\".Projektnr_ AND \"Norge$Favourite Task\".Aktivitetskode = \"Norge$Tasklist\".Kode WHERE \"Norge$Favourite Task\".Resourcekode = ? AND \"Norge$Tasklist\".Spærret NOT LIKE '1'";
 	//private static final String SELECT_PROJECTS = "select \"Norge$Tasklist\".Projektnr_, \"Norge$Tasklist\".Kode, \"Norge$Tasklist\".Beskrivelse FROM \"Norge$Tasklist\" WHERE Type=0 and Afsluttet=0 and Spærret=0 and Vis=1 and Status=2";
-	//private static final String SELECT_WEEKREGISTRATIONS = "select \"Norge$Time Entry\".Løbenr_, Beskrivelse, Antal, Godkendt, Dato from \"Norge$Time Entry\" where Ressourcekode = ? AND Dato Between ? AND ? ORDER BY Dato";
 	private static final String SELECT_WEEKREGISTRATIONS = "select Dato, sum(Antal), Godkendt from \"Norge$Time Entry\" where Ressourcekode = ? AND Projektnr_ NOT LIKE 'FLEX' AND Dato Between ? AND ? GROUP BY Dato, Godkendt";
 	private static final String SELECT_SEARCHPROJECTS = "select \"Norge$Tasklist\".Projektnr_, \"Norge$Tasklist\".Kode, \"Norge$Tasklist\".Beskrivelse FROM \"Norge$Tasklist\" WHERE Beskrivelse like ? OR Projektnr_ like ? ORDER BY Beskrivelse";
 	private static final String SELECT_PERIODS = "select Startdato, Slutdato, Beskrivelse, Bogført from \"Norge$Time Periods\" WHERE Ressource = ? AND Startdato <= ? AND Slutdato >= ?";
@@ -57,12 +54,6 @@ public class MSSQLHourRegDao implements HourRegDao {
 	}
 
 	@Override
-	public void saveHours(HourRegistration reg) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public List<HourRegistration> getAllHoursForDate(String userName,
 			String date) {
 		List<HourRegistration> result = new ArrayList<HourRegistration>();
@@ -74,13 +65,15 @@ public class MSSQLHourRegDao implements HourRegDao {
 			statement.setString(2, date);
 			ResultSet res = statement.executeQuery();
 			while(res.next()){
-				int item = res.getInt(2);
+				int taskNumber = res.getInt(2);
 				String projectNumber = res.getString(3);
 				String activityCode = res.getString(4);
 				double hours = res.getDouble(8);
 				String description = res.getString(9);
+				boolean submitted = res.getBoolean(10);
+				boolean approved = res.getBoolean(11);
 				
-				HourRegistration hourReg = new HourRegistration(item, projectNumber, activityCode, hours, description);
+				HourRegistration hourReg = new HourRegistration(date, taskNumber, projectNumber, activityCode, hours, description, submitted, approved);
 				result.add(hourReg);	
 			}
 		} catch (SQLException e) {
