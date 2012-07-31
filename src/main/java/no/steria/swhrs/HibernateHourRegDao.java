@@ -120,7 +120,7 @@ public class HibernateHourRegDao implements HourRegDao{
 	}
 
 	@Override
-	public List<Projects> getProjects(String projectName) {
+	public List<Projects> searchProjects(String projectName) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -157,5 +157,11 @@ public class HibernateHourRegDao implements HourRegDao{
 	public List<UserFavourites> getUserFavourites(String userName) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void submitPeriod(String username, String fromDate, String toDate) {
+		// TODO Auto-generated method stub
+		
 	}
 }
