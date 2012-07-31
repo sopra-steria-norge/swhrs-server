@@ -81,8 +81,13 @@ public class RegistrationServlet extends HttpServlet{
 			searchFavourites(req, resp);
 		} else if(req.getRequestURL().toString().contains(("hours/addFavourites"))){
 			addFavourites(req, resp);
+		} else if(req.getRequestURL().toString().contains(("hours/submitPeriod"))){
+			submitPeriod(req, resp);
 		}
  	}
+
+
+	
 
 
 	private void addFavourites(HttpServletRequest req, HttpServletResponse resp) {
@@ -99,7 +104,7 @@ public class RegistrationServlet extends HttpServlet{
 			HttpServletResponse resp) throws IOException {
 		resp.setContentType("application/json");
 		String searchInput = req.getParameter("search");
-		List<Projects> project = db.getProjects(searchInput);
+		List<Projects> project = db.searchProjects(searchInput);
 		int counter = 0;
 		JSONObject projectJson = new JSONObject();
 		for(Projects po: project){
@@ -145,8 +150,15 @@ public class RegistrationServlet extends HttpServlet{
 			resp.getWriter().append("success");
 		}
 	}
-
-
+	
+	private void submitPeriod(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		DatePeriod period = db.getPeriod(username, date.toString());
+		db.submitPeriod(username, period.getFromDate(), period.getToDate());
+		resp.setContentType("text/plain");
+		resp.getWriter().append("Period is submitted");
+	}
+	
+	
 	/**
 	 * This method returns a HTTP request containing JSON data for a period
 	 * @param req The HTTP request contains the week parameter which contains strings of either "thisWeek", "prevWeek" or "nextWeek"

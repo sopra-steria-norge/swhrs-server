@@ -88,7 +88,7 @@ public class MSSQLHourRegDaoTest {
 	@Test
 	public void shouldSearchForProjects() throws Exception {
 		hourRegDao.beginTransaction();
-		List<Projects> projects = hourRegDao.getProjects("LARM");
+		List<Projects> projects = hourRegDao.searchProjects("LARM");
 		hourRegDao.endTransaction(false);
 		assertThat(projects).hasSize(27);
 	}

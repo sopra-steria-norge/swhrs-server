@@ -66,6 +66,14 @@ $(document).ready(function() {
 	var favVar = $('#fav');
 	hoursVar = $('#hours');
 	
+	var myDate=new Date();
+	dateT = myDate.getDate();
+	monthT = myDate.getMonth();
+	if(monthT < 10){
+		monthT = "0"+monthT;
+	}
+	yearT = myDate.getFullYear();
+	console.log(yearT+"-"+monthT+"-"+dateT);
 	
 	/*
 	 * #loginPage
@@ -231,14 +239,6 @@ $(document).ready(function() {
 	});
 	
 	
-	/*
-	 * #weekPage
-	 * Period submit 
-	 * Submits the period for approval
-	 */
-	$('#submitPeriod').click(function(){
-	});
-	
 	$('.dayLink').bind('click', function() {
 		  console.log('User clicked on "dayLink."');
 		  resetDay();
@@ -348,6 +348,16 @@ function postHourRegistration(myData) {
 	});
 }
 
+function submitPeriod(){
+	$.ajax({
+		type:"POST",
+		url: 'hours/submitPeriod',
+		success: function(data){
+			console.log("IT WORKED, UPDATE THE WEEKLIST");
+			console.log(data);
+		}
+	});
+}
 
 /*
  * prevDay() & nextDay()
@@ -561,6 +571,7 @@ function fillProjectList(data){
 
 function addFavourites(pNr, aC){
 	var favourite = {'projectNumber': pNr, 'activityCode': aC}
+	
 	$.ajax({
 		type:"POST",
 		url: 'hours/addFavourites',

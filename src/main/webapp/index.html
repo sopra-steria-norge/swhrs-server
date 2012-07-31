@@ -108,7 +108,7 @@
 		<div id="weekDescription" align="center">
 			<b></b>
 		</div>
-		<a href="#dialogPopUp" data-role="button" id="submitPeriod" data-rel="dialog" data-transition="pop">Submit period</a>
+		<a href="#dialogPopUp" data-role="button" id="submitPopup" data-rel="dialog" data-transition="pop">Submit period</a>
 	</div>	
 	
 	<!-- weekPage footer -->
@@ -266,7 +266,7 @@
 	<div id="contentDia" data-role="content">
 		<p></p> 
 		<fieldset class="ui-grid-a" data-type="vertical">
-			<div class="ui-block-a"><a href="#weekPage" type="button" data-theme="a" data-rel="back">OK</a></div>
+			<div class="ui-block-a"><a href="#weekPage" onclick="submitPeriod(); return false;" type="button" data-theme="a" data-rel="back">OK</a></div>
 			<div class="ui-block-b"><a href="#weekPage" type="button" data-theme="a" data-rel="back">Cancel</a> </div>
 		</fieldset> 
 	</div>	
