@@ -493,6 +493,9 @@ function deleteRegistration(taskNr, listid){
 	});
 }
 
+function editRegistration(tasknumber) {
+	alert('EDITING LIKE ABAWS');
+}
 
 function getFavouriteList(addToPage){
 	favMap = {};
@@ -613,10 +616,16 @@ function getDayList(newDay) {
 					var newhr = new HourRegistration(key, val['projectnumber'], val['activitycode'],
 							val['description'], val['hours'], val['submitted'], val['approved']);
 					regMap[key] = newhr;
-					console.log('TASKNUMBER' +newhr.tasknumber);
-						$('#dayList').append($('<li id="reg:' + key +'"></li>').html('<a href="javascript:editRegistration('+ newhr.tasknumber +')" data-split-theme="c" data-split-icon="delete"><b>' +
-								newhr['description']+' </b><span class="ui-li-count">' + newhr['hours'] + 
-								' hours '+'</span></a><a href="javascript:deleteRegistration(' + newhr.tasknumber +')"></a>')).listview('refresh');
+					var sidebutton = 'delete';
+					if (newhr['approved']) {
+						sidebutton = 'check'
+						//TODO add green colour to button
+					} else if (newhr['submitted']) {
+						sidebutton = 'check'
+					}
+					$('#dayList').append($('<li id="reg:' + key +'"></li>').html('<a href="javascript:editRegistration('+ newhr.tasknumber +')" data-split-theme="c" data-split-icon="'+ sidebutton +'"><b>' +
+							newhr['description']+' </b><span class="ui-li-count">' + newhr['hours'] + ' hours '+'
+							</span></a><a href="javascript:deleteRegistration(' + newhr.tasknumber +')"></a>')).listview('refresh');
 				}
 			}
 			if(totalHours != 0){
