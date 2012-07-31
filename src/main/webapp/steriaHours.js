@@ -330,9 +330,14 @@ function submitPeriod(){
 		success: function(data){
 			console.log("IT WORKED, UPDATE THE WEEKLIST");
 			console.log(data);
+			setWeeklistSubmited();
 		},
 		async: false
 	});
+}
+
+function setWeeklistSubmited(){
+	//$('#weekList').data-theme("e");
 }
 
 /*
@@ -526,7 +531,7 @@ function fillListInFavPage(favlist) {
 	for (var i = 0; i < favList.length; i++) {
 		var favs = favList[i];
 		
-		$('#favList').append($("<li></li>").html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
+		$('#favList').append($("<li id="'reg:' + i +'"></li>").html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
 	            favs + ' </b></a><a href="javascript:deleteFavourite('+i+')"></a>'));
 
 		
@@ -568,6 +573,18 @@ function addFavourites(pNr, aC){
 function deleteFavourite(key) {
 	var fav = favMap[key];
 	console.log('Trying to delete favourite: ' + fav.activitycode);
+	var delFavourite = {'projectNumber': fav.projectnumber, 'activityCode': fav.activitycode};
+	
+	$.ajax({
+		type:"POST",
+		url: 'hours/addFavourites',
+		data: delFavourite,
+		success: function(data){
+			$('#reg' + key).remove();
+		},
+		async false
+	});
+	
 }
 
 function fillSelectMenuInDayPage(favList){

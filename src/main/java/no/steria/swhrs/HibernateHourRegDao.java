@@ -164,4 +164,11 @@ public class HibernateHourRegDao implements HourRegDao{
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void deleteFavourite(String userid, String projectNumber,
+			String activityCode) {
+		// TODO Auto-generated method stub
+		
+	}
 }

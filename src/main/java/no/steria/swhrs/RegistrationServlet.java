@@ -83,11 +83,24 @@ public class RegistrationServlet extends HttpServlet{
 			addFavourites(req, resp);
 		} else if(req.getRequestURL().toString().contains(("hours/submitPeriod"))){
 			submitPeriod(req, resp);
+		}  else if(req.getRequestURL().toString().contains(("hours/deleteFavourite"))){
+			deleteFavourite(req, resp);
 		}
  	}
 
 
 	
+
+
+	private void deleteFavourite(HttpServletRequest req,
+			HttpServletResponse resp) throws IOException {
+		String projectNumber = req.getParameter("projectNumber");
+		String activityCode = req.getParameter("activityCode");
+		db.deleteFavourite(username, projectNumber, activityCode);
+		
+		resp.setContentType("text/plain");
+		resp.getWriter().append("Favourite is deleted");
+	}
 
 
 	private void addFavourites(HttpServletRequest req, HttpServletResponse resp) {
