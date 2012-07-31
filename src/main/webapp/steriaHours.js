@@ -524,7 +524,7 @@ function fillListInFavPage(favlist) {
 		var favs = favList[i];
 		
 		$('#favList').append($("<li></li>").html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
-	            favs + ' </b></a><a href=""></a>'));
+	            favs + ' </b></a><a href="javascript:deleteFavourite('+i+')"></a>'));
 
 		
 	}
@@ -560,6 +560,11 @@ function addFavourites(pNr, aC){
 			getFavouriteList(fillSelectMenuInDayPage);
 		}
 	});
+}
+
+function deleteFavourite(key) {
+	var fav = favMap[key];
+	console.log('Trying to delete favourite: ' + fav.activitycode);
 }
 
 function fillSelectMenuInDayPage(favList){
