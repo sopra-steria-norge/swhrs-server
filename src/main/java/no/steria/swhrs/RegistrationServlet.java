@@ -80,22 +80,22 @@ public class RegistrationServlet extends HttpServlet{
 		} else if(req.getRequestURL().toString().contains(("hours/searchFavourites"))){
 			searchFavourites(req, resp);
 		} else if(req.getRequestURL().toString().contains(("hours/addFavourites"))){
-			addFavourites(req, resp);
+			addFavourites(req);
 		} else if(req.getRequestURL().toString().contains(("hours/submitPeriod"))){
 			submitPeriod(req, resp);
 		} else if(req.getRequestURL().toString().contains(("hours/deleteFavourite"))){
-			deleteFavourite(req, resp);
+			deleteFavourite(req);
 		} else if(req.getRequestURL().toString().contains(("hours/updateRegistration"))){
-			updateRegistration(req, resp);
+			updateRegistration(req);
 		}
  	}
 
 
-	
-
-
-	private void updateRegistration(HttpServletRequest req,
-			HttpServletResponse resp) {
+	/**
+	 * This method updates an hour registration with a new description for time entry (comment) and new hours number
+	 * @param req
+	 */
+	private void updateRegistration(HttpServletRequest req) {
 		int taskNumber = Integer.parseInt(req.getParameter("taskNumber"));
 		double hours = Double.parseDouble(req.getParameter("hours"));
 		String description = req.getParameter("description");
@@ -104,19 +104,22 @@ public class RegistrationServlet extends HttpServlet{
 	}
 
 
-	private void deleteFavourite(HttpServletRequest req,
-			HttpServletResponse resp) throws IOException {
-		System.out.println("DELEEEEEEEEEEEEEEEETING MAN!");
+	/**
+	 * This method removes a project from the users favourite list in the database
+	 * @param req The HTTP request contains project number and activity code
+	 */
+	private void deleteFavourite(HttpServletRequest req){
 		String projectNumber = req.getParameter("projectNumber");
 		String activityCode = req.getParameter("activityCode");
 		db.deleteFavourite(username, projectNumber, activityCode);
-		
-		resp.setContentType("text/plain");
-		resp.getWriter().append("Favourite is deleted");
 	}
 
 
-	private void addFavourites(HttpServletRequest req, HttpServletResponse resp) {
+	/**
+	 * This method adds new projects to the users favourite list
+	 * @param req The HTTP request contains project number and activity code
+	 */
+	private void addFavourites(HttpServletRequest req) {
 		String projectNumber = req.getParameter("projectNumber");
 		String activityCode = req.getParameter("activityCode");
 		if(db.addFavourites(username, projectNumber, activityCode)){
@@ -125,6 +128,14 @@ public class RegistrationServlet extends HttpServlet{
 	}
 
 
+	/**
+	 * This method will search through Projects with the search input, and 
+	 * return a JSON string with project number, activity code and description
+	 * @param req The HTTP request contains a search input which is used to search through
+	 * projects in the database
+	 * @param resp THE HTTP response will return a JSON String with project number, activity code, and description.
+	 * @throws IOException
+	 */
 	@SuppressWarnings("unchecked")
 	private void searchFavourites(HttpServletRequest req,
 			HttpServletResponse resp) throws IOException {
@@ -134,7 +145,7 @@ public class RegistrationServlet extends HttpServlet{
 		int counter = 0;
 		JSONObject projectJson = new JSONObject();
 		for(Projects po: project){
-			HashMap map = new HashMap();
+			HashMap<String, String> map = new HashMap<String, String>();
 			map.put("projectnumber", po.getProjectNumber());
 			map.put("activitycode", po.getActivityCode());
 			map.put("description", po.getDescription());
@@ -222,6 +233,7 @@ public class RegistrationServlet extends HttpServlet{
 		
 		
 		JSONObject obj = new JSONObject();
+		JSONObject weekJson = new JSONObject();
 		for(int i=0; i<dateArray.size(); i++){
 			String dateArr = dateArray.get(i).toString().split(":")[0];
 			String dayOfWeek = dateArray.get(i).toString().split(":")[1];
@@ -236,17 +248,36 @@ public class RegistrationServlet extends HttpServlet{
 					break;
 				}
 			}
+			
 			if (!found) {
 				List list = new LinkedList();
 				list.add(dayOfWeek);
 				list.add(0);
 				obj.put(dateArr, list);
 			}
+			/*
+			for(WeekRegistration wr: weeklist){
+				if(wr.getDate().split(" ")[0].equals(dateArr)){
+					HashMap map = new HashMap();
+					map.put("dayOfWeek", dayOfWeek);
+					map.put("hours", wr.getHours());
+					weekJson.put(wr.getDate().split(" ")[0], map);
+				}
+			}
+			
+			if (!found) {
+				HashMap map = new HashMap();
+				map.put("dayOfWeek", dayOfWeek);
+				map.put("hours", 0);
+				weekJson.put(dateArr, map);
+			}*/
 			
 		}
 		
 		obj.put("weekNumber", weekDescription);
 		obj.put("dateHdr", date.getDayOfWeek()+" "+date.toString());
+		//weekJson.put("weekNumber", weekDescription);
+		//weekJson.put("dateHdr", date.getDayOfWeek()+" "+date.toString());
 		resp.setContentType("text/json");
 		PrintWriter writer = resp.getWriter();
 		String jsonText = obj.toJSONString();
@@ -360,6 +391,7 @@ public class RegistrationServlet extends HttpServlet{
 		JSONObject json = new JSONObject();
 		for (HourRegistration hr: hrlist) {
 			System.out.println(hr.getDate()+":"+hr.getDescription() + " Approved: " +hr.isApproved()+" Submitted "+ hr.isSubmitted());
+			@SuppressWarnings("rawtypes")
 			HashMap map = new HashMap();
 			map.put("projectnumber", hr.getProjectnumber());
 			map.put("activitycode", hr.getActivityCode());
@@ -385,6 +417,7 @@ public class RegistrationServlet extends HttpServlet{
 		JSONObject json = new JSONObject();
 		int counter = 0;
 		for (UserFavourites uf: userList) {
+			@SuppressWarnings("rawtypes")
 			HashMap map = new HashMap();
 			map.put("projectnumber", uf.getProjectNumber());
 			map.put("activitycode", uf.getActivityCode());

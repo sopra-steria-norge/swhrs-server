@@ -1,8 +1,5 @@
 package no.steria.swhrs;
 
-import org.joda.time.LocalDate;
-
-
 public class HourRegistration {
 	
 	private int taskNumber;

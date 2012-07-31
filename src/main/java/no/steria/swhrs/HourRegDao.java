@@ -120,11 +120,30 @@ public interface HourRegDao {
 			String workType, String date, String username, double hours,
 			String description);
 
-	void submitPeriod(String username, String fromDate, String toDate);
+	/**
+	 * This method submits all hour registrations done in a specific period
+	 * @param userid The userid is sent as a String(User initials)
+	 * @param dateFrom The dateFrom is sent as a String with the format (yyyy-MM-dd)
+	 * @param dateTo The dateTo is sent as a String with the format (yyyy-MM-dd)
+	 */
+	void submitPeriod(String userid, String dateFrom, String dateTo);
 
+	/**
+	 * This method removes a favourite from the users favourite list
+	 * @param userid The userid is sent as a String(User initials)
+	 * @param projectNumber The project_id is sent as a String
+	 * @param activityCode The activity code is sent as a String
+	 */
 	void deleteFavourite(String userid, String projectNumber,
 			String activityCode);
 
+	/**
+	 * This method updates the number of hours and description logged on a specific 
+	 * hour registration 
+	 * @param taskNumber The task number is sent as an Integer
+	 * @param hours The hours is sent as a Double
+	 * @param description The description is sent as a String
+	 */
 	void updateRegistration(int taskNumber, double hours, String description);
 
 	

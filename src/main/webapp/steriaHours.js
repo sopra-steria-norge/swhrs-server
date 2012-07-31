@@ -579,7 +579,7 @@ function deleteFavourite(key) {
 		type:"POST",
 		url: 'hours/deleteFavourite',
 		data: delFavourite,
-		success: function(data){
+		success: function(){
 			$('#fav:' + key).remove();
 			$('#favList').listview('refresh');
 			getFavouriteList(fillListInDayPage);
