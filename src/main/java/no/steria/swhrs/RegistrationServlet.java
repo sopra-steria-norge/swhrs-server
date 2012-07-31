@@ -307,6 +307,7 @@ public class RegistrationServlet extends HttpServlet{
 
 		PrintWriter writer = resp.getWriter();
 		String jsonText = json.toString();
+		System.out.println("JSON sendt from regservlet: " +jsonText);
 		writer.append(jsonText);
 	}
 
@@ -321,7 +322,14 @@ public class RegistrationServlet extends HttpServlet{
 		JSONObject json = new JSONObject();
 		for (HourRegistration hr: hrlist) {
 			System.out.println(hr.getDate()+":"+hr.getDescription() + " Approved: " +hr.isApproved()+" Submitted "+ hr.isSubmitted());
-			json.put(hr.getTaskNumber()+":"+hr.getDescription(), hr.getHours());
+			HashMap map = new HashMap();
+			map.put("projectnumber", hr.getProjectnumber());
+			map.put("activitycode", hr.getActivityCode());
+			map.put("description", hr.getDescription());
+			map.put("approved", hr.isApproved());
+			map.put("submitted", hr.isSubmitted());
+			map.put("hours", hr.getHours());
+			json.put(hr.getTaskNumber(), map);
 		}
 		json.put("date", stringDate);
 		return json;

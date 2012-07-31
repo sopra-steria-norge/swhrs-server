@@ -21,6 +21,7 @@ var pageVar = "";
 var pageVars = {};
 var favList = [];
 var favMap = {};
+var regMap = {};
 var favourite = 1;
 
 // Constants
@@ -39,6 +40,18 @@ function Favourite (projectnumber, activitycode, description, projectname, custo
     this.billable = billable;
     this.internalproject = internalproject;
 }
+
+function HourRegistration (tasknumber, projectnumber, activitycode, description, hours, submitted, approved) {
+	this.tasknumber = tasknumber;
+	this.projectnumber = projectnumber;
+	this.activitycode = activitycode;
+	this.description = description;
+	this.hours = hours;
+	this.submitted = submitted;
+	this.approved = approved;
+	this.comment = description;
+}
+
 
 function Project (projectnumber, activitycode, description){
 	this.projectnumber = projectnumber;
@@ -194,6 +207,7 @@ $(document).ready(function() {
 	    if(mySplitResult[0] == "Total hours"){
 	    	console.log("Cannot delete this");
 	    }else{
+	    	console.log(mySplitResult[0]);
 	    	deleteRegistration(mySplitResult[0]);
 			if(deleted){
 				$(this).remove();
@@ -577,10 +591,11 @@ function fillSelectMenuInDayPage(favList){
  * Sends a date to the servlet to return all entries on a specific day
  */
 function getDayList(newDay) {
-	var weekDays = new Array("", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+	var weekDays = new Array("", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun");
 	if(newDay == 1)getFavouriteList(fillSelectMenuInDayPage);
 	var totalHours = 0;
 	var newDay = {day: newDay};
+	regMap = {};
 	$.ajax({
 		type: "POST",
 		url: 'hours/daylist',
@@ -597,9 +612,18 @@ function getDayList(newDay) {
 					var dateText = hdrDateText.split('-')[2]+"."+hdrDateText.split('-')[1]+"."+hdrDateText.split('-')[0]
 					$('#hdrDay').children('h1').text(weekDays[hdrDayText]+" "+ dateText);
 				}else{
-				totalHours += data[key];	
-				$('#dayList').append($("<li></li>").html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
-			            key+' </b><span class="ui-li-count">' + data[key] + ' hours '+'</span></a><a href=""></a>')).listview('refresh');
+					var val = data[key];
+					totalHours += val['hours'];
+					var newhr = new HourRegistration(val['tasknumber'], val['projectnumber'], val['activitycode'],
+							val['description'], val['hours'], val['submitted'], val['approved']);
+					regMap[key] = newhr; 
+						$('#dayList').append($('<li id="' + key +'"></li>').html('<a href="javascript:deleteRegistration"' + val['taskNumber'] +' data-split-theme="c" data-split-icon="delete"><b>' +
+								newhr['description']+' </b><span class="ui-li-count">' + newhr['hours'] + 
+								' hours '+'</span></a><a href=""></a>')).listview('refresh');
+						
+//						$('#weekList').append($("<li data-theme='c'></li>").html('<a href=""><b>' + 
+//								weekDays[dayNr] + '</b><p>'+dateArray[i]+'</p></a><span class="ui-li-count">'
+//								+ hours + ' timer'+'</span>')).listview('refresh');
 				}
 			}
 			if(totalHours != 0){
