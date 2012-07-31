@@ -125,5 +125,7 @@ public interface HourRegDao {
 	void deleteFavourite(String userid, String projectNumber,
 			String activityCode);
 
+	void updateRegistration(int taskNumber, double hours, String description);
+
 	
 }

@@ -584,6 +584,19 @@ function deleteFavourite(key) {
 	
 }
 
+function updateRegistration(){
+	var updateReg = {'taskNumber': TASKNUMBER, 'hours': HOURS, 'description': DESCRIPTION};
+	$.ajax({
+		type:"POST",
+		url: 'hours/updateRegistration',
+		data: updateReg,
+		success: function(data){
+			console.log("UPDATE COMPLETE");
+		},
+		async false
+	});
+}
+
 function fillSelectMenuInDayPage(favList){
 		var options = "NO_FAV";
 		var select = "Select a favourite"

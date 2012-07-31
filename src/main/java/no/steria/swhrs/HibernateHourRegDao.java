@@ -171,4 +171,11 @@ public class HibernateHourRegDao implements HourRegDao{
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void updateRegistration(int taskNumber, double hours,
+			String description) {
+		// TODO Auto-generated method stub
+		
+	}
 }

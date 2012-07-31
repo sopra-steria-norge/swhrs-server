@@ -27,6 +27,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 	private static final String INSERT_REGISTRATION = "INSERT into \"Norge$Time Entry\" (Projektnr_, Aktivitetskode, Ressourcekode, Arbejdstype, Dato, Antal, Beskrivelse, Godkendt, Bogført, Fakturerbart, Linienr_, \"Internt projekt\", \"Læg til norm tid\", Afdelingsleder, \"Shortcut Dimension 1 Code\", \"Shortcut Dimension 2 Code\", \"Ressource Gruppe Nr_\", \"Exportert Tieto\", \"Ikke godkjent\", \"Ikke godkjent Beskrivelse\", \"Ikke godkjent av\", \"Endret dato\", \"Endret av\", \"Transferdate Tieto\", \"Approved By LM_PM\", \"Adjust flex limit\") VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	private static final String UPDATE_REGISTRATION = "UPDATE \"Norge$Time Entry\" SET Godkendt=1 WHERE Ressourcekode = ? AND Dato BETWEEN ? AND ?";
 	private static final String DELETE_FAVOURITE = "DELETE FROM \"Norge$Favourite Task\" WHERE Resourcekode = ? AND Projectnr_ = ? AND Aktivitetskode = ?";
+	private static final String UPDATE_REGISTRATIONHOURS = "UPDATE \"Norge$Time Entry\" SET Antal = ?, Beskrivelse = ? WHERE Løbenr_ = ?";
 	
 	public MSSQLHourRegDao(DataSource datasource) {
 		this.datasource = datasource;
@@ -398,6 +399,29 @@ public class MSSQLHourRegDao implements HourRegDao {
 			statement.setString(1, userid);
 			statement.setString(2, projectNumber);
 			statement.setString(3, activityCode);
+			statement.executeUpdate();
+			
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+		finally{
+			try {
+				if(statement != null)statement.close();
+			} catch (SQLException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
+
+	@Override
+	public void updateRegistration(int taskNumber, double hours,
+			String description) {
+		PreparedStatement statement = null;
+		try {
+			statement = connection.prepareStatement(UPDATE_REGISTRATIONHOURS);
+			statement.setDouble(1, hours);
+			statement.setString(2, description);
+			statement.setInt(3, taskNumber);
 			statement.executeUpdate();
 			
 		} catch (SQLException e) {

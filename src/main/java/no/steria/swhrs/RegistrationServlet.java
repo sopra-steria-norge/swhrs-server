@@ -83,13 +83,25 @@ public class RegistrationServlet extends HttpServlet{
 			addFavourites(req, resp);
 		} else if(req.getRequestURL().toString().contains(("hours/submitPeriod"))){
 			submitPeriod(req, resp);
-		}  else if(req.getRequestURL().toString().contains(("hours/deleteFavourite"))){
+		} else if(req.getRequestURL().toString().contains(("hours/deleteFavourite"))){
 			deleteFavourite(req, resp);
+		} else if(req.getRequestURL().toString().contains(("hours/updateRegistration"))){
+			updateRegistration(req, resp);
 		}
  	}
 
 
 	
+
+
+	private void updateRegistration(HttpServletRequest req,
+			HttpServletResponse resp) {
+		int taskNumber = Integer.parseInt(req.getParameter("taskNumber"));
+		double hours = Double.parseDouble(req.getParameter("hours"));
+		String description = req.getParameter("description");
+		
+		db.updateRegistration(taskNumber, hours, description);
+	}
 
 
 	private void deleteFavourite(HttpServletRequest req,
