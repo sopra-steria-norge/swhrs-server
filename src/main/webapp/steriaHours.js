@@ -21,6 +21,7 @@ var pageVar = "";
 var pageVars = {};
 var favList = [];
 var favMap = {};
+var regMap = {};
 var favourite = 1;
 
 // Constants
@@ -31,13 +32,31 @@ var today = "today";
 
 //Constructor to make a Favourite object
 function Favourite (projectnumber, activitycode, description, projectname, customername, billable, internalproject) {
-    this.projectnumber;
+    this.projectnumber = projectnumber;
     this.activitycode = activitycode;
     this.description = description;
     this.projectname = projectname;
     this.customername = customername;
     this.billable = billable;
     this.internalproject = internalproject;
+}
+
+function HourRegistration (tasknumber, projectnumber, activitycode, description, hours, submitted, approved) {
+	this.tasknumber = tasknumber;
+	this.projectnumber = projectnumber;
+	this.activitycode = activitycode;
+	this.description = description;
+	this.hours = hours;
+	this.submitted = submitted;
+	this.approved = approved;
+	this.comment = description;
+}
+
+
+function Project (projectnumber, activitycode, description){
+	this.projectnumber = projectnumber;
+	this.activitycode = activitycode;
+	this.description = description;
 }
 
 $(document).ready(function() {
@@ -99,7 +118,7 @@ $(document).ready(function() {
 	 * Sends the input to the servlet(url: hours/registration)
 	 * Stores the input as a HourRegistration object in the database
 	 */
-	$('#dayForm').submit(function(){
+	$('#dayForm').submit(function() {
 		var err = false;
 		// Reset highlighted form elements
 		favLabelVar.removeClass(MISSING);
@@ -127,26 +146,30 @@ $(document).ready(function() {
 		favForm = $("#fav").val();
 		hourForm = $("#hours").val();
 		lunchForm = $("#lunch").val();
-		projectNr = favForm.split(':')[0];
-		activityCode = favForm.split(':')[1]
-		description = favForm.split(':')[2];
-		personId = 1;
+		var selectedFav = favMap[favForm]; //The Favourite object selected in the select box
 		
-		console.log('Fav: '+ favForm + ' Projectnr: ' + projectNr + ' actCode: ' + activityCode + ' description: ' + description);
 		//updateDayList(favForm, hourForm, lunchForm);
-			
+		
+		var lunchCodeString = '';
 		if (lunchForm == 1) {
-			var myData = {'projectNr': projectNr, 'description': description, 'hours': hourForm, 'date': dateForm, 'lunchNumber': "1"};		
-			postHourRegistration(myData);
+			lunchCodeString = "1";
 		}else{
-			var myData = {'projectNr': projectNr, 'description': description, 'hours': hourForm, 'date': dateForm, 'lunchNumber': "0"};		
-			postHourRegistration(myData);
+			lunchCodeString = "0";
 		}
 		
+		console.log('SELECTED FAVOURITE'+selectedFav);
+		
+		var myData = {'projectNr': selectedFav.projectnumber, 'activityCode': selectedFav.activitycode, 
+				'description': selectedFav.description, 'billable': selectedFav.billable, 
+				'internalproject': selectedFav.internalproject, 'hours': hourForm, 'date': dateForm, 
+				'lunchNumber': lunchCodeString};
+		postHourRegistration(myData);
 		return false;
 	});
 	
-	$('#searchForm').submit(function(){
+	$('#favBtn').click(function(){
+		var projectMap = {};
+		var projectList = [];
 		var inputSearch = $("#favSearch").val();
 		console.log("FAV SEARCH: "+inputSearch);
 		var search = {search: inputSearch}
@@ -156,12 +179,16 @@ $(document).ready(function() {
 			data: search,
 			success: function(data){
 				console.log(data);
-				for (var key in data) {
-					if (data.hasOwnProperty(key)) {
-						console.log(key);
-					}
+				fillProjectList(data);
+				/*for(var key in data){
+					var jsonMap = data[key];
+					var newProject = new Project(jsonMap['projectnumber'], jsonMap['activitycode'], jsonMap['description']);
+					
+					projectMap[key] = newProject;
+					var projecttext = newProject.projectnumber + " ("+ newProject.activitycode + ") " + newProject.description;
+					projectList.push(projecttext);
 				}
-				
+				fillProjectList(projectList, projectMap);*/
 			}
 		});
 	});
@@ -175,30 +202,6 @@ $(document).ready(function() {
 		clearForm();
 	});
 	
-	
-	/*
-	 * #dayPage
-	 * Daylist click
-	 * Deletes the hourRegistration entry from the database
-	 */
-	$('#dayList').on('click', 'li', function() {
-	    var dayString = $(this).text();
-	    var mySplitResult = dayString.split(":");
-	    console.log(mySplitResult[0]);
-	    if(mySplitResult[0] == "Total hours"){
-	    	console.log("Cannot delete this");
-	    }else{
-	    	deleteRegistration(mySplitResult[0]);
-			if(deleted){
-				$(this).remove();
-				resetDay();
-				getDayList("today");
-			}else{
-				$.mobile.changePage($("#dialogPopUpNoDelete"));
-			}
-	    }
-		
-	});
 	
 	$('#weekList').on('click', 'li', function() {
 	    var dayString = $(this).html();
@@ -273,8 +276,6 @@ $(document).bind("pagebeforechange", function (event, data) {
     }
 });
 
-
-
 function setUsername(username){
 	var details = {UN: username}
 	$.ajax({
@@ -330,7 +331,8 @@ function submitPeriod(){
 			console.log("IT WORKED, UPDATE THE WEEKLIST");
 			console.log(data);
 			setWeeklistSubmited();
-		}
+		},
+		async: false
 	});
 }
 
@@ -476,6 +478,7 @@ function updateDayList(fav, hour, lunch){
  * sends an hourRegistration to the servlet to be deleted in the database
  */
 function deleteRegistration(taskNr, listid){
+	console.log('You pressed delete on ' + taskNr);
 	var delreg = {taskNumber: taskNr}
 	$.ajax({
 		type: "POST",
@@ -483,9 +486,12 @@ function deleteRegistration(taskNr, listid){
 		data: delreg,
 		success: function(data){
 			if (data.indexOf('Already submitted') != -1) {
-				deleted = false;
+				$.mobile.changePage($("#dialogPopUpNoDelete"));
 			} else {
-				deleted = true;
+				console.log('Deleting ' + taskNr);
+				$('#reg' + taskNr).remove();
+				resetDay();
+				getDayList("today");
 			}
 		},
 		async: false
@@ -522,23 +528,30 @@ function fillListInFavPage(favlist) {
 	for (var i = 0; i < favList.length; i++) {
 		var favs = favList[i];
 		
-		$('#favList').append($("<li></li>").html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
-	            favs + ' </b></a><a href=""></a>'));
+		$('#favList').append($("<li id="'reg:' + i +'"></li>").html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
+	            favs + ' </b></a><a href="javascript:deleteFavourite('+i+')"></a>'));
 
 		
 	}
-	
+	$('#favText').text("Favourite list");
 	$('#favList').listview('refresh');
 }
 
-function fillProjectList(projectList){
+function fillProjectList(data){
 	$('#favList').children().remove('li');
-	for(var i=0; i < projectList.length; i++){
-		var projects = projectList[i];
-		$('#favList').append($("<li></li>", {id:""}).html('<a href="#" data-split-theme="c" data-split-icon="add"><b>' +
-				projects + ' </b></a><a href=""></a>'));
+	$('#projectList').children().remove('li');
+	for (key in data) {
+		console.log('NI HAO!');
+		var jsonMap = data[key];
+		var projects = jsonMap['projectnumber'] + " ("+ jsonMap['activitycode'] + ") " + jsonMap['description'];
+		$('#projectList').append($("<li></li>", {id:""}).html('<a href="#" data-split-theme="c"><b>' +
+				projects + ' </b></a><a href="javascript:addFavourites('+jsonMap['projectnumber'] +','+ jsonMap['activitycode']+')"></a>'));
 	}
+	
+	$('#favText').text("Search results");
 	$('#favList').listview('refresh');
+	$('#projectList').listview('refresh');
+	
 }
 
 function addFavourites(pNr, aC){
@@ -549,24 +562,39 @@ function addFavourites(pNr, aC){
 		url: 'hours/addFavourites',
 		data: favourite,
 		success: function(data){
-			console.log(data);
-			for (var key in data) {
-				if (data.hasOwnProperty(key)) {
-					console.log(key);
-				}
-			}
-			
+			getFavouriteList(fillSelectMenuInDayPage);
 		}
 	});
+}
+
+function deleteFavourite(key) {
+	var fav = favMap[key];
+	console.log('Trying to delete favourite: ' + fav.activitycode);
+	var delFavourite = {'projectNumber': fav.projectnumber, 'activityCode': fav.activitycode};
+	
+	$.ajax({
+		type:"POST",
+		url: 'hours/addFavourites',
+		data: delFavourite,
+		success: function(data){
+			$('#reg' + key).remove();
+		},
+		async false
+	});
+	
 }
 
 function fillSelectMenuInDayPage(favList){
 		var options = "NO_FAV";
 		var select = "Select a favourite"
+		$('#fav').html('');
+//		$('#fav').clear();
+		
 		$('#fav').append('<option value='+options+'>'+select+'</option>').selectmenu('refresh', true);
 		for (var i = 0; i < favList.length; i++) {
 			var favs = favList[i];
-			$('#fav').append('<option value='+favs+'>'+favs+'</option>').selectmenu('refresh', true);
+			console.log(i +': ' + favs + ' (' + favMap[i].description + ')');
+			$('#fav').append('<option value='+ i +'>'+favs+'</option>').selectmenu('refresh', true);
 		    
 		}
 }
@@ -576,12 +604,11 @@ function fillSelectMenuInDayPage(favList){
  * Sends a date to the servlet to return all entries on a specific day
  */
 function getDayList(newDay) {
-	//Hardkoder inn prosjektene her for aa printe ut prosjektnavn, fjern dette naar vi har databaseoppslag
-	//var projects = {'10': 'ZZ', '1093094': 'LARM', '1112890': 'OSL CDM', '19': 'Javazone', '1337': 'Timeforing app', '11': 'Steria Intern', '1': 'Lunch'};
-	var weekDays = new Array("", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+	var weekDays = new Array("", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun");
 	if(newDay == 1)getFavouriteList(fillSelectMenuInDayPage);
 	var totalHours = 0;
 	var newDay = {day: newDay};
+	regMap = {};
 	$.ajax({
 		type: "POST",
 		url: 'hours/daylist',
@@ -598,9 +625,15 @@ function getDayList(newDay) {
 					var dateText = hdrDateText.split('-')[2]+"."+hdrDateText.split('-')[1]+"."+hdrDateText.split('-')[0]
 					$('#hdrDay').children('h1').text(weekDays[hdrDayText]+" "+ dateText);
 				}else{
-				totalHours += data[key];	
-				$('#dayList').append($("<li></li>").html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
-			            key+' </b><span class="ui-li-count">' + data[key] + ' hours '+'</span></a><a href=""></a>')).listview('refresh');
+					var val = data[key];
+					totalHours += val['hours'];
+					var newhr = new HourRegistration(key, val['projectnumber'], val['activitycode'],
+							val['description'], val['hours'], val['submitted'], val['approved']);
+					regMap[key] = newhr;
+					console.log('TASKNUMBER' +newhr.tasknumber);
+						$('#dayList').append($('<li id="reg:' + key +'"></li>').html('<a href="javascript:editRegistration('+ newhr.tasknumber +')" data-split-theme="c" data-split-icon="delete"><b>' +
+								newhr['description']+' </b><span class="ui-li-count">' + newhr['hours'] + 
+								' hours '+'</span></a><a href="javascript:deleteRegistration(' + newhr.tasknumber +')"></a>')).listview('refresh');
 				}
 			}
 			if(totalHours != 0){

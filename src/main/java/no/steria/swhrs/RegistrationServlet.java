@@ -115,6 +115,7 @@ public class RegistrationServlet extends HttpServlet{
 	@SuppressWarnings("unchecked")
 	private void searchFavourites(HttpServletRequest req,
 			HttpServletResponse resp) throws IOException {
+		resp.setContentType("application/json");
 		String searchInput = req.getParameter("search");
 		List<Projects> project = db.searchProjects(searchInput);
 		int counter = 0;
@@ -270,13 +271,17 @@ public class RegistrationServlet extends HttpServlet{
 	 */
 	private void addHourRegistationToDatabase(HttpServletRequest req) {
 		String projectNumber = req.getParameter("projectNr");
+		String activityCode = req.getParameter("activityCode");
 		double hours = Double.parseDouble(req.getParameter("hours"));
 		String lunchNumber = req.getParameter("lunchNumber");
 		String description = req.getParameter("description");
+		int billable = Integer.parseInt(req.getParameter("billable"));
+		int internal = Integer.parseInt(req.getParameter("internalproject"));
 		
-		db.addHourRegistrations(projectNumber, "2", username, "", date.toString(), hours, description, 0, 0, 1, 10101, 0, 0, "HRA", "", projectNumber, "", 0, 0, "", "", "2012-05-30", "HRA", "", 0, 0);
+		
+		db.addHourRegistrations(projectNumber, activityCode, username, "", date.toString(), hours, description, 0, 0, billable, 10101, internal, 0, "HRA", "", projectNumber, "", 0, 0, "", "", "2012-05-30", "HRA", "", 0, 0);
 		if(lunchNumber.equals("1")){
-			db.addHourRegistrations(lunchNumber, "1", username, "", date.toString(), 0.5, "Lunsj", 0, 0, 1, 10101, 0, 0, "HRA", "", lunchNumber, "", 0, 0, "", "", "2012-05-30", "HRA", "", 0, 0);
+			db.addHourRegistrations("Lunsj", "LU", username, "", date.toString(), 0.5, "Lunsj", 0, 0, 1, 10101, 0, 0, "HRA", "", lunchNumber, "", 0, 0, "", "", "2012-05-30", "HRA", "", 0, 0);
 		}
 		System.out.println("Trying to save project: " + projectNumber);
 	}
@@ -327,6 +332,7 @@ public class RegistrationServlet extends HttpServlet{
 
 		PrintWriter writer = resp.getWriter();
 		String jsonText = json.toString();
+		System.out.println("JSON sendt from regservlet: " +jsonText);
 		writer.append(jsonText);
 	}
 
@@ -341,7 +347,14 @@ public class RegistrationServlet extends HttpServlet{
 		JSONObject json = new JSONObject();
 		for (HourRegistration hr: hrlist) {
 			System.out.println(hr.getDate()+":"+hr.getDescription() + " Approved: " +hr.isApproved()+" Submitted "+ hr.isSubmitted());
-			json.put(hr.getTaskNumber()+":"+hr.getDescription(), hr.getHours());
+			HashMap map = new HashMap();
+			map.put("projectnumber", hr.getProjectnumber());
+			map.put("activitycode", hr.getActivityCode());
+			map.put("description", hr.getDescription());
+			map.put("approved", hr.isApproved());
+			map.put("submitted", hr.isSubmitted());
+			map.put("hours", hr.getHours());
+			json.put(hr.getTaskNumber(), map);
 		}
 		json.put("date", stringDate);
 		return json;
@@ -357,10 +370,8 @@ public class RegistrationServlet extends HttpServlet{
 	private JSONObject createJsonObjectFromFavourites(
 			List<UserFavourites> userList) {
 		JSONObject json = new JSONObject();
-		int counter = 1;
+		int counter = 0;
 		for (UserFavourites uf: userList) {
-//			json.put(uf.getProjectNumber() + "<:>" + uf.getActivityCode(), uf.getDescription());
-//			List list = new LinkedList();
 			HashMap map = new HashMap();
 			map.put("projectnumber", uf.getProjectNumber());
 			map.put("activitycode", uf.getActivityCode());
@@ -382,10 +393,12 @@ public class RegistrationServlet extends HttpServlet{
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		db.beginTransaction();
-		super.service(req, resp);
-		db.endTransaction(true);
-		//TODO add a finally here so that it ends the transaction of the servlet crashes
+		try {
+			db.beginTransaction();
+			super.service(req, resp);
+		} finally {
+			db.endTransaction(true);
+		}
 	}
 
 }
