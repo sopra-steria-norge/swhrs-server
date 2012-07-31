@@ -203,31 +203,6 @@ $(document).ready(function() {
 	});
 	
 	
-	/*
-	 * #dayPage
-	 * Daylist click
-	 * Deletes the hourRegistration entry from the database
-	 */
-	$('#dayList').on('click', 'li', function() {
-	    var dayString = $(this).text();
-	    var mySplitResult = dayString.split(":");
-	    console.log(mySplitResult[0]);
-	    if(mySplitResult[0] == "Total hours"){
-	    	console.log("Cannot delete this");
-	    }else{
-	    	console.log(mySplitResult[0]);
-	    	deleteRegistration(mySplitResult[0]);
-			if(deleted){
-				$(this).remove();
-				resetDay();
-				getDayList("today");
-			}else{
-				$.mobile.changePage($("#dialogPopUpNoDelete"));
-			}
-	    }
-		
-	});
-	
 	$('#weekList').on('click', 'li', function() {
 	    var dayString = $(this).html();
 	    var index = dayString.indexOf('<p class="ui-li-desc">')+'<p class="ui-li-desc">'.length;
@@ -355,7 +330,8 @@ function submitPeriod(){
 		success: function(data){
 			console.log("IT WORKED, UPDATE THE WEEKLIST");
 			console.log(data);
-		}
+		},
+		async: false
 	});
 }
 
@@ -497,6 +473,7 @@ function updateDayList(fav, hour, lunch){
  * sends an hourRegistration to the servlet to be deleted in the database
  */
 function deleteRegistration(taskNr, listid){
+	console.log('You pressed delete on ' + taskNr);
 	var delreg = {taskNumber: taskNr}
 	$.ajax({
 		type: "POST",
@@ -504,9 +481,12 @@ function deleteRegistration(taskNr, listid){
 		data: delreg,
 		success: function(data){
 			if (data.indexOf('Already submitted') != -1) {
-				deleted = false;
+				$.mobile.changePage($("#dialogPopUpNoDelete"));
 			} else {
-				deleted = true;
+				console.log('Deleting ' + taskNr);
+				$('#reg' + taskNr).remove();
+				resetDay();
+				getDayList("today");
 			}
 		},
 		async: false
@@ -625,16 +605,13 @@ function getDayList(newDay) {
 				}else{
 					var val = data[key];
 					totalHours += val['hours'];
-					var newhr = new HourRegistration(val['tasknumber'], val['projectnumber'], val['activitycode'],
+					var newhr = new HourRegistration(key, val['projectnumber'], val['activitycode'],
 							val['description'], val['hours'], val['submitted'], val['approved']);
-					regMap[key] = newhr; 
-						$('#dayList').append($('<li id="' + key +'"></li>').html('<a href="javascript:deleteRegistration"' + val['taskNumber'] +' data-split-theme="c" data-split-icon="delete"><b>' +
+					regMap[key] = newhr;
+					console.log('TASKNUMBER' +newhr.tasknumber);
+						$('#dayList').append($('<li id="reg:' + key +'"></li>').html('<a href="javascript:editRegistration('+ newhr.tasknumber +')" data-split-theme="c" data-split-icon="delete"><b>' +
 								newhr['description']+' </b><span class="ui-li-count">' + newhr['hours'] + 
-								' hours '+'</span></a><a href=""></a>')).listview('refresh');
-						
-//						$('#weekList').append($("<li data-theme='c'></li>").html('<a href=""><b>' + 
-//								weekDays[dayNr] + '</b><p>'+dateArray[i]+'</p></a><span class="ui-li-count">'
-//								+ hours + ' timer'+'</span>')).listview('refresh');
+								' hours '+'</span></a><a href="javascript:deleteRegistration(' + newhr.tasknumber +')"></a>')).listview('refresh');
 				}
 			}
 			if(totalHours != 0){
