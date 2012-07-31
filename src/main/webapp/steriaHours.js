@@ -482,7 +482,7 @@ function deleteRegistration(taskNr, listid){
 	var delreg = {taskNumber: taskNr}
 	$.ajax({
 		type: "POST",
-		url: 'hours/delete',
+		url: 'hours/deleteRegistration',
 		data: delreg,
 		success: function(data){
 			if (data.indexOf('Already submitted') != -1) {
@@ -531,7 +531,7 @@ function fillListInFavPage(favlist) {
 	for (var i = 0; i < favList.length; i++) {
 		var favs = favList[i];
 		
-		$('#favList').append($("<li id="'reg:' + i +'"></li>").html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
+		$('#favList').append($('<li id="fav:' + i +'"></li>').html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
 	            favs + ' </b></a><a href="javascript:deleteFavourite('+i+')"></a>'));
 
 		
@@ -577,12 +577,14 @@ function deleteFavourite(key) {
 	
 	$.ajax({
 		type:"POST",
-		url: 'hours/addFavourites',
+		url: 'hours/deleteFavourite',
 		data: delFavourite,
 		success: function(data){
-			$('#reg' + key).remove();
+			$('#fav:' + key).remove();
+			$('#favList').listview('refresh');
+			getFavouriteList(fillListInDayPage);
 		},
-		async false
+		async: false
 	});
 	
 }
@@ -641,8 +643,8 @@ function getDayList(newDay) {
 						sidebutton = 'check'
 					}
 					$('#dayList').append($('<li id="reg:' + key +'"></li>').html('<a href="javascript:editRegistration('+ newhr.tasknumber +')" data-split-theme="c" data-split-icon="'+ sidebutton +'"><b>' +
-							newhr['description']+' </b><span class="ui-li-count">' + newhr['hours'] + ' hours '+'
-							</span></a><a href="javascript:deleteRegistration(' + newhr.tasknumber +')"></a>')).listview('refresh');
+							newhr['description']+' </b><span class="ui-li-count">' + newhr['hours'] + ' hours '+
+							'</span></a><a href="javascript:deleteRegistration(' + newhr.tasknumber +')"></a>')).listview('refresh');
 				}
 			}
 			if(totalHours != 0){

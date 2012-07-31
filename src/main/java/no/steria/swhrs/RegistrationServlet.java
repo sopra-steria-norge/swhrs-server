@@ -73,7 +73,7 @@ public class RegistrationServlet extends HttpServlet{
 			loginUserAndSetCookies(req, resp);
 		} else if(req.getRequestURL().toString().contains(("hours/week"))){
 			getWeeklistResponseAsJSON(req, resp);
-		} else if(req.getRequestURL().toString().contains(("hours/delete"))){
+		} else if(req.getRequestURL().toString().contains(("hours/deleteRegistration"))){
 			deleteHourRegistrationInDatabase(req, resp);
 		} else if(req.getRequestURL().toString().contains(("hours/setUsername"))){
 			setUsername(req, resp);
@@ -94,6 +94,7 @@ public class RegistrationServlet extends HttpServlet{
 
 	private void deleteFavourite(HttpServletRequest req,
 			HttpServletResponse resp) throws IOException {
+		System.out.println("DELEEEEEEEEEEEEEEEETING MAN!");
 		String projectNumber = req.getParameter("projectNumber");
 		String activityCode = req.getParameter("activityCode");
 		db.deleteFavourite(username, projectNumber, activityCode);
