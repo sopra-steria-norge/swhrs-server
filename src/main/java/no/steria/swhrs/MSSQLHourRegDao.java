@@ -26,6 +26,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 //	private static final String INSERT_REGISTRATION = "INSERT into \"Norge$Time Entry\" (Projektnr_, Aktivitetskode, Ressourcekode, Arbejdstype, Dato, Antal, Beskrivelse) Values(?, ?, ?, ?, ?, ?, ?)";
 	private static final String INSERT_REGISTRATION = "INSERT into \"Norge$Time Entry\" (Projektnr_, Aktivitetskode, Ressourcekode, Arbejdstype, Dato, Antal, Beskrivelse, Godkendt, Bogført, Fakturerbart, Linienr_, \"Internt projekt\", \"Læg til norm tid\", Afdelingsleder, \"Shortcut Dimension 1 Code\", \"Shortcut Dimension 2 Code\", \"Ressource Gruppe Nr_\", \"Exportert Tieto\", \"Ikke godkjent\", \"Ikke godkjent Beskrivelse\", \"Ikke godkjent av\", \"Endret dato\", \"Endret av\", \"Transferdate Tieto\", \"Approved By LM_PM\", \"Adjust flex limit\") VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	private static final String UPDATE_REGISTRATION = "UPDATE \"Norge$Time Entry\" SET Godkendt=1 WHERE Ressourcekode = ? AND Dato BETWEEN ? AND ?";
+	private static final String DELETE_FAVOURITE = "DELETE FROM \"Norge$Favourite Task\" WHERE Resourcekode = ? AND Projectnr_ = ? AND Aktivitetskode = ?";
 	
 	public MSSQLHourRegDao(DataSource datasource) {
 		this.datasource = datasource;
@@ -55,14 +56,14 @@ public class MSSQLHourRegDao implements HourRegDao {
 	}
 
 	@Override
-	public List<HourRegistration> getAllHoursForDate(String userName,
+	public List<HourRegistration> getAllHoursForDate(String userid,
 			String date) {
 		List<HourRegistration> result = new ArrayList<HourRegistration>();
 		
 		PreparedStatement statement = null;
 		try {
 			statement = connection.prepareStatement(SELECT_REGISTRATIONS);
-			statement.setString(1, userName);
+			statement.setString(1, userid);
 			statement.setString(2, date);
 			ResultSet res = statement.executeQuery();
 			while(res.next()){
@@ -91,13 +92,13 @@ public class MSSQLHourRegDao implements HourRegDao {
 	}
 
 	@Override
-	public boolean validateUser(String username, String password) {
+	public boolean validateUser(String userid, String password) {
 		PreparedStatement statement = null;
 		Users users = new Users();
 		String user = null;
 		try {
 			statement = connection.prepareStatement(SELECT_USERS);
-			statement.setString(1, username);
+			statement.setString(1, userid);
 			statement.setString(2, password);
 			ResultSet res = statement.executeQuery();
 			while(res.next()){
@@ -149,13 +150,13 @@ public class MSSQLHourRegDao implements HourRegDao {
 
 
 	@Override
-	public List<UserFavourites> getUserFavourites(String userName) {
+	public List<UserFavourites> getUserFavourites(String userid) {
 		List<UserFavourites> result = new ArrayList<UserFavourites>();
 		PreparedStatement statement = null;
 		int counter = 0;
 		try {
 			statement = connection.prepareStatement(SELECT_FAVOURITES);
-			statement.setString(1, userName);
+			statement.setString(1, userid);
 			ResultSet res = statement.executeQuery();
 			while(res.next()){
 				String projectNumber = res.getString(1);
@@ -218,13 +219,13 @@ public class MSSQLHourRegDao implements HourRegDao {
 	}
 	
 	@Override
-	public List<WeekRegistration> getWeekList(String userName, String dateFrom,
+	public List<WeekRegistration> getWeekList(String userid, String dateFrom,
 			String dateTo) {
 		List<WeekRegistration> result = new ArrayList<WeekRegistration>();
 		PreparedStatement statement = null;
 		try {
 			statement = connection.prepareStatement(SELECT_WEEKREGISTRATIONS);
-			statement.setString(1, userName);
+			statement.setString(1, userid);
 			statement.setString(2, dateFrom);
 			statement.setString(3, dateTo);
 			ResultSet res = statement.executeQuery();
@@ -281,12 +282,12 @@ public class MSSQLHourRegDao implements HourRegDao {
 	}
 	
 	@Override
-	public boolean addFavourites(String username, String project_id, String activityCode) {
+	public boolean addFavourites(String userid, String project_id, String activityCode) {
 		
 		PreparedStatement statement = null;
 		try {
 			statement = connection.prepareStatement(INSERT_FAVOURITE);
-			statement.setString(1, username);
+			statement.setString(1, userid);
 			statement.setString(2, project_id);
 			statement.setString(3, activityCode);
 			statement.executeUpdate();
@@ -306,7 +307,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 	
 	@Override
 	public boolean addHourRegistrations(String projectNumber, String activityCode,
-			String username, String workType, String date, double hours, String description, 
+			String userid, String workType, String date, double hours, String description, 
 			int submitted, int approved , int billable, int linenumber, int internalProject, 
 			int addNormTime, String departmentManager, String shortcutDimensionOneCode, 
 			String shortcutDimensionTwoCode, String resourceGroupNumber, int exportTieto, int notApproved, 
@@ -318,7 +319,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 			statement = connection.prepareStatement(INSERT_REGISTRATION );
 			statement.setString(1, projectNumber);
 			statement.setString(2, activityCode);
-			statement.setString(3, username);
+			statement.setString(3, userid);
 			statement.setString(4, workType);
 			statement.setString(5, date);
 			statement.setDouble(6, hours);
@@ -367,13 +368,36 @@ public class MSSQLHourRegDao implements HourRegDao {
 	}
 
 	@Override
-	public void submitPeriod(String username, String fromDate, String toDate) {
+	public void submitPeriod(String userid, String fromDate, String toDate) {
 		PreparedStatement statement = null;
 		try {
 			statement = connection.prepareStatement(UPDATE_REGISTRATION);
-			statement.setString(1, username);
+			statement.setString(1, userid);
 			statement.setString(2, fromDate);
 			statement.setString(3, toDate);
+			statement.executeUpdate();
+			
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+		finally{
+			try {
+				if(statement != null)statement.close();
+			} catch (SQLException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
+
+	@Override
+	public void deleteFavourite(String userid, String projectNumber,
+			String activityCode) {
+		PreparedStatement statement = null;
+		try {
+			statement = connection.prepareStatement(DELETE_FAVOURITE);
+			statement.setString(1, userid);
+			statement.setString(2, projectNumber);
+			statement.setString(3, activityCode);
 			statement.executeUpdate();
 			
 		} catch (SQLException e) {

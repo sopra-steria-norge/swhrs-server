@@ -122,5 +122,8 @@ public interface HourRegDao {
 
 	void submitPeriod(String username, String fromDate, String toDate);
 
+	void deleteFavourite(String userid, String projectNumber,
+			String activityCode);
+
 	
 }

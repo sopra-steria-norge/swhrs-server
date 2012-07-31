@@ -329,8 +329,13 @@ function submitPeriod(){
 		success: function(data){
 			console.log("IT WORKED, UPDATE THE WEEKLIST");
 			console.log(data);
+			setWeeklistSubmited();
 		}
 	});
+}
+
+function setWeeklistSubmited(){
+	//$('#weekList').data-theme("e");
 }
 
 /*
