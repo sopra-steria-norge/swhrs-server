@@ -31,13 +31,19 @@ var today = "today";
 
 //Constructor to make a Favourite object
 function Favourite (projectnumber, activitycode, description, projectname, customername, billable, internalproject) {
-    this.projectnumber;
+    this.projectnumber = projectnumber;
     this.activitycode = activitycode;
     this.description = description;
     this.projectname = projectname;
     this.customername = customername;
     this.billable = billable;
     this.internalproject = internalproject;
+}
+
+function Project (projectnumber, activitycode, description){
+	this.projectnumber = projectnumber;
+	this.activitycode = activitycode;
+	this.description = description;
 }
 
 $(document).ready(function() {
@@ -91,7 +97,7 @@ $(document).ready(function() {
 	 * Sends the input to the servlet(url: hours/registration)
 	 * Stores the input as a HourRegistration object in the database
 	 */
-	$('#dayForm').submit(function(){
+	$('#dayForm').submit(function() {
 		var err = false;
 		// Reset highlighted form elements
 		favLabelVar.removeClass(MISSING);
@@ -119,26 +125,30 @@ $(document).ready(function() {
 		favForm = $("#fav").val();
 		hourForm = $("#hours").val();
 		lunchForm = $("#lunch").val();
-		projectNr = favForm.split(':')[0];
-		activityCode = favForm.split(':')[1]
-		description = favForm.split(':')[2];
-		personId = 1;
+		var selectedFav = favMap[favForm]; //The Favourite object selected in the select box
 		
-		console.log('Fav: '+ favForm + ' Projectnr: ' + projectNr + ' actCode: ' + activityCode + ' description: ' + description);
 		//updateDayList(favForm, hourForm, lunchForm);
-			
+		
+		var lunchCodeString = '';
 		if (lunchForm == 1) {
-			var myData = {'projectNr': projectNr, 'description': description, 'hours': hourForm, 'date': dateForm, 'lunchNumber': "1"};		
-			postHourRegistration(myData);
+			lunchCodeString = "1";
 		}else{
-			var myData = {'projectNr': projectNr, 'description': description, 'hours': hourForm, 'date': dateForm, 'lunchNumber': "0"};		
-			postHourRegistration(myData);
+			lunchCodeString = "0";
 		}
 		
+		console.log('SELECTED FAVOURITE'+selectedFav);
+		
+		var myData = {'projectNr': selectedFav.projectnumber, 'activityCode': selectedFav.activitycode, 
+				'description': selectedFav.description, 'billable': selectedFav.billable, 
+				'internalproject': selectedFav.internalproject, 'hours': hourForm, 'date': dateForm, 
+				'lunchNumber': lunchCodeString};
+		postHourRegistration(myData);
 		return false;
 	});
 	
-	$('#searchForm').submit(function(){
+	$('#favBtn').click(function(){
+		var projectMap = {};
+		var projectList = [];
 		var inputSearch = $("#favSearch").val();
 		console.log("FAV SEARCH: "+inputSearch);
 		var search = {search: inputSearch}
@@ -148,12 +158,16 @@ $(document).ready(function() {
 			data: search,
 			success: function(data){
 				console.log(data);
-				for (var key in data) {
-					if (data.hasOwnProperty(key)) {
-						console.log(key);
-					}
+				fillProjectList(data);
+				/*for(var key in data){
+					var jsonMap = data[key];
+					var newProject = new Project(jsonMap['projectnumber'], jsonMap['activitycode'], jsonMap['description']);
+					
+					projectMap[key] = newProject;
+					var projecttext = newProject.projectnumber + " ("+ newProject.activitycode + ") " + newProject.description;
+					projectList.push(projecttext);
 				}
-				
+				fillProjectList(projectList, projectMap);*/
 			}
 		});
 	});
@@ -272,8 +286,6 @@ $(document).bind("pagebeforechange", function (event, data) {
     	getWeekList(thisWeek);
     }
 });
-
-
 
 function setUsername(username){
 	var details = {UN: username}
@@ -512,35 +524,35 @@ function fillListInFavPage(favlist) {
 
 		
 	}
-	
+	$('#favText').text("Favourite list");
 	$('#favList').listview('refresh');
 }
 
-function fillProjectList(projectList){
+function fillProjectList(data){
 	$('#favList').children().remove('li');
-	for(var i=0; i < projectList.length; i++){
-		var projects = projectList[i];
-		$('#favList').append($("<li></li>", {id:""}).html('<a href="#" data-split-theme="c" data-split-icon="add"><b>' +
-				projects + ' </b></a><a href=""></a>'));
+	$('#projectList').children().remove('li');
+	for (key in data) {
+		console.log('NI HAO!');
+		var jsonMap = data[key];
+		var projects = jsonMap['projectnumber'] + " ("+ jsonMap['activitycode'] + ") " + jsonMap['description'];
+		$('#projectList').append($("<li></li>", {id:""}).html('<a href="#" data-split-theme="c"><b>' +
+				projects + ' </b></a><a href="javascript:addFavourites('+jsonMap['projectnumber'] +','+ jsonMap['activitycode']+')"></a>'));
 	}
+	
+	$('#favText').text("Search results");
 	$('#favList').listview('refresh');
+	$('#projectList').listview('refresh');
+	
 }
 
 function addFavourites(pNr, aC){
 	var favourite = {'projectNumber': pNr, 'activityCode': aC}
-	}
 	$.ajax({
 		type:"POST",
 		url: 'hours/addFavourites',
 		data: favourite,
 		success: function(data){
-			console.log(data);
-			for (var key in data) {
-				if (data.hasOwnProperty(key)) {
-					console.log(key);
-				}
-			}
-			
+			getFavouriteList(fillSelectMenuInDayPage);
 		}
 	});
 }
@@ -548,10 +560,14 @@ function addFavourites(pNr, aC){
 function fillSelectMenuInDayPage(favList){
 		var options = "NO_FAV";
 		var select = "Select a favourite"
+		$('#fav').html('');
+//		$('#fav').clear();
+		
 		$('#fav').append('<option value='+options+'>'+select+'</option>').selectmenu('refresh', true);
 		for (var i = 0; i < favList.length; i++) {
 			var favs = favList[i];
-			$('#fav').append('<option value='+favs+'>'+favs+'</option>').selectmenu('refresh', true);
+			console.log(i +': ' + favs + ' (' + favMap[i].description + ')');
+			$('#fav').append('<option value='+ i +'>'+favs+'</option>').selectmenu('refresh', true);
 		    
 		}
 }
@@ -561,8 +577,6 @@ function fillSelectMenuInDayPage(favList){
  * Sends a date to the servlet to return all entries on a specific day
  */
 function getDayList(newDay) {
-	//Hardkoder inn prosjektene her for aa printe ut prosjektnavn, fjern dette naar vi har databaseoppslag
-	//var projects = {'10': 'ZZ', '1093094': 'LARM', '1112890': 'OSL CDM', '19': 'Javazone', '1337': 'Timeforing app', '11': 'Steria Intern', '1': 'Lunch'};
 	var weekDays = new Array("", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 	if(newDay == 1)getFavouriteList(fillSelectMenuInDayPage);
 	var totalHours = 0;
