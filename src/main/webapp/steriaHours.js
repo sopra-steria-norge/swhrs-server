@@ -23,6 +23,7 @@ var favList = [];
 var favMap = {};
 var regMap = {};
 var favourite = 1;
+var editTaskNumber = null;
 
 // Constants
 var MISSING = "missing";
@@ -111,6 +112,28 @@ $(document).ready(function() {
 		getDayList(today);
 	});
 	
+	
+	$('#editForm').submit(function(){
+		
+		var editHours = $('#editHours').val();
+		var editDesc = $('#editDesc').val();
+		
+		console.log("EDIT HOURS: "+editHours);
+		console.log("EDIT DESC: "+editDesc);
+		console.log("Tasknumber: "+editTaskNumber);
+		
+		var edit = {'taskNumber': editTaskNumber, 'hours': editHours, 'editDesc': editDesc};
+		$.ajax({
+			type:"POST",
+			url: 'hours/editRegistration',
+			data: edit,
+			success: function(data){
+				console.log("SUCCESSS");
+			}
+		});
+		
+		return false;
+	});
 	
 	/*
 	 * #dayPage
@@ -498,8 +521,16 @@ function deleteRegistration(taskNr, listid){
 	});
 }
 
+/**
+ * This method is called when the user clicks a list element in the dayList which can
+ * @param tasknumber The tasknumber of the time entry in the database
+ */
 function editRegistration(tasknumber) {
-	alert('EDITING LIKE ABAWS');
+	editTaskNumber = tasknumber;
+	console.log('EDITING LIKE A BAWS. Tasknumber: ' + tasknumber);
+	$('#textarea').text("WANNA HAVE SOME TEXT IN DA HOUSE!");
+	$.mobile.changePage($("#dialogEditReg"));
+	
 }
 
 function getFavouriteList(addToPage){
@@ -580,8 +611,9 @@ function deleteFavourite(key) {
 		url: 'hours/deleteFavourite',
 		data: delFavourite,
 		success: function(data){
-			$('#fav:' + key).remove();
+			$('#favList').children().remove('li');
 			$('#favList').listview('refresh');
+			getFavouriteList(fillListInFavPage);
 			getFavouriteList(fillListInDayPage);
 		},
 		async: false
@@ -635,16 +667,22 @@ function getDayList(newDay) {
 					var newhr = new HourRegistration(key, val['projectnumber'], val['activitycode'],
 							val['description'], val['hours'], val['submitted'], val['approved']);
 					regMap[key] = newhr;
-					var sidebutton = 'delete';
+					var editlink = '';
+					var buttonlink = '';
 					if (newhr['approved']) {
-						sidebutton = 'check'
+						editlink = '<a href="javascript:editRegistration('+ newhr.tasknumber +')">';
+						buttonlink = '<a href="#" data-icon="check"></a>';
 						//TODO add green colour to button
 					} else if (newhr['submitted']) {
-						sidebutton = 'check'
+						editlink = '<a href="javascript:editRegistration('+ newhr.tasknumber +')">';
+						buttonlink = '<a href="#" data-theme="c" data-icon="check"></a>';
+					} else {
+						editlink = '<a href="javascript:editRegistration('+ newhr.tasknumber +')">';
+						buttonlink = '<a href="javascript:deleteRegistration(' + newhr.tasknumber +')" data-icon="delete"></a>';
 					}
-					$('#dayList').append($('<li id="reg:' + key +'"></li>').html('<a href="javascript:editRegistration('+ newhr.tasknumber +')" data-split-theme="c" data-split-icon="'+ sidebutton +'"><b>' +
-							newhr['description']+' </b><span class="ui-li-count">' + newhr['hours'] + ' hours '+
-							'</span></a><a href="javascript:deleteRegistration(' + newhr.tasknumber +')"></a>')).listview('refresh');
+					$('#dayList').append($('<li id="reg:' + key +'" data-rel="popup"></li>').html(editlink +
+							'<b>' + newhr['description']+' </b><span class="ui-li-count">' + newhr['hours'] + ' hours '+
+							'</span></a>' + buttonlink)).listview('refresh');
 				}
 			}
 			if(totalHours != 0){
