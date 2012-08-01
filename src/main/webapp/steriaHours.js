@@ -264,6 +264,16 @@ $(document).ready(function() {
 		  getDayList(today);
 	});
 	
+	$('.favLink').bind('click', function(){
+		
+		console.log('User clicked the favLink');
+		$('#favText').text("User favourites");
+		$('#projectList').children().remove('li');
+		$('#favList').children().remove('li');
+		getFavouriteList(fillListInFavPage);
+		$('#favList').listview('refresh');
+	});
+	
 });
 
 /*
@@ -283,13 +293,7 @@ $('#weekPage' ).live( 'pageinit',function(event){
 	//fill in code here
 });
 
-/*
- * #favPage
- * This will be run each time a favPage is initiated
- */
-$('#favPage' ).live( 'pageinit',function(event){
-	getFavouriteList(fillListInFavPage);
-});
+
 
 /*
  * Checks if the page is secured, if so checks if the user is authenticated.
@@ -367,10 +371,13 @@ function postHourRegistration(myData) {
 	});
 }
 
-function submitPeriod(){
+function updatePeriod(){
+	
+	options = {'option': 1};
 	$.ajax({
 		type:"POST",
-		url: 'hours/submitPeriod',
+		url: 'hours/updatePeriod',
+		data: options,
 		success: function(data){
 			console.log("IT WORKED, UPDATE THE WEEKLIST");
 			console.log(data);
@@ -582,14 +589,11 @@ function getFavouriteList(addToPage1, addToPage2){
 function fillListInFavPage(favlist) {
 	for (var i = 0; i < favList.length; i++) {
 		var favs = favList[i];
-		
 		$('#favList').append($('<li id="fav:' + i +'"></li>').html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
 	            favs + ' </b></a><a href="javascript:deleteFavourite('+i+')"></a>'));
-
-		
 	}
 	$('#favText').text("Current favourites");
-	$('#favList').listview('refresh');
+	
 }
 
 function fillProjectList(data){
@@ -605,7 +609,7 @@ function fillProjectList(data){
 		$('#projectList').append($("<li></li>", {id:""}).html('<a href="#" data-split-theme="c"><b>' +
 				projects + ' </b></a><a href="" onclick="javascript:addFavourites(\''+pNr+'\',\''+aC+'\')"></a>'));
 	}
-	
+	$('#favList').listview();
 	$('#favText').text("Search results");
 	$('#favList').listview('refresh'); 
 	$('#projectList').listview('refresh');
