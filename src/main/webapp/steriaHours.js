@@ -173,6 +173,7 @@ $(document).ready(function() {
 		var inputSearch = $("#favSearch").val();
 		console.log("FAV SEARCH: "+inputSearch);
 		var search = {search: inputSearch}
+		fillProjectList(data);
 		$.ajax({
 			type:"POST",
 			url: 'hours/searchFavourites',
@@ -244,7 +245,7 @@ $('#weekPage' ).live( 'pageinit',function(event){
  * This will be run each time a favPage is initiated
  */
 $('#favPage' ).live( 'pageinit',function(event){
-	getFavouriteList(fillListInFavPage);
+	//getFavouriteList(fillListInFavPage);
 });
 
 /*
@@ -323,10 +324,12 @@ function postHourRegistration(myData) {
 	});
 }
 
-function submitPeriod(){
+function updatePeriod(){
+	var options = {'option': 1};
 	$.ajax({
 		type:"POST",
-		url: 'hours/submitPeriod',
+		url: 'hours/updatePeriod',
+		data: options,
 		success: function(data){
 			console.log("IT WORKED, UPDATE THE WEEKLIST");
 			console.log(data);
@@ -543,6 +546,7 @@ function fillListInFavPage(favlist) {
 function fillProjectList(data){
 	$('#favList').children().remove('li');
 	$('#projectList').children().remove('li');
+	data = {'1': {'projectnumber': 'MANAGEMENT', 'activitycode': 'AK', 'description': 'This is a nice project'}};
 	for (key in data) {
 		console.log('NI HAO!');
 		var jsonMap = data[key];
@@ -598,7 +602,7 @@ function updateRegistration(){
 		success: function(data){
 			console.log("UPDATE COMPLETE");
 		},
-		async false
+		async: false
 	});
 }
 

@@ -81,8 +81,8 @@ public class RegistrationServlet extends HttpServlet{
 			searchFavourites(req, resp);
 		} else if(req.getRequestURL().toString().contains(("hours/addFavourites"))){
 			addFavourites(req);
-		} else if(req.getRequestURL().toString().contains(("hours/submitPeriod"))){
-			submitPeriod(req, resp);
+		} else if(req.getRequestURL().toString().contains(("hours/updatePeriod"))){
+			updatePeriod(req, resp);
 		} else if(req.getRequestURL().toString().contains(("hours/deleteFavourite"))){
 			deleteFavourite(req);
 		} else if(req.getRequestURL().toString().contains(("hours/updateRegistration"))){
@@ -188,11 +188,21 @@ public class RegistrationServlet extends HttpServlet{
 		}
 	}
 	
-	private void submitPeriod(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+	/**
+	 * This method will submit a period of hour registrations
+	 * @throws IOException
+	 */
+	private void updatePeriod(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		DatePeriod period = db.getPeriod(username, date.toString());
-		db.submitPeriod(username, period.getFromDate(), period.getToDate());
+		int option = Integer.parseInt(req.getParameter("option"));
+		db.updatePeriod(username, option, period.getFromDate(), period.getToDate());
 		resp.setContentType("text/plain");
-		resp.getWriter().append("Period is submitted");
+		if(option == 1){
+			resp.getWriter().append("Period is submitted");
+		}else{
+			resp.getWriter().append("Period is reopened");
+		}
+		
 	}
 	
 	
