@@ -546,7 +546,6 @@ function fillListInFavPage(favlist) {
 function fillProjectList(data){
 	$('#favList').children().remove('li');
 	$('#projectList').children().remove('li');
-	data = {'1': {'projectnumber': 'MANAGEMENT', 'activitycode': 'AK', 'description': 'This is a nice project'}};
 	for (key in data) {
 		console.log('NI HAO!');
 		var jsonMap = data[key];
