@@ -23,11 +23,13 @@ var favList = [];
 var favMap = {};
 var regMap = {};
 var favourite = 1;
+var editTaskNumber = null;
 
 // Constants
 var MISSING = "missing";
 var NO_FAV = "NO_FAV";
 var ZERO = 0;
+var EMPTY = "";
 var today = "today";
 
 //Constructor to make a Favourite object
@@ -84,8 +86,6 @@ $(document).ready(function() {
 	$('#loginForm').submit(function(){
 		var loginErr = false;
 		var jsonLogin = {username: $('[name=username]').val() , password: $('[name=password]').val(), country: $('input[name=radioCountry]:checked').val()}	
-		
-		
 		$.ajax({
 			type:"POST",
 			url: 'hours/login',
@@ -111,6 +111,50 @@ $(document).ready(function() {
 		getDayList(today);
 	});
 	
+	
+	$('#editReg').click(function(){
+		var err = false;
+		
+		descLabelVar = $('#descEditLabel');
+		hourEditVar = $('#hoursEditLabel');
+		// Reset highlighted form elements
+		descLabelVar.removeClass(MISSING);
+		hourEditVar.removeClass(MISSING);
+		
+		var editHours = $('#editHours').val();
+		var editDesc = $('#editDesc').val();
+		
+		if(editDesc==EMPTY){
+			descLabelVar.addClass(MISSING);
+			err = true;
+		}
+		if(editHours == ZERO){
+			hourEditVar.addClass(MISSING);
+			err = true;
+		}
+		
+		// If validation fails, show contentDialog
+		if(err == true){
+			console.log("Validation failed");
+			return false;
+		}
+		
+		console.log("EDIT HOURS: "+editHours);
+		console.log("EDIT DESC: "+editDesc);
+		console.log("Tasknumber: "+editTaskNumber);
+		
+		var edit = {'taskNumber': editTaskNumber, 'hours': editHours, 'description': editDesc};
+		$.ajax({
+			type:"POST",
+			url: 'hours/updateRegistration',
+			data: edit,
+			success: function(data){
+				console.log("SUCCESSS");
+				resetDay();
+				getDayList(today);
+			}
+		});
+	});
 	
 	/*
 	 * #dayPage
@@ -173,7 +217,6 @@ $(document).ready(function() {
 		var inputSearch = $("#favSearch").val();
 		console.log("FAV SEARCH: "+inputSearch);
 		var search = {search: inputSearch}
-		fillProjectList(data);
 		$.ajax({
 			type:"POST",
 			url: 'hours/searchFavourites',
@@ -245,7 +288,7 @@ $('#weekPage' ).live( 'pageinit',function(event){
  * This will be run each time a favPage is initiated
  */
 $('#favPage' ).live( 'pageinit',function(event){
-	//getFavouriteList(fillListInFavPage);
+	getFavouriteList(fillListInFavPage);
 });
 
 /*
@@ -324,12 +367,10 @@ function postHourRegistration(myData) {
 	});
 }
 
-function updatePeriod(){
-	var options = {'option': 1};
+function submitPeriod(){
 	$.ajax({
 		type:"POST",
-		url: 'hours/updatePeriod',
-		data: options,
+		url: 'hours/submitPeriod',
 		success: function(data){
 			console.log("IT WORKED, UPDATE THE WEEKLIST");
 			console.log(data);
@@ -459,9 +500,7 @@ function updateDayList(fav, hour, lunch){
 	    totalDay += (this);
 	});
 	console.log(totalDay)
-	
 	$('#dayDescription').text("Total "+totalDay+" hours");
-	
 	if(lunch == 1){
 		$('#dayList').append($("<li></li>").html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
 	            lunchText + '</b><span class="ui-li-count"> 0.5 timer '+'</span></a><a href=""></a>')).listview('refresh');	
@@ -501,11 +540,19 @@ function deleteRegistration(taskNr, listid){
 	});
 }
 
+/**
+ * This method is called when the user clicks a list element in the dayList which can
+ * @param tasknumber The tasknumber of the time entry in the database
+ */
 function editRegistration(tasknumber) {
-	alert('EDITING LIKE ABAWS');
+	editTaskNumber = tasknumber;
+	console.log('EDITING LIKE A BAWS. Tasknumber: ' + tasknumber);
+	$.mobile.changePage($("#dialogEditReg"));
+	clearEditForm();
+	
 }
 
-function getFavouriteList(addToPage){
+function getFavouriteList(addToPage1, addToPage2){
 	favMap = {};
 	favList = [];
 	$.ajax({
@@ -520,8 +567,10 @@ function getFavouriteList(addToPage){
 				var favtext = newFav.projectname + " ("+ newFav.activitycode + ") " + newFav.description;
 				favList.push(favtext);
 			}
-//			favList.sort();
-			addToPage(favList);
+			addToPage1(favList);
+			if (addToPage2 != null) {
+				addToPage2(favList);
+			}
 		},
 		error: function(data){
 			console.log("favourite list error");
@@ -539,7 +588,7 @@ function fillListInFavPage(favlist) {
 
 		
 	}
-	$('#favText').text("Favourite list");
+	$('#favText').text("Current favourites");
 	$('#favList').listview('refresh');
 }
 
@@ -547,22 +596,26 @@ function fillProjectList(data){
 	$('#favList').children().remove('li');
 	$('#projectList').children().remove('li');
 	for (key in data) {
-		console.log('NI HAO!');
 		var jsonMap = data[key];
 		var projects = jsonMap['projectnumber'] + " ("+ jsonMap['activitycode'] + ") " + jsonMap['description'];
+		console.log(jsonMap['projectnumber'] + " ("+ jsonMap['activitycode'] + ") " + jsonMap['description']);
+		console.log(jsonMap['projectnumber']);
+		var pNr = jsonMap['projectnumber'];
+		var aC = jsonMap['activitycode'];
 		$('#projectList').append($("<li></li>", {id:""}).html('<a href="#" data-split-theme="c"><b>' +
-				projects + ' </b></a><a href="javascript:addFavourites('+jsonMap['projectnumber'] +','+ jsonMap['activitycode']+')"></a>'));
+				projects + ' </b></a><a href="" onclick="javascript:addFavourites(\''+pNr+'\',\''+aC+'\')"></a>'));
 	}
 	
 	$('#favText').text("Search results");
-	$('#favList').listview('refresh');
+	$('#favList').listview('refresh'); 
 	$('#projectList').listview('refresh');
 	
 }
 
 function addFavourites(pNr, aC){
+	console.log("Kommer inn her 1: "+pNr);
 	var favourite = {'projectNumber': pNr, 'activityCode': aC}
-	
+	console.log("Kommer inn her 2: "+pNr);
 	$.ajax({
 		type:"POST",
 		url: 'hours/addFavourites',
@@ -583,26 +636,14 @@ function deleteFavourite(key) {
 		url: 'hours/deleteFavourite',
 		data: delFavourite,
 		success: function(){
-			$('#fav:' + key).remove();
+			$('#favList').children().remove('li');
 			$('#favList').listview('refresh');
-			getFavouriteList(fillListInDayPage);
+			getFavouriteList(fillListInFavPage);
+			getFavouriteList(fillSelectMenuInDayPage);
 		},
 		async: false
 	});
 	
-}
-
-function updateRegistration(){
-	var updateReg = {'taskNumber': TASKNUMBER, 'hours': HOURS, 'description': DESCRIPTION};
-	$.ajax({
-		type:"POST",
-		url: 'hours/updateRegistration',
-		data: updateReg,
-		success: function(data){
-			console.log("UPDATE COMPLETE");
-		},
-		async: false
-	});
 }
 
 function fillSelectMenuInDayPage(favList){
@@ -636,7 +677,9 @@ function getDayList(newDay) {
 		data: newDay,
 		success: function(data){
 			for (var key in data) {
-				if (key.split(':')[1] === "Lunsj") {
+				var jsonMap = data[key];
+				console.log("IZ LUNSJ?: "+jsonMap['projectnumber']);
+				if (jsonMap['projectnumber'] == "LUNSJ") {
 					$('#lunch').val(0);
 				}
 				$('#lunch').slider('refresh');
@@ -651,16 +694,22 @@ function getDayList(newDay) {
 					var newhr = new HourRegistration(key, val['projectnumber'], val['activitycode'],
 							val['description'], val['hours'], val['submitted'], val['approved']);
 					regMap[key] = newhr;
-					var sidebutton = 'delete';
+					var editlink = '';
+					var buttonlink = '';
 					if (newhr['approved']) {
-						sidebutton = 'check'
+						editlink = '<a href="javascript:editRegistration('+ newhr.tasknumber +')">';
+						buttonlink = '<a href="#" data-icon="check"></a>';
 						//TODO add green colour to button
 					} else if (newhr['submitted']) {
-						sidebutton = 'check'
+						editlink = '<a href="javascript:editRegistration('+ newhr.tasknumber +')">';
+						buttonlink = '<a href="#" data-theme="c" data-icon="check"></a>';
+					} else {
+						editlink = '<a href="javascript:editRegistration('+ newhr.tasknumber +')">';
+						buttonlink = '<a href="javascript:deleteRegistration(' + newhr.tasknumber +')" data-icon="delete"></a>';
 					}
-					$('#dayList').append($('<li id="reg:' + key +'"></li>').html('<a href="javascript:editRegistration('+ newhr.tasknumber +')" data-split-theme="c" data-split-icon="'+ sidebutton +'"><b>' +
-							newhr['description']+' </b><span class="ui-li-count">' + newhr['hours'] + ' hours '+
-							'</span></a><a href="javascript:deleteRegistration(' + newhr.tasknumber +')"></a>')).listview('refresh');
+					$('#dayList').append($('<li id="reg:' + key +'" data-rel="popup"></li>').html(editlink +
+							'<b>' + newhr['description']+' </b><span class="ui-li-count">' + newhr['hours'] + ' hours '+
+							'</span></a>' + buttonlink)).listview('refresh');
 				}
 			}
 			if(totalHours != 0){
@@ -681,6 +730,12 @@ function resetDay(){
 	$('#dayList').children().remove('li');
 	$('#hours').val(0);
 	$('#hours').slider('refresh');
+}
+
+function clearEditForm(){
+	$('#editDesc').val('');
+	$('#editHours').val(0);
+	$('#editHours').slider('refresh');
 }
 
 function clearForm(){

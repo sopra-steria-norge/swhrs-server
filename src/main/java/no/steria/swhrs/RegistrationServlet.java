@@ -339,7 +339,7 @@ public class RegistrationServlet extends HttpServlet{
 		
 		db.addHourRegistrations(projectNumber, activityCode, username, "", date.toString(), hours, description, 0, 0, billable, 10101, internal, 0, "HRA", "", projectNumber, "", 0, 0, "", "", "2012-05-30", "HRA", "", 0, 0);
 		if(lunchNumber.equals("1")){
-			db.addHourRegistrations("Lunsj", "LU", username, "", date.toString(), 0.5, "Lunsj", 0, 0, 1, 10101, 0, 0, "HRA", "", lunchNumber, "", 0, 0, "", "", "2012-05-30", "HRA", "", 0, 0);
+			db.addHourRegistrations("LUNSJ", "LU", username, "", date.toString(), 0.5, "Lunsj", 0, 0, 1, 10101, 0, 0, "HRA", "", lunchNumber, "", 0, 0, "", "", "2012-05-30", "HRA", "", 0, 0);
 		}
 		System.out.println("Trying to save project: " + projectNumber);
 	}
@@ -378,10 +378,8 @@ public class RegistrationServlet extends HttpServlet{
 		else if(newDay.equals("today")){
 			System.out.println("getting todays daylist from server");
 		}else{
-			System.out.println("WEEKNAVIGATION");
 			LocalDate weekDate = new LocalDate(newDay);
 			date = weekDate;
-			System.out.println("NEWWEEKDATE: "+date);
 		}
 		List<HourRegistration> hrlist = db.getAllHoursForDate(username, date.toString());
 
