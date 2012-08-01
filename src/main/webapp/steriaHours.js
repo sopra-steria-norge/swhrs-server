@@ -21,6 +21,7 @@ var pageVar = "";
 var pageVars = {};
 var favList = [];
 var favMap = {};
+var favDescriptions = {};
 var regMap = {};
 var favourite = 1;
 var editTaskNumber = null;
@@ -43,15 +44,15 @@ function Favourite (projectnumber, activitycode, description, projectname, custo
     this.internalproject = internalproject;
 }
 
-function HourRegistration (tasknumber, projectnumber, activitycode, description, hours, submitted, approved) {
+function HourRegistration (tasknumber, projectnumber, activitycode, description, hours, submitted, approved, projectDescription) {
 	this.tasknumber = tasknumber;
 	this.projectnumber = projectnumber;
 	this.activitycode = activitycode;
-	this.description = description;
+	this.description = description; //The description of the Time Entry
 	this.hours = hours;
 	this.submitted = submitted;
 	this.approved = approved;
-	this.comment = description;
+	this.projectDescription = projectDescription; //The decription of the project
 }
 
 
@@ -559,9 +560,10 @@ function editRegistration(tasknumber) {
 	
 }
 
-function getFavouriteList(addToPage1, addToPage2){
+function getFavouriteList(addToPage){
 	favMap = {};
 	favList = [];
+	favDescription = {};
 	$.ajax({
 		type: "POST",
 		url: 'hours/favourite',
@@ -571,13 +573,11 @@ function getFavouriteList(addToPage1, addToPage2){
 				var newFav = new Favourite(jsonMap['projectnumber'], jsonMap['activitycode'], jsonMap['description'], jsonMap['projectname'], jsonMap['customername'], jsonMap['billable'], jsonMap['internalproject']);
 				
 				favMap[key] = newFav;
+				favDescription[jsonMap['projectnumber'] + '<:>' + jsonMap['activitycode']] = newFav;
 				var favtext = newFav.projectname + " ("+ newFav.activitycode + ") " + newFav.description;
 				favList.push(favtext);
 			}
-			addToPage1(favList);
-			if (addToPage2 != null) {
-				addToPage2(favList);
-			}
+			addToPage(favList);
 		},
 		error: function(data){
 			console.log("favourite list error");
@@ -696,7 +696,7 @@ function getDayList(newDay) {
 					var val = data[key];
 					totalHours += val['hours'];
 					var newhr = new HourRegistration(key, val['projectnumber'], val['activitycode'],
-							val['description'], val['hours'], val['submitted'], val['approved']);
+							val['description'], val['hours'], val['submitted'], val['approved'], favDescription[val['projectnumber'] + '<:>' + val['activitycode']].description);
 					regMap[key] = newhr;
 					var editlink = '';
 					var buttonlink = '';
@@ -712,7 +712,7 @@ function getDayList(newDay) {
 						buttonlink = '<a href="javascript:deleteRegistration(' + newhr.tasknumber +')" data-icon="delete"></a>';
 					}
 					$('#dayList').append($('<li id="reg:' + key +'" data-rel="popup"></li>').html(editlink +
-							'<b>' + newhr['description']+' </b><span class="ui-li-count">' + newhr['hours'] + ' hours '+
+							'<b>' + newhr['projectDescription']+' </b><span class="ui-li-count">' + newhr['hours'] + ' hours '+
 							'</span></a>' + buttonlink)).listview('refresh');
 				}
 			}
