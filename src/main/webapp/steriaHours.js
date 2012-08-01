@@ -217,6 +217,7 @@ $(document).ready(function() {
 		var inputSearch = $("#favSearch").val();
 		console.log("FAV SEARCH: "+inputSearch);
 		var search = {search: inputSearch}
+		fillProjectList(data);
 		$.ajax({
 			type:"POST",
 			url: 'hours/searchFavourites',
@@ -302,7 +303,6 @@ $('#weekPage' ).live( 'pageinit',function(event){
  * This will be run each time a favPage is initiated
  */
 $('#favPage' ).live( 'pageinit',function(event){
-//	getFavouriteList(fillListInFavPage);
 });
 
 /*
@@ -381,10 +381,12 @@ function postHourRegistration(myData) {
 	});
 }
 
-function submitPeriod(){
+function updatePeriod(){
+	var options = {'option': 1};
 	$.ajax({
 		type:"POST",
-		url: 'hours/submitPeriod',
+		url: 'hours/updatePeriod',
+		data: options,
 		success: function(data){
 			console.log("IT WORKED, UPDATE THE WEEKLIST");
 			console.log(data);
@@ -609,6 +611,7 @@ function fillListInFavPage(favlist) {
 function fillProjectList(data){
 	$('#favList').children().remove('li');
 	$('#projectList').children().remove('li');
+	data = {'1': {'projectnumber': 'MANAGEMENT', 'activitycode': 'AK', 'description': 'This is a nice project'}};
 	for (key in data) {
 		var jsonMap = data[key];
 		var projects = jsonMap['projectnumber'] + " ("+ jsonMap['activitycode'] + ") " + jsonMap['description'];
@@ -660,11 +663,25 @@ function deleteFavourite(key) {
 	
 }
 
+
+function updateRegistration(){
+	var updateReg = {'taskNumber': TASKNUMBER, 'hours': HOURS, 'description': DESCRIPTION};
+	$.ajax({
+		type:"POST",
+		url: 'hours/updateRegistration',
+		data: updateReg,
+		success: function(data){
+			console.log("UPDATE COMPLETE");
+		},
+		async: false
+	});
+}
+
+
 function fillSelectMenuInDayPage(favList){
 		var options = "NO_FAV";
 		var select = "Select a favourite"
 		$('#fav').html('');
-//		$('#fav').clear();
 		
 		$('#fav').append('<option value='+options+'>'+select+'</option>').selectmenu('refresh', true);
 		for (var i = 0; i < favList.length; i++) {

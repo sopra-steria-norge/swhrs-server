@@ -120,13 +120,6 @@ public interface HourRegDao {
 			String workType, String date, String username, double hours,
 			String description);
 
-	/**
-	 * This method submits all hour registrations done in a specific period
-	 * @param userid The userid is sent as a String(User initials)
-	 * @param dateFrom The dateFrom is sent as a String with the format (yyyy-MM-dd)
-	 * @param dateTo The dateTo is sent as a String with the format (yyyy-MM-dd)
-	 */
-	void submitPeriod(String userid, String dateFrom, String dateTo);
 
 	/**
 	 * This method removes a favourite from the users favourite list
@@ -145,6 +138,16 @@ public interface HourRegDao {
 	 * @param description The description is sent as a String
 	 */
 	void updateRegistration(int taskNumber, double hours, String description);
+
+	/**
+	 * This method updates the time period of the user to either be submitted or reopened.
+	 * The param option decides whether it should be submitted or reopened.
+	 * @param userid The userid is sent as a String(User initials)
+	 * @param option The option is sent as an Integer, and is 1 if you want to submit or 0 if you want to reopen 
+	 * @param dateFrom The dateFrom is sent as a String with the format (yyyy-MM-dd)
+	 * @param dateTo The dateTo is sent as a String with the format (yyyy-MM-dd)
+	 */
+	void updatePeriod(String userid, int option, String dateFrom, String dateTo);
 
 	
 }

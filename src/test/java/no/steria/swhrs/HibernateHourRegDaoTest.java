@@ -1,20 +1,15 @@
  package no.steria.swhrs;
 
-import static org.fest.assertions.Assertions.assertThat;
-
-import java.util.List;
-
 import javax.naming.NamingException;
 
 import org.eclipse.jetty.plus.jndi.EnvEntry;
 import org.hibernate.cfg.Environment;
 import org.hsqldb.jdbc.JDBCDataSource;
-import org.joda.time.LocalDate;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class HibernateHourRegDaoTest {
 	
+	@SuppressWarnings("unused")
 	private HourRegDao createHourRegDao() throws NamingException{
 		JDBCDataSource jdbcDataSource = new JDBCDataSource();
 		jdbcDataSource.setDatabase("jdbc:hsqldb:mem:testDb");

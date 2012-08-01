@@ -25,8 +25,13 @@ public class MSSQLHourRegDao implements HourRegDao {
 	private static final String INSERT_FAVOURITE = "INSERT into \"Norge$Favourite Task\" (Resourcekode, Projektnr_, Aktivitetskode) VALUES(?, ?, ?)";
 //	private static final String INSERT_REGISTRATION = "INSERT into \"Norge$Time Entry\" (Projektnr_, Aktivitetskode, Ressourcekode, Arbejdstype, Dato, Antal, Beskrivelse) Values(?, ?, ?, ?, ?, ?, ?)";
 	private static final String INSERT_REGISTRATION = "INSERT into \"Norge$Time Entry\" (Projektnr_, Aktivitetskode, Ressourcekode, Arbejdstype, Dato, Antal, Beskrivelse, Godkendt, Bogført, Fakturerbart, Linienr_, \"Internt projekt\", \"Læg til norm tid\", Afdelingsleder, \"Shortcut Dimension 1 Code\", \"Shortcut Dimension 2 Code\", \"Ressource Gruppe Nr_\", \"Exportert Tieto\", \"Ikke godkjent\", \"Ikke godkjent Beskrivelse\", \"Ikke godkjent av\", \"Endret dato\", \"Endret av\", \"Transferdate Tieto\", \"Approved By LM_PM\", \"Adjust flex limit\") VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+<<<<<<< HEAD
 	private static final String UPDATE_REGISTRATION = "UPDATE \"Norge$Time Entry\" SET Godkendt=1 WHERE Ressourcekode = ? AND Dato BETWEEN ? AND ?";
 	private static final String DELETE_FAVOURITE = "DELETE FROM \"Norge$Favourite Task\" WHERE Resourcekode = ? AND Projektnr_ = ? AND Aktivitetskode = ?";
+=======
+	private static final String UPDATE_REGISTRATION = "UPDATE \"Norge$Time Entry\" SET Godkendt=? WHERE Ressourcekode = ? AND Dato BETWEEN ? AND ?";
+	private static final String DELETE_FAVOURITE = "DELETE FROM \"Norge$Favourite Task\" WHERE Resourcekode = ? AND Projectnr_ = ? AND Aktivitetskode = ?";
+>>>>>>> 6fd84dc4067159d85d5d201082adbe21392d456a
 	private static final String UPDATE_REGISTRATIONHOURS = "UPDATE \"Norge$Time Entry\" SET Antal = ?, Beskrivelse = ? WHERE Løbenr_ = ?";
 	
 	public MSSQLHourRegDao(DataSource datasource) {
@@ -368,27 +373,6 @@ public class MSSQLHourRegDao implements HourRegDao {
 		return false;
 	}
 
-	@Override
-	public void submitPeriod(String userid, String fromDate, String toDate) {
-		PreparedStatement statement = null;
-		try {
-			statement = connection.prepareStatement(UPDATE_REGISTRATION);
-			statement.setString(1, userid);
-			statement.setString(2, fromDate);
-			statement.setString(3, toDate);
-			statement.executeUpdate();
-			
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-		finally{
-			try {
-				if(statement != null)statement.close();
-			} catch (SQLException e) {
-				throw new RuntimeException(e);
-			}
-		}
-	}
 
 	@Override
 	public void deleteFavourite(String userid, String projectNumber,
@@ -434,6 +418,32 @@ public class MSSQLHourRegDao implements HourRegDao {
 				throw new RuntimeException(e);
 			}
 		}
+	}
+
+
+	@Override
+	public void updatePeriod(String userid, int option, String fromDate,
+			String toDate) {
+		PreparedStatement statement = null;
+		try {
+			statement = connection.prepareStatement(UPDATE_REGISTRATION);
+			statement.setInt(1, option);
+			statement.setString(2, userid);
+			statement.setString(3, fromDate);
+			statement.setString(4, toDate);
+			statement.executeUpdate();
+			
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+		finally{
+			try {
+				if(statement != null)statement.close();
+			} catch (SQLException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		
 	}
 
 }
