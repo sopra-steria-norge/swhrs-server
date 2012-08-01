@@ -217,7 +217,6 @@ $(document).ready(function() {
 		var inputSearch = $("#favSearch").val();
 		console.log("FAV SEARCH: "+inputSearch);
 		var search = {search: inputSearch}
-		fillProjectList(data);
 		$.ajax({
 			type:"POST",
 			url: 'hours/searchFavourites',
@@ -265,20 +264,6 @@ $(document).ready(function() {
 		  getDayList(today);
 	});
 	
-	$('.favLink').bind('click', function() {
-		  console.log('User clicked on "favLink."');
-		  $('#favSearch').val('');
-		  
-		  if ($('#projectList').hasClass('ui-listview')) {
-
-			  $('#projectList').children().remove('li');
-		      $('#projectList').listview('refresh');
-		  } 
-		  
-		  $('#projectList').children().remove('li');
-		  getFavouriteList(fillListInFavPage);
-		  $('#favList').listview('refresh');
-	});
 });
 
 /*
@@ -303,6 +288,7 @@ $('#weekPage' ).live( 'pageinit',function(event){
  * This will be run each time a favPage is initiated
  */
 $('#favPage' ).live( 'pageinit',function(event){
+	getFavouriteList(fillListInFavPage);
 });
 
 /*
@@ -381,12 +367,10 @@ function postHourRegistration(myData) {
 	});
 }
 
-function updatePeriod(){
-	var options = {'option': 1};
+function submitPeriod(){
 	$.ajax({
 		type:"POST",
-		url: 'hours/updatePeriod',
-		data: options,
+		url: 'hours/submitPeriod',
 		success: function(data){
 			console.log("IT WORKED, UPDATE THE WEEKLIST");
 			console.log(data);
@@ -604,14 +588,13 @@ function fillListInFavPage(favlist) {
 
 		
 	}
-	$('#favText').text("Current favourites:");
-//	$('#favList').listview('refresh');
+	$('#favText').text("Current favourites");
+	$('#favList').listview('refresh');
 }
 
 function fillProjectList(data){
 	$('#favList').children().remove('li');
 	$('#projectList').children().remove('li');
-	data = {'1': {'projectnumber': 'MANAGEMENT', 'activitycode': 'AK', 'description': 'This is a nice project'}};
 	for (key in data) {
 		var jsonMap = data[key];
 		var projects = jsonMap['projectnumber'] + " ("+ jsonMap['activitycode'] + ") " + jsonMap['description'];
@@ -654,34 +637,20 @@ function deleteFavourite(key) {
 		data: delFavourite,
 		success: function(){
 			$('#favList').children().remove('li');
-			getFavouriteList(fillListInFavPage, fillSelectMenuInDayPage);
-//			getFavouriteList(fillSelectMenuInDayPage);
 			$('#favList').listview('refresh');
+			getFavouriteList(fillListInFavPage);
+			getFavouriteList(fillSelectMenuInDayPage);
 		},
 		async: false
 	});
 	
 }
 
-
-function updateRegistration(){
-	var updateReg = {'taskNumber': TASKNUMBER, 'hours': HOURS, 'description': DESCRIPTION};
-	$.ajax({
-		type:"POST",
-		url: 'hours/updateRegistration',
-		data: updateReg,
-		success: function(data){
-			console.log("UPDATE COMPLETE");
-		},
-		async: false
-	});
-}
-
-
 function fillSelectMenuInDayPage(favList){
 		var options = "NO_FAV";
 		var select = "Select a favourite"
 		$('#fav').html('');
+//		$('#fav').clear();
 		
 		$('#fav').append('<option value='+options+'>'+select+'</option>').selectmenu('refresh', true);
 		for (var i = 0; i < favList.length; i++) {
