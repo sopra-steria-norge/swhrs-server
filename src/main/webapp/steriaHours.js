@@ -29,6 +29,7 @@ var editTaskNumber = null;
 var MISSING = "missing";
 var NO_FAV = "NO_FAV";
 var ZERO = 0;
+var EMPTY = "";
 var today = "today";
 
 //Constructor to make a Favourite object
@@ -85,8 +86,6 @@ $(document).ready(function() {
 	$('#loginForm').submit(function(){
 		var loginErr = false;
 		var jsonLogin = {username: $('[name=username]').val() , password: $('[name=password]').val(), country: $('input[name=radioCountry]:checked').val()}	
-		
-		
 		$.ajax({
 			type:"POST",
 			url: 'hours/login',
@@ -113,26 +112,48 @@ $(document).ready(function() {
 	});
 	
 	
-	$('#editForm').submit(function(){
+	$('#editReg').click(function(){
+		var err = false;
+		
+		descLabelVar = $('#descEditLabel');
+		hourEditVar = $('#hoursEditLabel');
+		// Reset highlighted form elements
+		descLabelVar.removeClass(MISSING);
+		hourEditVar.removeClass(MISSING);
 		
 		var editHours = $('#editHours').val();
 		var editDesc = $('#editDesc').val();
+		
+		if(editDesc==EMPTY){
+			descLabelVar.addClass(MISSING);
+			err = true;
+		}
+		if(editHours == ZERO){
+			hourEditVar.addClass(MISSING);
+			err = true;
+		}
+		
+		// If validation fails, show contentDialog
+		if(err == true){
+			console.log("Validation failed");
+			return false;
+		}
 		
 		console.log("EDIT HOURS: "+editHours);
 		console.log("EDIT DESC: "+editDesc);
 		console.log("Tasknumber: "+editTaskNumber);
 		
-		var edit = {'taskNumber': editTaskNumber, 'hours': editHours, 'editDesc': editDesc};
+		var edit = {'taskNumber': editTaskNumber, 'hours': editHours, 'description': editDesc};
 		$.ajax({
 			type:"POST",
-			url: 'hours/editRegistration',
+			url: 'hours/updateRegistration',
 			data: edit,
 			success: function(data){
 				console.log("SUCCESSS");
+				resetDay();
+				getDayList(today);
 			}
 		});
-		
-		return false;
 	});
 	
 	/*
@@ -243,6 +264,20 @@ $(document).ready(function() {
 		  getDayList(today);
 	});
 	
+	$('.favLink').bind('click', function() {
+		  console.log('User clicked on "favLink."');
+		  $('#favSearch').val('');
+		  
+		  if ($('#projectList').hasClass('ui-listview')) {
+
+			  $('#projectList').children().remove('li');
+		      $('#projectList').listview('refresh');
+		  } 
+		  
+		  $('#projectList').children().remove('li');
+		  getFavouriteList(fillListInFavPage);
+		  $('#favList').listview('refresh');
+	});
 });
 
 /*
@@ -267,7 +302,7 @@ $('#weekPage' ).live( 'pageinit',function(event){
  * This will be run each time a favPage is initiated
  */
 $('#favPage' ).live( 'pageinit',function(event){
-	getFavouriteList(fillListInFavPage);
+//	getFavouriteList(fillListInFavPage);
 });
 
 /*
@@ -479,9 +514,7 @@ function updateDayList(fav, hour, lunch){
 	    totalDay += (this);
 	});
 	console.log(totalDay)
-	
 	$('#dayDescription').text("Total "+totalDay+" hours");
-	
 	if(lunch == 1){
 		$('#dayList').append($("<li></li>").html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
 	            lunchText + '</b><span class="ui-li-count"> 0.5 timer '+'</span></a><a href=""></a>')).listview('refresh');	
@@ -528,12 +561,12 @@ function deleteRegistration(taskNr, listid){
 function editRegistration(tasknumber) {
 	editTaskNumber = tasknumber;
 	console.log('EDITING LIKE A BAWS. Tasknumber: ' + tasknumber);
-	$('#textarea').text("WANNA HAVE SOME TEXT IN DA HOUSE!");
 	$.mobile.changePage($("#dialogEditReg"));
+	clearEditForm();
 	
 }
 
-function getFavouriteList(addToPage){
+function getFavouriteList(addToPage1, addToPage2){
 	favMap = {};
 	favList = [];
 	$.ajax({
@@ -548,8 +581,10 @@ function getFavouriteList(addToPage){
 				var favtext = newFav.projectname + " ("+ newFav.activitycode + ") " + newFav.description;
 				favList.push(favtext);
 			}
-//			favList.sort();
-			addToPage(favList);
+			addToPage1(favList);
+			if (addToPage2 != null) {
+				addToPage2(favList);
+			}
 		},
 		error: function(data){
 			console.log("favourite list error");
@@ -567,30 +602,34 @@ function fillListInFavPage(favlist) {
 
 		
 	}
-	$('#favText').text("Favourite list");
-	$('#favList').listview('refresh');
+	$('#favText').text("Current favourites:");
+//	$('#favList').listview('refresh');
 }
 
 function fillProjectList(data){
 	$('#favList').children().remove('li');
 	$('#projectList').children().remove('li');
 	for (key in data) {
-		console.log('NI HAO!');
 		var jsonMap = data[key];
 		var projects = jsonMap['projectnumber'] + " ("+ jsonMap['activitycode'] + ") " + jsonMap['description'];
+		console.log(jsonMap['projectnumber'] + " ("+ jsonMap['activitycode'] + ") " + jsonMap['description']);
+		console.log(jsonMap['projectnumber']);
+		var pNr = jsonMap['projectnumber'];
+		var aC = jsonMap['activitycode'];
 		$('#projectList').append($("<li></li>", {id:""}).html('<a href="#" data-split-theme="c"><b>' +
-				projects + ' </b></a><a href="javascript:addFavourites('+jsonMap['projectnumber'] +','+ jsonMap['activitycode']+')"></a>'));
+				projects + ' </b></a><a href="" onclick="javascript:addFavourites(\''+pNr+'\',\''+aC+'\')"></a>'));
 	}
 	
 	$('#favText').text("Search results");
-	$('#favList').listview('refresh');
+	$('#favList').listview('refresh'); 
 	$('#projectList').listview('refresh');
 	
 }
 
 function addFavourites(pNr, aC){
+	console.log("Kommer inn her 1: "+pNr);
 	var favourite = {'projectNumber': pNr, 'activityCode': aC}
-	
+	console.log("Kommer inn her 2: "+pNr);
 	$.ajax({
 		type:"POST",
 		url: 'hours/addFavourites',
@@ -610,11 +649,11 @@ function deleteFavourite(key) {
 		type:"POST",
 		url: 'hours/deleteFavourite',
 		data: delFavourite,
-		success: function(data){
+		success: function(){
 			$('#favList').children().remove('li');
+			getFavouriteList(fillListInFavPage, fillSelectMenuInDayPage);
+//			getFavouriteList(fillSelectMenuInDayPage);
 			$('#favList').listview('refresh');
-			getFavouriteList(fillListInFavPage);
-			getFavouriteList(fillListInDayPage);
 		},
 		async: false
 	});
@@ -652,7 +691,9 @@ function getDayList(newDay) {
 		data: newDay,
 		success: function(data){
 			for (var key in data) {
-				if (key.split(':')[1] === "Lunsj") {
+				var jsonMap = data[key];
+				console.log("IZ LUNSJ?: "+jsonMap['projectnumber']);
+				if (jsonMap['projectnumber'] == "LUNSJ") {
 					$('#lunch').val(0);
 				}
 				$('#lunch').slider('refresh');
@@ -703,6 +744,12 @@ function resetDay(){
 	$('#dayList').children().remove('li');
 	$('#hours').val(0);
 	$('#hours').slider('refresh');
+}
+
+function clearEditForm(){
+	$('#editDesc').val('');
+	$('#editHours').val(0);
+	$('#editHours').slider('refresh');
 }
 
 function clearForm(){

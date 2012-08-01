@@ -19,7 +19,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 	private static final String SELECT_FAVOURITES = "SELECT \"Norge$Favourite Task\".Projektnr_, \"Norge$Favourite Task\".Aktivitetskode, \"Norge$Tasklist\".Beskrivelse, \"Norge$Tasklist\".\"Ressource fakturerbar\", \"Norge$Job\".Description, \"Norge$Job\".Name,  \"Norge$Job\".\"Internt projekt\"  FROM \"Norge$Favourite Task\"  INNER JOIN \"Norge$Tasklist\" ON \"Norge$Favourite Task\".Projektnr_= \"Norge$Tasklist\".Projektnr_ AND \"Norge$Favourite Task\".Aktivitetskode = \"Norge$Tasklist\".Kode INNER JOIN \"Norge$Job\" ON \"Norge$Favourite Task\".Projektnr_= \"Norge$Job\".No_ WHERE \"Norge$Favourite Task\".Resourcekode = ? AND \"Norge$Tasklist\".Spærret NOT LIKE '1'";
 	//private static final String SELECT_PROJECTS = "select \"Norge$Tasklist\".Projektnr_, \"Norge$Tasklist\".Kode, \"Norge$Tasklist\".Beskrivelse FROM \"Norge$Tasklist\" WHERE Type=0 and Afsluttet=0 and Spærret=0 and Vis=1 and Status=2";
 	private static final String SELECT_WEEKREGISTRATIONS = "SELECT Dato, sum(Antal), Godkendt FROM \"Norge$Time Entry\" where Ressourcekode = ? AND Projektnr_ NOT LIKE 'FLEX' AND Dato Between ? AND ? GROUP BY Dato, Godkendt";
-	private static final String SELECT_SEARCHPROJECTS = "SELECT \"Norge$Tasklist\".Projektnr_, \"Norge$Tasklist\".Kode, \"Norge$Tasklist\".Beskrivelse FROM \"Norge$Tasklist\" WHERE Beskrivelse like ? OR Projektnr_ like ? ORDER BY Beskrivelse";
+	private static final String SELECT_SEARCHPROJECTS = "SELECT TOP 50 \"Norge$Tasklist\".Projektnr_, \"Norge$Tasklist\".Kode, \"Norge$Tasklist\".Beskrivelse FROM \"Norge$Tasklist\" WHERE Beskrivelse like ? OR Projektnr_ like ? ORDER BY Beskrivelse";
 	private static final String SELECT_PERIODS = "SELECT Startdato, Slutdato, Beskrivelse, Bogført FROM \"Norge$Time Periods\" WHERE Ressource = ? AND Startdato <= ? AND Slutdato >= ?";
 	private static final String DELETE_REGISTRATION = "DELETE FROM \"Norge$Time Entry\" where Løbenr_ = ? AND Godkendt = 0 AND Bogført = 0";
 	private static final String INSERT_FAVOURITE = "INSERT into \"Norge$Favourite Task\" (Resourcekode, Projektnr_, Aktivitetskode) VALUES(?, ?, ?)";
@@ -27,6 +27,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 	private static final String INSERT_REGISTRATION = "INSERT into \"Norge$Time Entry\" (Projektnr_, Aktivitetskode, Ressourcekode, Arbejdstype, Dato, Antal, Beskrivelse, Godkendt, Bogført, Fakturerbart, Linienr_, \"Internt projekt\", \"Læg til norm tid\", Afdelingsleder, \"Shortcut Dimension 1 Code\", \"Shortcut Dimension 2 Code\", \"Ressource Gruppe Nr_\", \"Exportert Tieto\", \"Ikke godkjent\", \"Ikke godkjent Beskrivelse\", \"Ikke godkjent av\", \"Endret dato\", \"Endret av\", \"Transferdate Tieto\", \"Approved By LM_PM\", \"Adjust flex limit\") VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	private static final String UPDATE_REGISTRATION = "UPDATE \"Norge$Time Entry\" SET Godkendt=1 WHERE Ressourcekode = ? AND Dato BETWEEN ? AND ?";
 	private static final String DELETE_FAVOURITE = "DELETE FROM \"Norge$Favourite Task\" WHERE Resourcekode = ? AND Projektnr_ = ? AND Aktivitetskode = ?";
+	private static final String UPDATE_REGISTRATIONHOURS = "UPDATE \"Norge$Time Entry\" SET Antal = ?, Beskrivelse = ? WHERE Løbenr_ = ?";
 	
 	public MSSQLHourRegDao(DataSource datasource) {
 		this.datasource = datasource;
@@ -398,6 +399,29 @@ public class MSSQLHourRegDao implements HourRegDao {
 			statement.setString(1, userid);
 			statement.setString(2, projectNumber);
 			statement.setString(3, activityCode);
+			statement.executeUpdate();
+			
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+		finally{
+			try {
+				if(statement != null)statement.close();
+			} catch (SQLException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
+
+	@Override
+	public void updateRegistration(int taskNumber, double hours,
+			String description) {
+		PreparedStatement statement = null;
+		try {
+			statement = connection.prepareStatement(UPDATE_REGISTRATIONHOURS);
+			statement.setDouble(1, hours);
+			statement.setString(2, description);
+			statement.setInt(3, taskNumber);
 			statement.executeUpdate();
 			
 		} catch (SQLException e) {

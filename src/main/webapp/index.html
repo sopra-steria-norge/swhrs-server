@@ -82,9 +82,9 @@
 		<div data-role="navbar">
 		<ul>
 			<li><a href="#" data-theme="a" data-icon="home" class="ui-btn-active ui-state-persist">Day</a>
-			<li><a href="#weekPage" id="weekLink" id="weekLink" data-theme="a" data-icon="grid" data-transition="slide">Week</a>
-			<li><a href="#favPage" id="favLink" data-theme="a" data-icon="star" data-transition="slide">Fav</a>
-			<li><a href="#addPage" id="addLink" data-theme="a" data-icon="gear" data-transition="slide">Settings</a>
+			<li><a href="#weekPage" class="weekLink" id="weekLink" data-theme="a" data-icon="grid" data-transition="slide">Week</a>
+			<li><a href="#favPage" class="favLink" data-theme="a" data-icon="star" data-transition="slide">Fav</a>
+			<li><a href="#addPage" class="addLink" data-theme="a" data-icon="gear" data-transition="slide">Settings</a>
 		</ul>
 		</div>
 	</div> 
@@ -328,16 +328,16 @@
 	<div id="editContent" data-role="content">
 		<form id="editForm">
 		<div id="descDiv" data-role="fieldcontain">
-			<label for="editDesc">Description:</label>
+			<label id="descEditLabel" for="editDesc">Description:</label>
 			<textarea cols="40" rows="8" name="editDesc" id="editDesc"></textarea>
 		</div>
 		<div id="hoursDiv" data-role="fieldcontain">
-			<label id="hoursLabel" for="editHours">Hours worked:</label>
+			<label id="hoursEditLabel" for="editHours">Hours worked:</label>
 			<input type="range" name="editHours" id="editHours" value="" min="0" max="16" step="0.5" data-highlight="true" data-theme="" />
 		</div>
 		
 		<fieldset class="ui-grid-a">
-		<div class="ui-block-a"><button id="editReg" name="editReg" type="submit" data-theme="a">Save</button></div>
+		<div class="ui-block-a"><a href="#dayPage" id="editReg" name="editReg" type="submit" data-rel="back" data-theme="a">Save</a></div>
 		<div class="ui-block-b" ><a href="#dayPage" data-theme="a" data-rel="back" data-role="button">Cancel</a></div>
 		</fieldset>
 		</form>
