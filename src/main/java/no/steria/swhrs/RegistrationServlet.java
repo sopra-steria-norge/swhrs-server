@@ -188,8 +188,12 @@ public class RegistrationServlet extends HttpServlet{
 		}
 	}
 	
+	
 	/**
-	 * This method will submit a period of hour registrations
+	 * This method will update a users period based on the HTTP request, it will either submit the period if the request is 1 
+	 * or reopen if the request is 0.
+	 * @param req The HTTP request contains option which decides whether to submit(1) or reopen(0) period
+	 * @param resp The HTTP response returns in plain text if the period is submitted or reopened
 	 * @throws IOException
 	 */
 	private void updatePeriod(HttpServletRequest req, HttpServletResponse resp) throws IOException {
