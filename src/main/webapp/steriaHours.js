@@ -556,8 +556,10 @@ function editRegistration(tasknumber) {
 	editTaskNumber = tasknumber;
 	console.log('EDITING LIKE A BAWS. Tasknumber: ' + tasknumber);
 	$.mobile.changePage($("#dialogEditReg"));
-	clearEditForm();
-	
+//	clearEditForm();
+	$('#editDesc').val(regMap[tasknumber].description);
+	$('#editHours').val(regMap[tasknumber].hours);
+	$('#editHours').slider('refresh');
 }
 
 function getFavouriteList(addToPage){
@@ -592,6 +594,7 @@ function fillListInFavPage(favlist) {
 		$('#favList').append($('<li id="fav:' + i +'"></li>').html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
 	            favs + ' </b></a><a href="javascript:deleteFavourite('+i+')"></a>'));
 	}
+	$('#favList').listview('refresh');
 	$('#favText').text("Current favourites");
 	
 }
@@ -641,9 +644,10 @@ function deleteFavourite(key) {
 		data: delFavourite,
 		success: function(){
 			$('#favList').children().remove('li');
-			$('#favList').listview('refresh');
+			
 			getFavouriteList(fillListInFavPage);
 			getFavouriteList(fillSelectMenuInDayPage);
+			
 		},
 		async: false
 	});
@@ -695,17 +699,26 @@ function getDayList(newDay) {
 				}else{
 					var val = data[key];
 					totalHours += val['hours'];
+					console.log('GETTING DAY: ' + val['projectnumber'] + '<:>' + val['activitycode']);
+					
+					var projectKey = val['projectnumber'] + '<:>' + val['activitycode'];
+					var projectdescription = val['description'];
+					//super ugly hack
+					if (projectKey in favDescription) {
+						projectdescription = favDescription[projectKey].description;
+					}
+					console.log(projectdescription);
 					var newhr = new HourRegistration(key, val['projectnumber'], val['activitycode'],
-							val['description'], val['hours'], val['submitted'], val['approved'], favDescription[val['projectnumber'] + '<:>' + val['activitycode']].description);
+							val['description'], val['hours'], val['submitted'], val['approved'], projectdescription);
 					regMap[key] = newhr;
 					var editlink = '';
 					var buttonlink = '';
 					if (newhr['approved']) {
-						editlink = '<a href="javascript:editRegistration('+ newhr.tasknumber +')">';
+						editlink = '<a href="#">';
 						buttonlink = '<a href="#" data-icon="check"></a>';
 						//TODO add green colour to button
 					} else if (newhr['submitted']) {
-						editlink = '<a href="javascript:editRegistration('+ newhr.tasknumber +')">';
+						editlink = '<a href="#">';
 						buttonlink = '<a href="#" data-theme="c" data-icon="check"></a>';
 					} else {
 						editlink = '<a href="javascript:editRegistration('+ newhr.tasknumber +')">';

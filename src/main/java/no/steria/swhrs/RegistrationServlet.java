@@ -245,6 +245,8 @@ public class RegistrationServlet extends HttpServlet{
 		List<WeekRegistration> weeklist = db.getWeekList(username, period.getFromDate(), period.getToDate());
 		String weekDescription = period.getDescription();
 		
+		//List<NormTime> norm = db.getNormTime(username);
+		
 		
 		JSONObject obj = new JSONObject();
 		JSONObject weekJson = new JSONObject();
