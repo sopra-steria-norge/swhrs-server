@@ -259,6 +259,7 @@ public class RegistrationServlet extends HttpServlet{
 					List list = new LinkedList();
 					list.add(dayOfWeek);
 					list.add(wr2.getHours());
+					list.add(wr2.getApproved());
 					obj.put(wr2.getDate().split(" ")[0], list);
 					found = true;
 					break;

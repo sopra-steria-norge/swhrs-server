@@ -454,7 +454,7 @@ function getWeekList(newWeek){
 						var dateText = hdrDateText.split('-')[2]+"."+hdrDateText.split('-')[1]+"."+hdrDateText.split('-')[0]
 						$('#hdrDay').children('h1').text(weekDays[hdrDayText]+" "+ dateText);
 					}else{
-						dataArray.push(data[key][0], key, data[key][1]);
+						dataArray.push(data[key][0], key, data[key][1], data[key][2]);
 						dateArray.push(key);
 						hoursArray.push(data[key]);
 					}
@@ -473,26 +473,34 @@ function getWeekList(newWeek){
 function updateWeekList(dateArray, data){
 	var weekDays = new Array("", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
 	var dayHours = new Array();
+	var submitted = false;
 	for (var i = 0; i < dateArray.length; i++) {
 		var dayNr = data[dateArray[i]][0];
 		var hours = data[dateArray[i]][1];
 		dayHours.push(hours);
-		if(hours < 8){
-			$('#weekList').append($("<li data-theme='c'></li>").html('<a href=""><b>' + 
-						weekDays[dayNr] + '</b><p>'+dateArray[i]+'</p></a><span class="ui-li-count">' + hours + ' timer'+'</span>')).listview('refresh');
+		if(data[dateArray[i]][2] == 1 || submitted){
+			submitted = true;
+			$('#weekList').append($("<li data-theme='c' data-icon='check'></li>").html('<a href=""><b>' + 
+						weekDays[dayNr] + '</b><p>'+dateArray[i]+'</p></a><span class="ui-li-count">' + hours + ' hours'+'</span>')).listview('refresh');
 			}else{
 			$('#weekList').append($("<li data-theme='c'></li>").html('<a href=""><b>' +
-					weekDays[dayNr] + '</b><p>'+dateArray[i]+'</p></a><span class="ui-li-count">' + hours + ' timer'+'</span>')).listview('refresh');
+					weekDays[dayNr] + '</b><p>'+dateArray[i]+'</p></a><span class="ui-li-count">' + hours + ' hours'+'</span>')).listview('refresh');
 		}
 	}
-	
+	console.log(dateArray.length);
 	var totalWeek = 0;
 	$.each(dayHours,function() {
 	    totalWeek += parseFloat(this);
 	});
+	var norm = 0;
+	if(dateArray.length < 5){
+		norm = dateArray.length * 8;
+	}else{
+		norm = 40;
+	}
 	$('#weekDescription').children('b').text("You have logged "+totalWeek+" hours this week");
 	$('#hdrDia').children('h1').text("Do you want to Submit?");
-	$('#contentDia').children('p').text("You have registered "+totalWeek+" hours in period. Norm time is unknown.");
+	$('#contentDia').children('p').text("You have registered "+totalWeek+" hours in period. Norm time is "+norm+" hours.");
 }
 
 
@@ -629,6 +637,7 @@ function addFavourites(pNr, aC){
 		data: favourite,
 		success: function(data){
 			getFavouriteList(fillSelectMenuInDayPage);
+			alert('Added project with nr ' + pNr + ' to favourite list');
 		}
 	});
 }
@@ -643,11 +652,10 @@ function deleteFavourite(key) {
 		url: 'hours/deleteFavourite',
 		data: delFavourite,
 		success: function(){
-			$('#favList').children().remove('li');
-			
+			alert('Deleted project with nr ' + fav.projectnumber + ' from favourite list');
+			$('#favList').children().remove('li');			
 			getFavouriteList(fillListInFavPage);
 			getFavouriteList(fillSelectMenuInDayPage);
-			
 		},
 		async: false
 	});
