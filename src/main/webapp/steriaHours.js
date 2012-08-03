@@ -268,6 +268,8 @@ $(document).bind("pagebeforechange", function (event, data) {
     			$.mobile.changePage("#loginPage", { changeHash: false });
     		}else{
     			sessionStorage.setItem('UNameLSKey', localStorage.getItem("UNameLSKey"));
+    			//THIS IS WHERE THE USER HAVE THEIR INFORMATION ALLREADY STORED, AND IS AUTOMATICALLY REDIRECTED TO THE DAYPAGE.
+    			//THIS IS WHERE THE USERNAME NEEDS TO BE SENT TO THE SERVLET
     			//setUsername(localStorage.getItem("UNameLSKey"));
     		}
     	}

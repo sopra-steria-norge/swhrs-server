@@ -203,6 +203,7 @@ public class RegistrationServlet extends HttpServlet{
 	 * @param resp The HTTP response will return a json object containing data about weekdays, dates and hours for the week requested
 	 * @throws IOException
 	 */
+	@SuppressWarnings("unchecked")
 	private void getWeeklistResponseAsJSON(HttpServletRequest req,
 			HttpServletResponse resp) throws IOException {
 		String week = req.getParameter("week");		
@@ -229,17 +230,19 @@ public class RegistrationServlet extends HttpServlet{
 		List<WeekRegistration> weeklist = db.getWeekList(username, period.getFromDate(), period.getToDate());
 		String weekDescription = period.getDescription();
 		
-		List<NormTime> norm = db.getNormTime(username);
+		//This will get the norm time for each day of the week and should be added together with the weekHours.
+		//List<NormTime> norm = db.getNormTime(username);
 		
 		
 		JSONObject obj = new JSONObject();
-		JSONObject weekJson = new JSONObject();
+		//JSONObject weekJson = new JSONObject();
 		for(int i=0; i<dateArray.size(); i++){
 			String dateArr = dateArray.get(i).toString().split(":")[0];
 			String dayOfWeek = dateArray.get(i).toString().split(":")[1];
 			boolean found = false;
 			for(WeekRegistration wr2: weeklist){
 				if(wr2.getDate().split(" ")[0].equals(dateArr)){
+					@SuppressWarnings("rawtypes")
 					List list = new LinkedList();
 					list.add(dayOfWeek);
 					list.add(wr2.getHours());
@@ -251,6 +254,7 @@ public class RegistrationServlet extends HttpServlet{
 			}
 			
 			if (!found) {
+				@SuppressWarnings("rawtypes")
 				List list = new LinkedList();
 				list.add(dayOfWeek);
 				list.add(0);

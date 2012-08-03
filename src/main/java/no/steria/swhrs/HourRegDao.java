@@ -156,6 +156,11 @@ public interface HourRegDao {
 	 */
 	void updatePeriod(String userid, int option, String dateFrom, String dateTo);
 
+	/**
+	 * This method returns a list with norm time for each day
+	 * @param username The username is sent as a String(User initials)
+	 * @return list with NormTime objects
+	 */
 	List<NormTime> getNormTime(String username);
 
 	
