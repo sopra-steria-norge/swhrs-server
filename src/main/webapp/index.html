@@ -44,19 +44,18 @@
 		<form id="dayForm">
 			
 		<div id="favDiv" data-role="fieldcontain">
-			<label id="favLabel" for="fav">Choose project</label>
+			<label id="favLabel" for="fav"><b>Choose project</b></label>
 			<select id="fav" name="fav_r" tabindex="2" data-theme="c"  data-native-menu="false">
 			</select>
 		</div>
 		
-		
 	<div id="hoursDiv" data-role="fieldcontain">
-		<label id="hoursLabel" for="hours">Hours worked:</label>
+		<label id="hoursLabel" for="hours"><b>Hours worked:</b></label>
 		<input type="range" name="hours" id="hours" value="" min="0" max="16" step="0.5" data-highlight="true" data-theme="" />
 	</div>
 	
 	<div id="lunchDiv" data-role="fieldcontain">
-		<label id="lunchLabel" for="lunch">Lunch</label>
+		<label id="lunchLabel" for="lunch"><b>Lunch</b></label>
 		<select name="lunch_r" id="lunch" data-role="slider" data-theme="a">
 			<option value="0">No</option>
 			<option value="1" selected="selected">Yes</option>
@@ -66,13 +65,11 @@
 	<fieldset class="ui-grid-a">
 		<div class="ui-block-a"><button id="saveBtnID" name="saveButton" type="submit" data-theme="a">Save</button></div>
 		<div class="ui-block-b" ><a href=""  data-theme="a" data-transition="fade" data-role="button">Overtime</a></div>
-		<!-- <div class="ui-block-a"><button id="updateBtn" name="updateButton" type="button" data-theme="a">Update</button></div>  -->
 	</fieldset>
 
 	</form>
 	<b id="dayDescription"></b>
 	<ul id="dayList" data-role="listview" data-inset="true" data-theme="c" data-split-theme="b">
-		
 	</ul>
 	</div> <!-- contentDay -->
 	
@@ -170,7 +167,7 @@
 	
 	<!-- AddpageContent -->
 	<div data-role="content" id="contentAdd">
-		</div>
+	</div>
 	
 	<!-- Addpage footer -->
 	<div data-role="footer" data-position="fixed" data-id="navBarFooter">
@@ -184,43 +181,6 @@
 		</div>
 	</div>
 </div><!-- Addpage end -->
-
-
-<!-- ********************************************************************************** -->
-<!-- Subpages -->
-<!-- Overtime page: Add overtime by type and hours -->
-<!-- ********************************************************************************** -->
-<div data-role="page" data-theme="a" id="overtimePage"  data-rel="back">
-	<div data-role="header" id="hdrOvertime" data-add-back-btn="true" data-theme="a" data-position="fixed">
-		<h1>Steriatime</h1>
-	</div>
-	
-	<!-- Overtimepage content -->
-	<div data-role="content" id="contentOvertime">
-		<form id="overtimeForm">
-		<div id="overtimeDiv" data-role="fieldcontain">
-			<label id="otimeLabel" for="otime">Choose overtime type</label>
-			<select id="otime" name="otime_r" tabindex="2" data-theme="c">
-				<option value="50">50%</option>
-				<option value="100">100%</option>
-				<option value="150">150%</option>
-				<option value="200">200%</option>
-			</select>
-		</div>
-		
-		<div id="otHoursDiv" data-role="fieldcontain">
-			<label id="otHoursLabel" for="otHours">Hours worked:</label>
-			<input type="range" name="otHours" id="otHours" value="" min="0" max="12" step="0.5" data-highlight="true" data-theme="c" />
-		</div>
-		
-		<div id="submitOTDiv" data-role="fieldcontain">
-			<input type="submit" value="Submit overtime"/>
-		</div>
-			
-		</form>
-	</div>
-		
-</div>
 
 
 <!-- ********************************************************************************** -->

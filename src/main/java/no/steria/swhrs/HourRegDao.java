@@ -5,8 +5,15 @@ import java.util.List;
 
 public interface HourRegDao {
 
+	/**
+	 * This method attempts to establish a connection to the data source
+	 */
 	void beginTransaction();
 
+	/**
+	 * This method commits all the new changes, and releases the connection
+	 * @param b
+	 */
 	void endTransaction(boolean b);
 	
 	/**
@@ -148,6 +155,8 @@ public interface HourRegDao {
 	 * @param dateTo The dateTo is sent as a String with the format (yyyy-MM-dd)
 	 */
 	void updatePeriod(String userid, int option, String dateFrom, String dateTo);
+
+	List<NormTime> getNormTime(String username);
 
 	
 }

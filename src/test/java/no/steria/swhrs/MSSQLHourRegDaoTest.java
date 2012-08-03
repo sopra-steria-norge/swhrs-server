@@ -48,15 +48,7 @@ public class MSSQLHourRegDaoTest {
 		return new MSSQLHourRegDao(datasource);
 	}
 
-//	@Test
-//	public void shouldConnectToDatabase() throws Exception {
-//		hourRegDao.beginTransaction();
-//		List<HourRegistration> allHoursForDate = hourRegDao.getAllHoursForDate(1, new LocalDate());
-//		hourRegDao.endTransaction(false);
-//		
-//		assertThat(allHoursForDate).hasSize(4);
-//	}
-//	
+	
 	@Test
 	public void shouldValidateUser() throws Exception {
 		String username = "AK";
@@ -67,23 +59,23 @@ public class MSSQLHourRegDaoTest {
 		assertTrue(validate);
 	}
 	
+	
 	@Test
 	public void shouldGetRegistrations() throws Exception {
 		hourRegDao.beginTransaction();
 		List<HourRegistration> allHoursForDate = hourRegDao.getAllHoursForDate("AK", "2012-05-30 00:00:00.0");
 		hourRegDao.endTransaction(false);
 		assertThat(allHoursForDate).hasSize(5);
-		
 	}
 	
 	@Test
 	public void shouldGetUserFavourites() throws Exception {
 		hourRegDao.beginTransaction();
-		List<UserFavourites> userFavourites = hourRegDao.getUserFavourites("AK");
+		List<UserFavourites> userFavourites = hourRegDao.getUserFavourites("SOLJ");
 		hourRegDao.endTransaction(false);
-		assertThat(userFavourites).hasSize(25);
-		
+		assertThat(userFavourites).hasSize(8);
 	}
+	
 	
 	@Test
 	public void shouldSearchForProjects() throws Exception {
@@ -93,13 +85,15 @@ public class MSSQLHourRegDaoTest {
 		assertThat(projects).hasSize(27);
 	}
 	
+
 	@Test
 	public void shouldGetWeekRegistrations() throws Exception {
 		hourRegDao.beginTransaction();
-		List<WeekRegistration> weeklist = hourRegDao.getWeekList("AK", "2012-06-10 00:00:00.0", "2012-06-15 00:00:00.0");
+		List<WeekRegistration> weeklist = hourRegDao.getWeekList("SOLJ", "2012-05-01 00:00:00.0", "2012-05-10 00:00:00.0");
 		hourRegDao.endTransaction(false);
-		assertThat(weeklist).hasSize(14);
+		assertThat(weeklist).hasSize(7);
 	}
+	
 	
 	@Test
 	public void shouldGetPeriod() throws Exception {
@@ -109,6 +103,7 @@ public class MSSQLHourRegDaoTest {
 		assertThat(period.getFromDate()).contains("2012-11-05");
 	}
 	
+	@Ignore
 	@Test
 	public void shouldDeleteRegistration() throws Exception {
 		hourRegDao.beginTransaction();
@@ -118,6 +113,7 @@ public class MSSQLHourRegDaoTest {
 	}
 	
 	@Ignore
+	@Test
 	public void shouldAddFavourites() throws Exception {
 		hourRegDao.beginTransaction();
 		boolean addFavourite = hourRegDao.addFavourites("IHH", "1095754", "7");
@@ -127,6 +123,7 @@ public class MSSQLHourRegDaoTest {
 		
 	}
 
+	@Ignore
 	@Test
 	public void shouldAddRegistration() throws Exception {
 		hourRegDao.beginTransaction();

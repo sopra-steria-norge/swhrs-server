@@ -39,22 +39,14 @@ public class RegistrationServlet extends HttpServlet{
 				throw new ServletException(e);
 			}
 		} else {
-			db = new HibernateHourRegDao(Parameters.DB_JNDI);
+			//Create a memory database
 		}
 		
 	}
 	
-	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		
-		
-		if (req.getRequestURL().toString().contains(("hours/projects"))) { 
-			resp.setContentType("application/json");
-			//TODO return a list of all projects.
-		}
-		
 	}
 
 	
@@ -122,9 +114,8 @@ public class RegistrationServlet extends HttpServlet{
 	private void addFavourites(HttpServletRequest req) {
 		String projectNumber = req.getParameter("projectNumber");
 		String activityCode = req.getParameter("activityCode");
-		if(db.addFavourites(username, projectNumber, activityCode)){
-			System.out.println("ADDING COMPLETE, WANNA SEND SOME JSON?");
-		}
+		db.addFavourites(username, projectNumber, activityCode);
+		
 	}
 
 
@@ -152,7 +143,6 @@ public class RegistrationServlet extends HttpServlet{
 			counter++;
 			projectJson.put(counter, map);
 		}
-		System.out.println(projectJson.toString());
 		PrintWriter writer = resp.getWriter();
 		String jsonText = projectJson.toString();
 		writer.append(jsonText);
@@ -162,7 +152,6 @@ public class RegistrationServlet extends HttpServlet{
 	private void setUsername(HttpServletRequest req, HttpServletResponse resp) {
 		String loginUsername = req.getParameter("UN");
 		username = loginUsername;
-		System.out.println("SKRIVER UT: "+loginUsername);
 	}
 
 
@@ -177,9 +166,7 @@ public class RegistrationServlet extends HttpServlet{
 	private void deleteHourRegistrationInDatabase(HttpServletRequest req,
 			HttpServletResponse resp) throws IOException {
 		String taskNumber = req.getParameter("taskNumber");
-		System.out.println(taskNumber);
 		boolean success = db.deleteHourRegistration(taskNumber);
-		System.out.println(success);
 		resp.setContentType("text/plain");
 		if (!success) {
 			resp.getWriter().append("ERROR: Already submitted");
@@ -239,13 +226,10 @@ public class RegistrationServlet extends HttpServlet{
 			localFromDate2 = localFromDate2.plusDays(1);
 		}
 		
-		
-		System.out.println("fromDate: "+period.getFromDate()+" toDate: "+period.getToDate()+" Description: "+period.getDescription());
-		
 		List<WeekRegistration> weeklist = db.getWeekList(username, period.getFromDate(), period.getToDate());
 		String weekDescription = period.getDescription();
 		
-		//List<NormTime> norm = db.getNormTime(username);
+		List<NormTime> norm = db.getNormTime(username);
 		
 		
 		JSONObject obj = new JSONObject();
@@ -321,7 +305,7 @@ public class RegistrationServlet extends HttpServlet{
 			writer.append("Login approved");
 		}else{
 			resp.setStatus(403);
-			System.out.println("You dont fool me, fool");
+			System.out.println("Access denied");
 		}
 	}
 
@@ -344,7 +328,6 @@ public class RegistrationServlet extends HttpServlet{
 		if(lunchNumber.equals("1")){
 			db.addHourRegistrations("LUNSJ", "LU", username, "", date.toString(), 0.5, "Lunsj", 0, 0, 1, 10101, 0, 0, "HRA", "", lunchNumber, "", 0, 0, "", "", "2012-05-30", "HRA", "", 0, 0);
 		}
-		System.out.println("Trying to save project: " + projectNumber);
 	}
 
 
@@ -373,7 +356,6 @@ public class RegistrationServlet extends HttpServlet{
 	private void getDaylistResponseAsJSON(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		String newDay = req.getParameter("day");
-		System.out.println("NEWDAY ="+newDay);
 		
 		resp.setContentType("application/json");
 		if(newDay.equals("prevDay")) date = date.minusDays(1);
@@ -391,7 +373,6 @@ public class RegistrationServlet extends HttpServlet{
 
 		PrintWriter writer = resp.getWriter();
 		String jsonText = json.toString();
-		System.out.println("JSON sendt from regservlet: " +jsonText);
 		writer.append(jsonText);
 	}
 
@@ -405,7 +386,6 @@ public class RegistrationServlet extends HttpServlet{
 	private JSONObject createJsonObjectFromHours(List<HourRegistration> hrlist, String stringDate) {
 		JSONObject json = new JSONObject();
 		for (HourRegistration hr: hrlist) {
-			System.out.println(hr.getDate()+":"+hr.getDescription() + " Approved: " +hr.isApproved()+" Submitted "+ hr.isSubmitted());
 			@SuppressWarnings("rawtypes")
 			HashMap map = new HashMap();
 			map.put("projectnumber", hr.getProjectnumber());
@@ -445,7 +425,6 @@ public class RegistrationServlet extends HttpServlet{
 			json.put(counter++, map);
 			
 		}
-		System.out.println(json.toString());
 		return json;
 		
 	}

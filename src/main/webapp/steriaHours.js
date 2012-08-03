@@ -1,29 +1,22 @@
 // Declare global variables
-var favLabelVar = null;
-var hoursLabelVar = null;
-var hoursVar = null;
-var dateCounter = 0;
-var deleted = false;
-
-var date = new Date();
-var day = date.getDay();
-var month = date.getMonth();
-var year = date.getFullYear();
-
-var favForm = null;
-var hourForm = null;
-var lunchForm = null;
-
-var username = null;
-var password = null;
-
 var pageVar = "";
 var pageVars = {};
+
+//favlist contains a list of Strings to displau favourites in lists, it's filled in getFavourites
 var favList = [];
-var favMap = {};
+/**
+ * favMap: In the function getFavourites this is set to contain all the favourites
+ * as Favourite objects, stored with incremental numbers as keys
+ */
+var favMap = {}; 
+
+/**
+ * favDescription is used to map projects and activitycodes with a projectdescription. 
+ * It's set in the function getFavourites and used to display projectdescription for Hour Registrations in dayList
+ */
 var favDescriptions = {};
+//regMap is filled with Hour Registration objects in getDayList
 var regMap = {};
-var favourite = 1;
 var editTaskNumber = null;
 
 // Constants
@@ -55,7 +48,6 @@ function HourRegistration (tasknumber, projectnumber, activitycode, description,
 	this.projectDescription = projectDescription; //The decription of the project
 }
 
-
 function Project (projectnumber, activitycode, description){
 	this.projectnumber = projectnumber;
 	this.activitycode = activitycode;
@@ -64,10 +56,10 @@ function Project (projectnumber, activitycode, description){
 
 $(document).ready(function() {
 	
-	favLabelVar = $('#favLabel');
-	hoursLabelVar = $('#hoursLabel');
+	var favLabelVar = $('#favLabel');
+	var hoursLabelVar = $('#hoursLabel');
 	var favVar = $('#fav');
-	hoursVar = $('#hours');
+	var hoursVar = $('#hours');
 	
 	var myDate=new Date();
 	dateT = myDate.getDate();
@@ -76,7 +68,6 @@ $(document).ready(function() {
 		monthT = "0"+monthT;
 	}
 	yearT = myDate.getFullYear();
-	console.log(yearT+"-"+monthT+"-"+dateT);
 	
 	/*
 	 * #loginPage
@@ -101,18 +92,11 @@ $(document).ready(function() {
 		return false;
 	});
 	
-	
 	/*
 	 * #dayPage
-	 * Update button click
-	 * Returns stored database hour registrations
+	 * Editing of registrations in dayList
+	 * Listens to click of a list element in dayList
 	 */
-	$("#updateBtn").click(function() {
-		var today = "today"
-		getDayList(today);
-	});
-	
-	
 	$('#editReg').click(function(){
 		var err = false;
 		
@@ -134,15 +118,10 @@ $(document).ready(function() {
 			err = true;
 		}
 		
-		// If validation fails, show contentDialog
+		// Validation error of input fields
 		if(err == true){
-			console.log("Validation failed");
 			return false;
 		}
-		
-		console.log("EDIT HOURS: "+editHours);
-		console.log("EDIT DESC: "+editDesc);
-		console.log("Tasknumber: "+editTaskNumber);
 		
 		var edit = {'taskNumber': editTaskNumber, 'hours': editHours, 'description': editDesc};
 		$.ajax({
@@ -150,7 +129,6 @@ $(document).ready(function() {
 			url: 'hours/updateRegistration',
 			data: edit,
 			success: function(data){
-				console.log("SUCCESSS");
 				resetDay();
 				getDayList(today);
 			}
@@ -170,7 +148,7 @@ $(document).ready(function() {
 		hoursLabelVar.removeClass(MISSING);
 		$.mobile.silentScroll(100);
 		hourForm = $("#hours").val();
-		console.log("HOURSFORM: "+hourForm);
+		
 		if(favVar.val()==NO_FAV){
 			favLabelVar.addClass(MISSING);
 			err = true;
@@ -181,19 +159,16 @@ $(document).ready(function() {
 		}
 		
 		
-		// If validation fails, show contentDialog
+		// Validation error of input fields
 		if(err == true){
-			console.log("Validation failed");
 			return false;
 		}
 			
 		var dateForm = $('#hdrDay').children('h1').text();
-		favForm = $("#fav").val();
-		hourForm = $("#hours").val();
-		lunchForm = $("#lunch").val();
+		var favForm = $("#fav").val();
+		var hourForm = $("#hours").val();
+		var lunchForm = $("#lunch").val();
 		var selectedFav = favMap[favForm]; //The Favourite object selected in the select box
-		
-		//updateDayList(favForm, hourForm, lunchForm);
 		
 		var lunchCodeString = '';
 		if (lunchForm == 1) {
@@ -201,8 +176,6 @@ $(document).ready(function() {
 		}else{
 			lunchCodeString = "0";
 		}
-		
-		console.log('SELECTED FAVOURITE'+selectedFav);
 		
 		var myData = {'projectNr': selectedFav.projectnumber, 'activityCode': selectedFav.activitycode, 
 				'description': selectedFav.description, 'billable': selectedFav.billable, 
@@ -212,42 +185,29 @@ $(document).ready(function() {
 		return false;
 	});
 	
+	/*
+	 * Listens to a click of "Search Projects" in the Fav page
+	 * Gets search data from the server and displays results in a a list. SQL statement is set to return maximum 50 results
+	 */
 	$('#favBtn').click(function(){
-		var projectMap = {};
-		var projectList = [];
 		var inputSearch = $("#favSearch").val();
-		console.log("FAV SEARCH: "+inputSearch);
 		var search = {search: inputSearch}
+		
 		$.ajax({
 			type:"POST",
 			url: 'hours/searchFavourites',
 			data: search,
 			success: function(data){
-				console.log(data);
 				fillProjectList(data);
-				/*for(var key in data){
-					var jsonMap = data[key];
-					var newProject = new Project(jsonMap['projectnumber'], jsonMap['activitycode'], jsonMap['description']);
-					
-					projectMap[key] = newProject;
-					var projecttext = newProject.projectnumber + " ("+ newProject.activitycode + ") " + newProject.description;
-					projectList.push(projecttext);
-				}
-				fillProjectList(projectList, projectMap);*/
 			}
 		});
 	});
 	
 	/*
-	 * #dayPage
-	 * Reset button click
-	 * Clears the daypage form
+	 * #weekPage
+	 * Listens to clicks on list elements in weekPage (Monday, Tuesday etc.)
+	 * If a day is clicked it navigates to that day in dayView
 	 */
-	$('#resetDayBtn').click(function(){
-		clearForm();
-	});
-	
-	
 	$('#weekList').on('click', 'li', function() {
 	    var dayString = $(this).html();
 	    var index = dayString.indexOf('<p class="ui-li-desc">')+'<p class="ui-li-desc">'.length;
@@ -258,16 +218,20 @@ $(document).ready(function() {
 		getDayList(dateString);
 	});
 	
-	
+	/*
+	 * Listens to click on the "Day" button in the footer
+	 * Resets the view and gets the list for current day
+	 */
 	$('.dayLink').bind('click', function() {
-		  console.log('User clicked on "dayLink."');
 		  resetDay();
 		  getDayList(today);
 	});
 	
+	/*
+	 * Listens to clicks on the "Fav" button in the footer
+	 * Removes any previous content and displays current favourites
+	 */
 	$('.favLink').bind('click', function(){
-		
-		console.log('User clicked the favLink');
 		$('#favText').text("User favourites");
 		$('#projectList').children().remove('li');
 		$('#favList').children().remove('li');
@@ -286,15 +250,6 @@ $('#dayPage' ).live( 'pageinit',function(event){
 	getDayList(today);
 });
 
-/*
- * #weekPage
- * This will be run each time a weekPage is initiated
- */
-$('#weekPage' ).live( 'pageinit',function(event){
-	//fill in code here
-});
-
-
 
 /*
  * Checks if the page is secured, if so checks if the user is authenticated.
@@ -302,19 +257,17 @@ $('#weekPage' ).live( 'pageinit',function(event){
  */
 $(document).bind("pagebeforechange", function (event, data) {
     if (typeof data.toPage == 'object' && data.toPage.attr('data-needs-auth') == 'true') {
-    	console.log("data-needs-auth");
+    	console.log("User needs to be authenticated to reach this page");
     	if (!sessionStorage.getItem("UNameLSKey")) {
-    		console.log("hasnosessionstorage");
+    		console.log("User have no sessionstorage");
     		if (!localStorage.getItem("UNameLSKey")) {
-    			console.log("hasnolocalstorage");
-    			console.log(data.toPage.attr('id'));
+    			console.log("User have no localstorage");
     			pageVar = data.toPage.attr('id');
     			pageVars.returnAfterLogin = data;
     			event.preventDefault();
     			$.mobile.changePage("#loginPage", { changeHash: false });
     		}else{
     			sessionStorage.setItem('UNameLSKey', localStorage.getItem("UNameLSKey"));
-    			console.log("HAS COOKIES" +localStorage.getItem("UNameLSKey"));
     			//setUsername(localStorage.getItem("UNameLSKey"));
     		}
     	}
@@ -325,6 +278,9 @@ $(document).bind("pagebeforechange", function (event, data) {
     }
 });
 
+/*
+ * Should set username in cookies and server. Not working properly, and is not being used
+ */
 function setUsername(username){
 	var details = {UN: username}
 	$.ajax({
@@ -333,7 +289,6 @@ function setUsername(username){
 		data: details,
 		success: function(){
 			var today = "today";
-			console.log("DOES IT WORK?");
 		}
 	});
 }
@@ -372,25 +327,22 @@ function postHourRegistration(myData) {
 	});
 }
 
+/*
+ * Used to submit a period for approval. Functionality to reopen a period has not yet been made. 
+ * Change option value to 0 to reopen the period
+ */
 function updatePeriod(){
-	
 	options = {'option': 1};
 	$.ajax({
 		type:"POST",
 		url: 'hours/updatePeriod',
 		data: options,
 		success: function(data){
-			console.log("IT WORKED, UPDATE THE WEEKLIST");
-			console.log(data);
-			setWeeklistSubmited();
 		},
 		async: false
 	});
 }
 
-function setWeeklistSubmited(){
-	//$('#weekList').data-theme("e");
-}
 
 /*
  * prevDay() & nextDay()
@@ -411,15 +363,19 @@ function nextDay(){
 }
 
 
-/*
- * prevWeek & nextWeek
- * Updates the period with new dates
+/**
+ * gets the weekList for the previous week. Used when the user navigates to previous week through the button "Prev" in header of week view
+ * Updates the period in header with new dates
  */
 function prevWeek(){
 	var prevWeek = "prevWeek";
 	getWeekList(prevWeek);
 }
 
+/**
+ * gets the weekList for next week. Used when the user navigates to next week through the button "Next" in header of week view
+ * Updates the period in header with new dates
+ */
 function nextWeek(){
 	var nextWeek = "nextWeek";
 	getWeekList(nextWeek);
@@ -487,7 +443,6 @@ function updateWeekList(dateArray, data){
 					weekDays[dayNr] + '</b><p>'+dateArray[i]+'</p></a><span class="ui-li-count">' + hours + ' hours'+'</span>')).listview('refresh');
 		}
 	}
-	console.log(dateArray.length);
 	var totalWeek = 0;
 	$.each(dayHours,function() {
 	    totalWeek += parseFloat(this);
@@ -515,7 +470,6 @@ function updateDayList(fav, hour, lunch){
 	$.each(hour,function() {
 	    totalDay += (this);
 	});
-	console.log(totalDay)
 	$('#dayDescription').text("Total "+totalDay+" hours");
 	if(lunch == 1){
 		$('#dayList').append($("<li></li>").html('<a href="#" data-split-theme="c" data-split-icon="delete"><b>' +
@@ -536,7 +490,6 @@ function updateDayList(fav, hour, lunch){
  * sends an hourRegistration to the servlet to be deleted in the database
  */
 function deleteRegistration(taskNr, listid){
-	console.log('You pressed delete on ' + taskNr);
 	var delreg = {taskNumber: taskNr}
 	$.ajax({
 		type: "POST",
@@ -546,7 +499,6 @@ function deleteRegistration(taskNr, listid){
 			if (data.indexOf('Already submitted') != -1) {
 				$.mobile.changePage($("#dialogPopUpNoDelete"));
 			} else {
-				console.log('Deleting ' + taskNr);
 				$('#reg' + taskNr).remove();
 				resetDay();
 				getDayList("today");
@@ -562,9 +514,7 @@ function deleteRegistration(taskNr, listid){
  */
 function editRegistration(tasknumber) {
 	editTaskNumber = tasknumber;
-	console.log('EDITING LIKE A BAWS. Tasknumber: ' + tasknumber);
 	$.mobile.changePage($("#dialogEditReg"));
-//	clearEditForm();
 	$('#editDesc').val(regMap[tasknumber].description);
 	$('#editHours').val(regMap[tasknumber].hours);
 	$('#editHours').slider('refresh');
@@ -590,7 +540,6 @@ function getFavouriteList(addToPage){
 			addToPage(favList);
 		},
 		error: function(data){
-			console.log("favourite list error");
 		},
 		async: false
 	});
@@ -613,8 +562,6 @@ function fillProjectList(data){
 	for (key in data) {
 		var jsonMap = data[key];
 		var projects = jsonMap['projectnumber'] + " ("+ jsonMap['activitycode'] + ") " + jsonMap['description'];
-		console.log(jsonMap['projectnumber'] + " ("+ jsonMap['activitycode'] + ") " + jsonMap['description']);
-		console.log(jsonMap['projectnumber']);
 		var pNr = jsonMap['projectnumber'];
 		var aC = jsonMap['activitycode'];
 		$('#projectList').append($("<li></li>", {id:""}).html('<a href="#" data-split-theme="c"><b>' +
@@ -624,13 +571,10 @@ function fillProjectList(data){
 	$('#favText').text("Search results");
 	$('#favList').listview('refresh'); 
 	$('#projectList').listview('refresh');
-	
 }
 
 function addFavourites(pNr, aC){
-	console.log("Kommer inn her 1: "+pNr);
 	var favourite = {'projectNumber': pNr, 'activityCode': aC}
-	console.log("Kommer inn her 2: "+pNr);
 	$.ajax({
 		type:"POST",
 		url: 'hours/addFavourites',
@@ -644,7 +588,6 @@ function addFavourites(pNr, aC){
 
 function deleteFavourite(key) {
 	var fav = favMap[key];
-	console.log('Trying to delete favourite: ' + fav.activitycode);
 	var delFavourite = {'projectNumber': fav.projectnumber, 'activityCode': fav.activitycode};
 	
 	$.ajax({
@@ -663,18 +606,15 @@ function deleteFavourite(key) {
 }
 
 function fillSelectMenuInDayPage(favList){
-		var options = "NO_FAV";
-		var select = "Select a favourite"
-		$('#fav').html('');
-//		$('#fav').clear();
-		
-		$('#fav').append('<option value='+options+'>'+select+'</option>').selectmenu('refresh', true);
-		for (var i = 0; i < favList.length; i++) {
-			var favs = favList[i];
-			console.log(i +': ' + favs + ' (' + favMap[i].description + ')');
-			$('#fav').append('<option value='+ i +'>'+favs+'</option>').selectmenu('refresh', true);
-		    
-		}
+	var options = "NO_FAV";
+	var select = "Select a favourite"
+	$('#fav').html('');
+	$('#fav').append('<option value='+options+'>'+select+'</option>').selectmenu('refresh', true);
+	for (var i = 0; i < favList.length; i++) {
+		var favs = favList[i];
+		$('#fav').append('<option value='+ i +'>'+favs+'</option>').selectmenu('refresh', true);
+	    
+	}
 }
 
 /*
@@ -694,7 +634,6 @@ function getDayList(newDay) {
 		success: function(data){
 			for (var key in data) {
 				var jsonMap = data[key];
-				console.log("IZ LUNSJ?: "+jsonMap['projectnumber']);
 				if (jsonMap['projectnumber'] == "LUNSJ") {
 					$('#lunch').val(0);
 				}
@@ -707,7 +646,6 @@ function getDayList(newDay) {
 				}else{
 					var val = data[key];
 					totalHours += val['hours'];
-					console.log('GETTING DAY: ' + val['projectnumber'] + '<:>' + val['activitycode']);
 					
 					var projectKey = val['projectnumber'] + '<:>' + val['activitycode'];
 					var projectdescription = val['description'];
@@ -715,7 +653,6 @@ function getDayList(newDay) {
 					if (projectKey in favDescription) {
 						projectdescription = favDescription[projectKey].description;
 					}
-					console.log(projectdescription);
 					var newhr = new HourRegistration(key, val['projectnumber'], val['activitycode'],
 							val['description'], val['hours'], val['submitted'], val['approved'], projectdescription);
 					regMap[key] = newhr;
@@ -724,7 +661,6 @@ function getDayList(newDay) {
 					if (newhr['approved']) {
 						editlink = '<a href="#">';
 						buttonlink = '<a href="#" data-icon="check"></a>';
-						//TODO add green colour to button
 					} else if (newhr['submitted']) {
 						editlink = '<a href="#">';
 						buttonlink = '<a href="#" data-theme="c" data-icon="check"></a>';
@@ -748,24 +684,11 @@ function getDayList(newDay) {
 }
 
 /*
- * resetDay() & clearForm()
- * Two functions to reset the daypage
+ * resetDay()
+ * Function too reset the daypage
  */
 function resetDay(){
 	$('#dayList').children().remove('li');
-	$('#hours').val(0);
-	$('#hours').slider('refresh');
-}
-
-function clearEditForm(){
-	$('#editDesc').val('');
-	$('#editHours').val(0);
-	$('#editHours').slider('refresh');
-}
-
-function clearForm(){
-	$('#lunch').val(1);
-	$('#lunch').slider('refresh');
 	$('#hours').val(0);
 	$('#hours').slider('refresh');
 }

@@ -10,6 +10,17 @@ public class NormTime {
 	private int saturday;
 	private int sunday;
 	
+	public NormTime(String normCode, int monday, int tuesday, int wednesday, int thursday, int friday, int saturday, int sunday){
+		this.normCode = normCode;
+		this.monday = monday;
+		this.tuesday = tuesday;
+		this.wednesday = wednesday;
+		this.thursday = thursday;
+		this.friday = friday;
+		this.saturday = saturday;
+		this.sunday = sunday;
+	}
+	
 	public String getNormCode() {
 		return normCode;
 	}
