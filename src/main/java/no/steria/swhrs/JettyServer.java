@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 public class JettyServer {
 
     private static final Logger logger = LoggerFactory.getLogger(JettyServer.class);
+    public static final String DB_JNDI = "jdbc/registerHoursDS";
 
     public static void main(String[] args) throws Exception {
 		InputStream resourceAsStream = JettyServer.class.getResourceAsStream("/config.properties");
@@ -41,7 +42,7 @@ public class JettyServer {
 			datasource.setUser(user);
 			datasource.setPassword(password);
 
-			new EnvEntry("jdbc/registerHoursDS", datasource);
+			new EnvEntry(DB_JNDI, datasource);
 		} else {
 		
 			JDBCDataSource jdbcDataSource = new JDBCDataSource();
@@ -49,7 +50,7 @@ public class JettyServer {
 			jdbcDataSource.setUser("sa");
 			jdbcDataSource.setPassword("");
 			System.setProperty(Environment.HBM2DDL_AUTO, "create");
-			new EnvEntry(Parameters.DB_JNDI, jdbcDataSource);
+			new EnvEntry(DB_JNDI, jdbcDataSource);
 		}
 		int localPort = 8081;
 		String envPort = System.getenv("PORT");
