@@ -177,4 +177,7 @@
             <url>https://repository.jboss.org/nexus/content/repositories/public-jboss/</url>
         </repository>
     </repositories>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 </project>
