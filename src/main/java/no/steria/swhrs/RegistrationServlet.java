@@ -18,6 +18,8 @@ import javax.sql.DataSource;
 
 import org.joda.time.LocalDate;
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -25,13 +27,15 @@ import org.json.simple.JSONObject;
  *
  */
 public class RegistrationServlet extends HttpServlet{
-	
 	private static final long serialVersionUID = -1090477374982937503L;
+    private static final Logger logger = LoggerFactory.getLogger(RegistrationServlet.class);
+
 	private HourRegDao db;
 	private String username = null;
-	
+
 	LocalDate date = LocalDate.now();
-	public void init() throws ServletException {
+
+    public void init() throws ServletException {
 		if ("true".equals(System.getProperty("swhrs.useSqlServer"))) {
 			try {
 				db = new MSSQLHourRegDao((DataSource) new InitialContext().lookup("jdbc/registerHoursDS"));
@@ -309,7 +313,7 @@ public class RegistrationServlet extends HttpServlet{
 			writer.append("Login approved");
 		}else{
 			resp.setStatus(403);
-			System.out.println("Access denied");
+			logger.debug("Access denied");
 		}
 	}
 
@@ -365,7 +369,7 @@ public class RegistrationServlet extends HttpServlet{
 		if(newDay.equals("prevDay")) date = date.minusDays(1);
 		else if(newDay.equals("nextDay")) date = date.plusDays(1);
 		else if(newDay.equals("today")){
-			System.out.println("getting todays daylist from server");
+			logger.info("getting todays daylist from server");
 		}else{
 			LocalDate weekDate = new LocalDate(newDay);
 			date = weekDate;
@@ -441,7 +445,7 @@ public class RegistrationServlet extends HttpServlet{
 			db.beginTransaction();
 			super.service(req, resp);
 		} finally {
-			db.endTransaction(true);
+			db.endTransaction();
 		}
 	}
 

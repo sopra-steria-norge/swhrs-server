@@ -12,9 +12,8 @@ public interface HourRegDao {
 
 	/**
 	 * This method commits all the new changes, and releases the connection
-	 * @param b
-	 */
-	void endTransaction(boolean b);
+     */
+	void endTransaction();
 	
 	/**
 	 * This method returns a list of hour registrations done on a specific date by a given user

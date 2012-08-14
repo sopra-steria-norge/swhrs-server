@@ -11,9 +11,14 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.hibernate.cfg.Environment;
 import org.hsqldb.jdbc.JDBCDataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JettyServer {
-	public static void main(String[] args) throws Exception {
+
+    private static final Logger logger = LoggerFactory.getLogger(JettyServer.class);
+
+    public static void main(String[] args) throws Exception {
 		InputStream resourceAsStream = JettyServer.class.getResourceAsStream("/config.properties");
 		Properties properties = System.getProperties();
 		properties.load(resourceAsStream);
@@ -26,7 +31,7 @@ public class JettyServer {
 			
 			int port = 1433;
 
-			System.out.println("Connecting to '" + serverAddress + "' db '" + databaseName + "' port '" + port + "' user '" + user + "'");
+            logger.info("Connecting to '" + serverAddress + "' db '" + databaseName + "' port '" + port + "' user '" + user + "'");
 
 			JtdsDataSource datasource = new JtdsDataSource();
 			datasource.setServerType(Driver.SQLSERVER);
@@ -55,9 +60,8 @@ public class JettyServer {
 		Server server = new Server(localPort);
 		server.setHandler(new WebAppContext("src/main/webapp", "/"));
 		server.start();
-		System.out.println("Server started! - port " + localPort);
+		logger.info("Server started! - port " + localPort);
 		server.join();
-		System.out.println("Dette gikk galt!");
-		
+        logger.debug("Dette gikk galt!");
 	}
 }

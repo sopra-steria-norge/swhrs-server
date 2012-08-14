@@ -10,8 +10,8 @@ import java.util.List;
 import javax.sql.DataSource;
 
 public class MSSQLHourRegDao implements HourRegDao {
-	
-	
+
+
 	private final DataSource datasource;
 	private Connection connection = null;
 	private static final String SELECT_USERS = "SELECT No_, \"WEB Password\" FROM \"Norge$Resource\" where No_ = ? and \"WEB Password\" = ?";
@@ -28,10 +28,10 @@ public class MSSQLHourRegDao implements HourRegDao {
 	private static final String UPDATE_REGISTRATIONHOURS = "UPDATE \"Norge$Time Entry\" SET Antal = ?, Beskrivelse = ? WHERE Løbenr_ = ?";
 	private static final String SELECT_NORMTIME = "SELECT \"Norge$Norm Time Data\".Kode, \"Norge$Norm Time Data\".Mandag, \"Norge$Norm Time Data\".Tirsdag, \"Norge$Norm Time Data\".Onsdag, \"Norge$Norm Time Data\".Torsdag, \"Norge$Norm Time Data\".Fredag, \"Norge$Norm Time Data\".Lørdag, \"Norge$Norm Time Data\".Søndag from \"Norge$Norm Time Data\" INNER JOIN \"Norge$Resource\" ON \"Norge$Norm Time Data\".Kode = \"Norge$Resource\".\"Norm Tid\" WHERE \"Norge$Resource\".No_ = ?";
 	//	private static final String INSERT_REGISTRATION = "INSERT into \"Norge$Time Entry\" (Projektnr_, Aktivitetskode, Ressourcekode, Arbejdstype, Dato, Antal, Beskrivelse) Values(?, ?, ?, ?, ?, ?, ?)";
-	
+
 	public MSSQLHourRegDao(DataSource datasource) {
 		this.datasource = datasource;
-		
+
 	}
 
 	@Override
@@ -45,10 +45,9 @@ public class MSSQLHourRegDao implements HourRegDao {
 	}
 
 	@Override
-	public void endTransaction(boolean b) {
+	public void endTransaction() {
 		try {
 			connection.commit();
-			//connection.rollback();
 			connection.close();
 			connection = null;
 		} catch (SQLException e) {
@@ -60,7 +59,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 	public List<HourRegistration> getAllHoursForDate(String userid,
 			String date) {
 		List<HourRegistration> result = new ArrayList<HourRegistration>();
-		
+
 		PreparedStatement statement = null;
 		try {
 			statement = connection.prepareStatement(SELECT_REGISTRATIONS);
@@ -75,9 +74,9 @@ public class MSSQLHourRegDao implements HourRegDao {
 				String description = res.getString(9);
 				boolean submitted = res.getBoolean(10);
 				boolean approved = res.getBoolean(11);
-				
+
 				HourRegistration hourReg = new HourRegistration(date, taskNumber, projectNumber, activityCode, hours, description, submitted, approved);
-				result.add(hourReg);	
+				result.add(hourReg);
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
@@ -117,7 +116,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 			}
 		}
 		if(user != null)return true;
-		return false;	
+		return false;
 	}
 
 
@@ -133,8 +132,8 @@ public class MSSQLHourRegDao implements HourRegDao {
 			} else {
 				return true;
 			}
-			
-			
+
+
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
@@ -179,7 +178,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 		}
 		return result;
 	}
-	
+
 	@Override
 	public List<Projects> searchProjects(String projectName) {
 		List<Projects> result = new ArrayList<Projects>();
@@ -209,7 +208,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 		}
 		return result;
 	}
-	
+
 	@Override
 	public List<WeekRegistration> getWeekList(String userid, String dateFrom,
 			String dateTo) {
@@ -240,7 +239,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 		}
 		return result;
 	}
-	
+
 	@Override
 	public DatePeriod getPeriod(String userid, String date) {
 		DatePeriod datePeriod = new DatePeriod();
@@ -268,10 +267,10 @@ public class MSSQLHourRegDao implements HourRegDao {
 		}
 		return datePeriod;
 	}
-	
+
 	@Override
 	public boolean addFavourites(String userid, String project_id, String activityCode) {
-		
+
 		PreparedStatement statement = null;
 		try {
 			statement = connection.prepareStatement(INSERT_FAVOURITE);
@@ -280,7 +279,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 			statement.setString(3, activityCode);
 			statement.executeUpdate();
 			return true;
-			
+
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
@@ -292,16 +291,16 @@ public class MSSQLHourRegDao implements HourRegDao {
 			}
 		}
 	}
-	
+
 	@Override
 	public boolean addHourRegistrations(String projectNumber, String activityCode,
-			String userid, String workType, String date, double hours, String description, 
-			int submitted, int approved , int billable, int linenumber, int internalProject, 
-			int addNormTime, String departmentManager, String shortcutDimensionOneCode, 
-			String shortcutDimensionTwoCode, String resourceGroupNumber, int exportTieto, int notApproved, 
-			String notApprovedDescription, String notApprovedBy, String changedDate, String changedBy, 
+			String userid, String workType, String date, double hours, String description,
+			int submitted, int approved , int billable, int linenumber, int internalProject,
+			int addNormTime, String departmentManager, String shortcutDimensionOneCode,
+			String shortcutDimensionTwoCode, String resourceGroupNumber, int exportTieto, int notApproved,
+			String notApprovedDescription, String notApprovedBy, String changedDate, String changedBy,
 			String transferedTieto, int approvedByLMPM, int adjustFlexLimit) {
-		
+
 		PreparedStatement statement = null;
 		try {
 			statement = connection.prepareStatement(INSERT_REGISTRATION );
@@ -333,7 +332,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 			statement.setInt(26, adjustFlexLimit);
 			statement.executeUpdate();
 			return true;
-			
+
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
@@ -366,7 +365,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 			statement.setString(2, projectNumber);
 			statement.setString(3, activityCode);
 			statement.executeUpdate();
-			
+
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
@@ -389,7 +388,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 			statement.setString(2, description);
 			statement.setInt(3, taskNumber);
 			statement.executeUpdate();
-			
+
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
@@ -414,7 +413,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 			statement.setString(3, fromDate);
 			statement.setString(4, toDate);
 			statement.executeUpdate();
-			
+
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
@@ -425,7 +424,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 				throw new RuntimeException(e);
 			}
 		}
-		
+
 	}
 
 	@Override
@@ -445,7 +444,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 				int friday = res.getInt(6);
 				int saturday = res.getInt(7);
 				int sunday = res.getInt(8);
-				
+
 				NormTime norm = new NormTime(normcode, monday, tuesday, wednesday, thursday, friday, saturday, sunday);
 				result.add(norm);
 			}

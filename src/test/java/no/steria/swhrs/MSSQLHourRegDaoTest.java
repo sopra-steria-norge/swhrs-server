@@ -15,12 +15,15 @@ import net.sourceforge.jtds.jdbcx.JtdsDataSource;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MSSQLHourRegDaoTest {
-	
+    private static final Logger logger = LoggerFactory.getLogger(MSSQLHourRegDaoTest.class);
+
 	private static MSSQLHourRegDao hourRegDao;
-	
-	@BeforeClass
+
+    @BeforeClass
 	public static void createRegDao() throws Exception{
 		hourRegDao = createHourRegDao();
 	}
@@ -36,7 +39,7 @@ public class MSSQLHourRegDaoTest {
 		
 		int port = 1433;
 
-		System.out.println("Connecting to '" + serverAddress + "' db '" + databaseName + "' port '" + port + "' user '" + user + "'");
+		logger.info("Connecting to '" + serverAddress + "' db '" + databaseName + "' port '" + port + "' user '" + user + "'");
 
 		JtdsDataSource datasource = new JtdsDataSource();
 		datasource.setServerType(Driver.SQLSERVER);
@@ -55,7 +58,7 @@ public class MSSQLHourRegDaoTest {
 		String password = "password";
 		hourRegDao.beginTransaction();
 		boolean validate = hourRegDao.validateUser(username, password);
-		hourRegDao.endTransaction(false);
+		hourRegDao.endTransaction();
 		assertTrue(validate);
 	}
 	
@@ -64,7 +67,7 @@ public class MSSQLHourRegDaoTest {
 	public void shouldGetRegistrations() throws Exception {
 		hourRegDao.beginTransaction();
 		List<HourRegistration> allHoursForDate = hourRegDao.getAllHoursForDate("AK", "2012-05-30 00:00:00.0");
-		hourRegDao.endTransaction(false);
+		hourRegDao.endTransaction();
 		assertThat(allHoursForDate).hasSize(5);
 	}
 	
@@ -72,7 +75,7 @@ public class MSSQLHourRegDaoTest {
 	public void shouldGetUserFavourites() throws Exception {
 		hourRegDao.beginTransaction();
 		List<UserFavourites> userFavourites = hourRegDao.getUserFavourites("SOLJ");
-		hourRegDao.endTransaction(false);
+		hourRegDao.endTransaction();
 		assertThat(userFavourites).hasSize(8);
 	}
 	
@@ -81,7 +84,7 @@ public class MSSQLHourRegDaoTest {
 	public void shouldSearchForProjects() throws Exception {
 		hourRegDao.beginTransaction();
 		List<Projects> projects = hourRegDao.searchProjects("LARM");
-		hourRegDao.endTransaction(false);
+		hourRegDao.endTransaction();
 		assertThat(projects).hasSize(27);
 	}
 	
@@ -90,7 +93,7 @@ public class MSSQLHourRegDaoTest {
 	public void shouldGetWeekRegistrations() throws Exception {
 		hourRegDao.beginTransaction();
 		List<WeekRegistration> weeklist = hourRegDao.getWeekList("SOLJ", "2012-05-01 00:00:00.0", "2012-05-10 00:00:00.0");
-		hourRegDao.endTransaction(false);
+		hourRegDao.endTransaction();
 		assertThat(weeklist).hasSize(7);
 	}
 	
@@ -99,7 +102,7 @@ public class MSSQLHourRegDaoTest {
 	public void shouldGetPeriod() throws Exception {
 		hourRegDao.beginTransaction();
 		DatePeriod period = hourRegDao.getPeriod("AK","2012-11-07");
-		hourRegDao.endTransaction(false);
+		hourRegDao.endTransaction();
 		assertThat(period.getFromDate()).contains("2012-11-05");
 	}
 	
@@ -108,7 +111,7 @@ public class MSSQLHourRegDaoTest {
 	public void shouldDeleteRegistration() throws Exception {
 		hourRegDao.beginTransaction();
 		boolean deleted = hourRegDao.deleteHourRegistration("2101620");
-		hourRegDao.endTransaction(false);
+		hourRegDao.endTransaction();
 		assertTrue(deleted);
 	}
 	
@@ -117,7 +120,7 @@ public class MSSQLHourRegDaoTest {
 	public void shouldAddFavourites() throws Exception {
 		hourRegDao.beginTransaction();
 		boolean addFavourite = hourRegDao.addFavourites("IHH", "1095754", "7");
-		hourRegDao.endTransaction(false);
+		hourRegDao.endTransaction();
 		
 		assertTrue(addFavourite);
 		
@@ -128,7 +131,7 @@ public class MSSQLHourRegDaoTest {
 	public void shouldAddRegistration() throws Exception {
 		hourRegDao.beginTransaction();
 		boolean isAdded = hourRegDao.addHourRegistrations("1095754", "3", "AK", "","2012-05-25", 6, "Ny insert", 0, 0, 1, 10101, 0, 0, "HRA", "", "1095754", "", 0, 0, "", "", "2012-05-30", "HRA", "", 0, 0);
-		hourRegDao.endTransaction(false);
+		hourRegDao.endTransaction();
 		
 		assertTrue(isAdded);
 	}
