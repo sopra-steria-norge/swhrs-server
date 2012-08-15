@@ -94,7 +94,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 	@Override
 	public boolean validateUser(String userid, String password) {
 		PreparedStatement statement = null;
-		Users users = new Users();
+		User users = new User();
 		String user = null;
 		try {
 			statement = connection.prepareStatement(SELECT_USERS);
