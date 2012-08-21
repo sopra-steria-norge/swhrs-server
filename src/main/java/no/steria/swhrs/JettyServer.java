@@ -29,8 +29,7 @@ public class JettyServer {
 			String databaseName = System.getProperty("swhrs.dbName");
 			String user = System.getProperty("swhrs.dbUsername");
 			String password = System.getProperty("swhrs.dbPassword");
-			
-			int port = 1433;
+			int port = Integer.parseInt(System.getProperty("swhrs.dbPort"));
 
             logger.info("Connecting to '" + serverAddress + "' db '" + databaseName + "' port '" + port + "' user '" + user + "'");
 
@@ -63,6 +62,5 @@ public class JettyServer {
 		server.start();
 		logger.info("Server started! - port " + localPort);
 		server.join();
-        logger.debug("Dette gikk galt!");
 	}
 }

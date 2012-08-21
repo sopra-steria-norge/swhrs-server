@@ -57,7 +57,7 @@ public class MSSQLHourRegDaoTest {
 		String username = "AK";
 		String password = "password";
 		hourRegDao.beginTransaction();
-		boolean validate = hourRegDao.validateUser(username, password);
+		boolean validate = hourRegDao.findUser(username, password) != null;
 		hourRegDao.endTransaction();
 		assertTrue(validate);
 	}
