@@ -1,25 +1,23 @@
 package no.steria.swhrs;
 
+import org.joda.time.LocalDate;
+import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.sql.DataSource;
-
-import org.joda.time.LocalDate;
-import org.json.simple.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -31,50 +29,35 @@ public class RegistrationServlet extends HttpServlet{
     private static final Logger logger = LoggerFactory.getLogger(RegistrationServlet.class);
 
 	private HourRegDao db;
-	private String username = null;
 
 	LocalDate date = LocalDate.now();
 
+    @Override
     public void init() throws ServletException {
-		if ("true".equals(System.getProperty("swhrs.useSqlServer"))) {
-			try {
-				db = new MSSQLHourRegDao((DataSource) new InitialContext().lookup("jdbc/registerHoursDS"));
-			} catch (NamingException e) {
-				throw new ServletException(e);
-			}
-		} else {
-			//Create a memory database
-		}
-		
-	}
-	
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
+		db = MSSQLHourRegDao.createInstance();
 	}
 
-	
-	@Override
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        if(req.getRequestURL().toString().contains(("hours/daylist"))){
+            getDaylistResponseAsJSON(req, resp);
+        } else if(req.getRequestURL().toString().contains(("hours/favourite"))){
+            getFavouritesResponse(req, resp);
+        } else if(req.getRequestURL().toString().contains(("hours/week"))){
+            getWeeklistResponseAsJSON(req, resp);
+        } else if(req.getRequestURL().toString().contains(("hours/searchFavourites"))){
+            searchFavourites(req, resp);
+        }
+    }
+
+    @Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		
 
-		if(req.getRequestURL().toString().contains(("hours/daylist"))){
-			getDaylistResponseAsJSON(req, resp);
-		} else if(req.getRequestURL().toString().contains(("hours/favourite"))){
-			getFavouritesResponse(req, resp);
-		} else if (req.getRequestURL().toString().contains(("hours/registration"))) {
-			addHourRegistationToDatabase(req);
-		} else if (req.getRequestURL().toString().contains(("hours/login"))) {
-			loginUserAndSetCookies(req, resp);
-		} else if(req.getRequestURL().toString().contains(("hours/week"))){
-			getWeeklistResponseAsJSON(req, resp);
-		} else if(req.getRequestURL().toString().contains(("hours/deleteRegistration"))){
+        if (req.getRequestURL().toString().contains(("hours/registration"))) {
+            addHourRegistationToDatabase(req);
+        } else if(req.getRequestURL().toString().contains(("hours/deleteRegistration"))){
 			deleteHourRegistrationInDatabase(req, resp);
-		} else if(req.getRequestURL().toString().contains(("hours/setUsername"))){
-			setUsername(req, resp);
-		} else if(req.getRequestURL().toString().contains(("hours/searchFavourites"))){
-			searchFavourites(req, resp);
 		} else if(req.getRequestURL().toString().contains(("hours/addFavourites"))){
 			addFavourites(req);
 		} else if(req.getRequestURL().toString().contains(("hours/updatePeriod"))){
@@ -105,9 +88,10 @@ public class RegistrationServlet extends HttpServlet{
 	 * @param req The HTTP request contains project number and activity code
 	 */
 	private void deleteFavourite(HttpServletRequest req){
-		String projectNumber = req.getParameter("projectNumber");
+        User user = getUserAttribute(req);
+        String projectNumber = req.getParameter("projectNumber");
 		String activityCode = req.getParameter("activityCode");
-		db.deleteFavourite(username, projectNumber, activityCode);
+		db.deleteFavourite(user.getUsername(), projectNumber, activityCode);
 	}
 
 
@@ -116,14 +100,19 @@ public class RegistrationServlet extends HttpServlet{
 	 * @param req The HTTP request contains project number and activity code
 	 */
 	private void addFavourites(HttpServletRequest req) {
+        User user = getUserAttribute(req);
 		String projectNumber = req.getParameter("projectNumber");
 		String activityCode = req.getParameter("activityCode");
-		db.addFavourites(username, projectNumber, activityCode);
+		db.addFavourites(user.getUsername(), projectNumber, activityCode);
 		
 	}
 
+    private static User getUserAttribute(HttpServletRequest req) {
+        return (User) req.getSession(false).getAttribute("user");
+    }
 
-	/**
+
+    /**
 	 * This method will search through Projects with the search input, and 
 	 * return a JSON string with project number, activity code and description
 	 * @param req The HTTP request contains a search input which is used to search through
@@ -150,12 +139,6 @@ public class RegistrationServlet extends HttpServlet{
 		PrintWriter writer = resp.getWriter();
 		String jsonText = projectJson.toString();
 		writer.append(jsonText);
-	}
-
-
-	private void setUsername(HttpServletRequest req, HttpServletResponse resp) {
-		String loginUsername = req.getParameter("UN");
-		username = loginUsername;
 	}
 
 
@@ -188,17 +171,18 @@ public class RegistrationServlet extends HttpServlet{
 	 * @throws IOException
 	 */
 	private void updatePeriod(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		DatePeriod period = db.getPeriod(username, date.toString());
-		int option = Integer.parseInt(req.getParameter("option"));
-		db.updatePeriod(username, option, period.getFromDate(), period.getToDate());
-		resp.setContentType("text/plain");
-		if(option == 1){
-			resp.getWriter().append("Period is submitted");
-		}else{
-			resp.getWriter().append("Period is reopened");
-		}
-		
-	}
+        User user = getUserAttribute(req);
+        DatePeriod period = db.getPeriod(user.getUsername(), date.toString());
+        int option = Integer.parseInt(req.getParameter("option"));
+        db.updatePeriod(user.getUsername(), option, period.getFromDate(), period.getToDate());
+        resp.setContentType("text/plain");
+        if (option == 1) {
+            resp.getWriter().append("Period is submitted");
+        } else {
+            resp.getWriter().append("Period is reopened");
+        }
+
+    }
 	
 	
 	/**
@@ -210,9 +194,10 @@ public class RegistrationServlet extends HttpServlet{
 	@SuppressWarnings("unchecked")
 	private void getWeeklistResponseAsJSON(HttpServletRequest req,
 			HttpServletResponse resp) throws IOException {
-		String week = req.getParameter("week");		
+        User user = getUserAttribute(req);
+        String week = req.getParameter("week");
 		resp.setContentType("application/text");
-		DatePeriod period2 = db.getPeriod(username, date.toString());
+		DatePeriod period2 = db.getPeriod(user.getUsername(), date.toString());
 		
 		LocalDate localFromDate = new LocalDate(period2.getFromDate().split(" ")[0]);
 		LocalDate localToDate = new LocalDate(period2.getToDate().split(" ")[0]);
@@ -220,7 +205,7 @@ public class RegistrationServlet extends HttpServlet{
 		if(week.equals("nextWeek")) date = localToDate.plusDays(1);
 		if(week.equals("prevWeek")) date = localFromDate.minusDays(1);
 		
-		DatePeriod period = db.getPeriod(username, date.toString());
+		DatePeriod period = db.getPeriod(user.getUsername(), date.toString());
 		
 		LocalDate localFromDate2 = new LocalDate(period.getFromDate().split(" ")[0]);
 		LocalDate localToDate2 = new LocalDate(period.getToDate().split(" ")[0]);
@@ -231,7 +216,7 @@ public class RegistrationServlet extends HttpServlet{
 			localFromDate2 = localFromDate2.plusDays(1);
 		}
 		
-		List<WeekRegistration> weeklist = db.getWeekList(username, period.getFromDate(), period.getToDate());
+		List<WeekRegistration> weeklist = db.getWeekList(user.getUsername(), period.getFromDate(), period.getToDate());
 		String weekDescription = period.getDescription();
 		
 		//This will get the norm time for each day of the week and should be added together with the weekHours.
@@ -264,66 +249,23 @@ public class RegistrationServlet extends HttpServlet{
 				list.add(0);
 				obj.put(dateArr, list);
 			}
-			/*
-			for(WeekRegistration wr: weeklist){
-				if(wr.getDate().split(" ")[0].equals(dateArr)){
-					HashMap map = new HashMap();
-					map.put("dayOfWeek", dayOfWeek);
-					map.put("hours", wr.getHours());
-					weekJson.put(wr.getDate().split(" ")[0], map);
-				}
-			}
-			
-			if (!found) {
-				HashMap map = new HashMap();
-				map.put("dayOfWeek", dayOfWeek);
-				map.put("hours", 0);
-				weekJson.put(dateArr, map);
-			}*/
-			
 		}
 		
 		obj.put("weekNumber", weekDescription);
 		obj.put("dateHdr", date.getDayOfWeek()+" "+date.toString());
-		//weekJson.put("weekNumber", weekDescription);
-		//weekJson.put("dateHdr", date.getDayOfWeek()+" "+date.toString());
 		resp.setContentType("text/json");
 		PrintWriter writer = resp.getWriter();
 		String jsonText = obj.toJSONString();
 		writer.append(jsonText);
 	}
 
-
-	/**
-	 * Sets login cookies
-	 * @param req The HTTP request containing username and password
-	 * @param resp The HTTP request will return plain text of either "Login approved" if successful or set status to 403 if login failed
-	 * @throws IOException
-	 */
-	private void loginUserAndSetCookies(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
-		username = req.getParameter("username").toUpperCase();
-		String password = req.getParameter("password");
-		int autoLoginExpire = (60*60*24);
-		if(db.validateUser(username, password) == true){
-			Cookie loginCookie = new Cookie("USERNAME", username);
-			loginCookie.setMaxAge(autoLoginExpire);
-			resp.setContentType("text/plain");
-			PrintWriter writer = resp.getWriter();
-			writer.append("Login approved");
-		}else{
-			resp.setStatus(403);
-			logger.debug("Access denied");
-		}
-	}
-
-
 	/**
 	 * Adds an hour registration the database
 	 * @param req The HTTP request containing parameters of "ProjectNr", "hours", "lunchNumber" and "description"
 	 */
 	private void addHourRegistationToDatabase(HttpServletRequest req) {
-		String projectNumber = req.getParameter("projectNr");
+        User user = getUserAttribute(req);
+        String projectNumber = req.getParameter("projectNr");
 		String activityCode = req.getParameter("activityCode");
 		double hours = Double.parseDouble(req.getParameter("hours"));
 		String lunchNumber = req.getParameter("lunchNumber");
@@ -332,9 +274,9 @@ public class RegistrationServlet extends HttpServlet{
 		int internal = Integer.parseInt(req.getParameter("internalproject"));
 		
 		
-		db.addHourRegistrations(projectNumber, activityCode, username, "", date.toString(), hours, description, 0, 0, billable, 10101, internal, 0, "HRA", "", projectNumber, "", 0, 0, "", "", "2012-05-30", "HRA", "", 0, 0);
+		db.addHourRegistrations(projectNumber, activityCode, user.getUsername(), "", date.toString(), hours, description, 0, 0, billable, 10101, internal, 0, "HRA", "", projectNumber, "", 0, 0, "", "", "2012-05-30", "HRA", "", 0, 0);
 		if(lunchNumber.equals("1")){
-			db.addHourRegistrations("LUNSJ", "LU", username, "", date.toString(), 0.5, "Lunsj", 0, 0, 1, 10101, 0, 0, "HRA", "", lunchNumber, "", 0, 0, "", "", "2012-05-30", "HRA", "", 0, 0);
+			db.addHourRegistrations("LUNSJ", "LU", user.getUsername(), "", date.toString(), 0.5, "Lunsj", 0, 0, 1, 10101, 0, 0, "HRA", "", lunchNumber, "", 0, 0, "", "", "2012-05-30", "HRA", "", 0, 0);
 		}
 	}
 
@@ -345,8 +287,9 @@ public class RegistrationServlet extends HttpServlet{
 	 * @throws IOException
 	 */
 	private void getFavouritesResponse(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		resp.setContentType("application/json");
-		List<UserFavourites> userList = db.getUserFavourites(username);
+        User user = getUserAttribute(req);
+        resp.setContentType("application/json");
+		List<UserFavourites> userList = db.getUserFavourites(user.getUsername());
 		JSONObject json = createJsonObjectFromFavourites(userList);
 
 		PrintWriter writer = resp.getWriter();
@@ -363,7 +306,9 @@ public class RegistrationServlet extends HttpServlet{
 	 */
 	private void getDaylistResponseAsJSON(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-		String newDay = req.getParameter("day");
+        User user = getUserAttribute(req);
+
+        String newDay = req.getParameter("day");
 		
 		resp.setContentType("application/json");
 		if(newDay.equals("prevDay")) date = date.minusDays(1);
@@ -374,7 +319,7 @@ public class RegistrationServlet extends HttpServlet{
 			LocalDate weekDate = new LocalDate(newDay);
 			date = weekDate;
 		}
-		List<HourRegistration> hrlist = db.getAllHoursForDate(username, date.toString());
+		List<HourRegistration> hrlist = db.getAllHoursForDate(user.getUsername(), date.toString());
 
 		String stringDate = date.toString();
 		JSONObject json = createJsonObjectFromHours(hrlist, date.getDayOfWeek()+" "+stringDate);
