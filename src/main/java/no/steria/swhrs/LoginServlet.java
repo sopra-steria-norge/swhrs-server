@@ -24,7 +24,7 @@ public class LoginServlet extends HttpServlet {
             session.setAttribute("user", user);
             resp.setStatus(HttpServletResponse.SC_OK);
         } else {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Username and password was not recognized.");
+            resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Username and password was not recognized.");
         }
     }
 }
