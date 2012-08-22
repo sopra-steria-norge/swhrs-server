@@ -95,10 +95,11 @@ public class MSSQLHourRegDao implements HourRegDao {
 
 	@Override
 	public User findUser(String userid, String password) {
+        beginTransaction();
 		PreparedStatement statement = null;
 		try {
 			statement = connection.prepareStatement(SELECT_USERS);
-			statement.setString(1, userid);
+			statement.setString(1, userid.toUpperCase());
 			statement.setString(2, password);
 			ResultSet res = statement.executeQuery();
 			if (res.next()){
@@ -115,6 +116,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 			} catch (SQLException e) {
 				throw new RuntimeException(e);
 			}
+            endTransaction();
 		}
         return null;
     }
