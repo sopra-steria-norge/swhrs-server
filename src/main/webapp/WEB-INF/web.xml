@@ -1,10 +1,45 @@
-<webapp>
-	<servlet>
-		<servlet-name>registrationServlet</servlet-name>
-		<servlet-class>no.steria.swhrs.RegistrationServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<url-pattern>hours/*</url-pattern>
-		<servlet-name>registrationServlet</servlet-name>
-	</servlet-mapping>
-</webapp>
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+
+    <filter>
+        <filter-name>authorizationFilter</filter-name>
+        <filter-class>no.steria.swhrs.AuthorizationFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>authorizationFilter</filter-name>
+        <url-pattern>/swhrs-app/hours/*</url-pattern>
+    </filter-mapping>
+
+    <servlet>
+        <servlet-name>loginServlet</servlet-name>
+        <servlet-class>no.steria.swhrs.LoginServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>loginServlet</servlet-name>
+        <url-pattern>/swhrs-app/login</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>logoutServlet</servlet-name>
+        <servlet-class>no.steria.swhrs.LogoutServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>logoutServlet</servlet-name>
+        <url-pattern>/swhrs-app/logout</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>registrationServlet</servlet-name>
+        <servlet-class>no.steria.swhrs.RegistrationServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>registrationServlet</servlet-name>
+        <url-pattern>/swhrs-app/hours/*</url-pattern>
+    </servlet-mapping>
+</web-app>

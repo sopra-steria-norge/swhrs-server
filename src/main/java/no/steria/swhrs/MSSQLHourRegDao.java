@@ -7,10 +7,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.servlet.ServletException;
 import javax.sql.DataSource;
 
 public class MSSQLHourRegDao implements HourRegDao {
-
 
 	private final DataSource datasource;
 	private Connection connection = null;
@@ -92,32 +94,32 @@ public class MSSQLHourRegDao implements HourRegDao {
 	}
 
 	@Override
-	public boolean validateUser(String userid, String password) {
+	public User findUser(String userid, String password) {
+        beginTransaction();
 		PreparedStatement statement = null;
-		User users = new User();
-		String user = null;
 		try {
 			statement = connection.prepareStatement(SELECT_USERS);
-			statement.setString(1, userid);
+			statement.setString(1, userid.toUpperCase());
 			statement.setString(2, password);
 			ResultSet res = statement.executeQuery();
-			while(res.next()){
-				users.setUsername(res.getString(1));
-				user = res.getString(1);
+			if (res.next()){
+		        User user = new User();
+				user.setUsername(res.getString(1));
+                user.setPassword(res.getString(2));
+                return user;
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
-		}
-		finally{
+		} finally {
 			try {
 				if(statement != null)statement.close();
 			} catch (SQLException e) {
 				throw new RuntimeException(e);
 			}
+            endTransaction();
 		}
-		if(user != null)return true;
-		return false;
-	}
+        return null;
+    }
 
 
 	@Override
@@ -461,4 +463,14 @@ public class MSSQLHourRegDao implements HourRegDao {
 		return result;
 	}
 
+    public static MSSQLHourRegDao createInstance() throws ServletException {
+        if ("true".equals(System.getProperty("swhrs.useSqlServer"))) {
+            try {
+                return new MSSQLHourRegDao((DataSource) new InitialContext().lookup("jdbc/registerHoursDS"));
+            } catch (NamingException e) {
+                throw new ServletException(e);
+            }
+        }
+        throw new RuntimeException("DB not defined.");
+    }
 }
