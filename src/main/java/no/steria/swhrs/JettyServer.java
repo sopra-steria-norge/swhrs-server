@@ -24,10 +24,7 @@ public class JettyServer {
     public static void main(String[] args) throws Exception {
         JettyServer jettyServer = new JettyServer();
         jettyServer.startServer();
-    }
-
-    public void stopServer() throws Exception {
-        server.destroy();
+        jettyServer.server.join();
     }
 
     public void startServer() throws Exception {
@@ -49,7 +46,6 @@ public class JettyServer {
         server.setHandler(new WebAppContext("src/main/webapp", "/"));
         server.start();
         logger.info("Server started! - port " + port);
-        server.join();
     }
 
     private void registerInmemoryDatasource() throws NamingException {
