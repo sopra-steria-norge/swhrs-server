@@ -18,8 +18,9 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession();
-        User user = hourRegDao.findUser(req.getParameter("username"), req.getParameter("password"));
-
+        hourRegDao.beginTransaction();
+        User user = hourRegDao.findUser(req.getParameter("username"), Password.fromHashed(req.getParameter("password")));
+        hourRegDao.endTransaction();
         if (user != null && session != null) {
             session.setAttribute("user", user);
             resp.setStatus(HttpServletResponse.SC_OK);
