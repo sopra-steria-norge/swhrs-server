@@ -1,5 +1,6 @@
 package no.steria.swhrs;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.builder.EqualsBuilder;
 
 import javax.xml.bind.DatatypeConverter;
@@ -9,19 +10,6 @@ import java.security.NoSuchAlgorithmException;
 public class Password {
     public static final String SALT_SEPARATOR = "_";
     private String digest;
-
-    public String getDigest() {
-        return digest;
-    }
-
-    public String getSalt() {
-        return salt;
-    }
-
-    @Override
-    public String toString() {
-        return salt + SALT_SEPARATOR + digest;
-    }
 
     private String salt;
     private static MessageDigest messageDigest;
@@ -35,6 +23,19 @@ public class Password {
     }
 
     private Password() {
+    }
+
+    public String getDigest() {
+        return digest;
+    }
+
+    public String getSalt() {
+        return salt;
+    }
+
+    @Override
+    public String toString() {
+        return salt + SALT_SEPARATOR + digest;
     }
 
     @Override
@@ -52,8 +53,7 @@ public class Password {
     public static Password fromPlaintext(String salt, String plaintext) {
         Password password = new Password();
         password.salt = salt;
-        byte[] bytes = DatatypeConverter.parseBase64Binary(salt + SALT_SEPARATOR + plaintext);
-        byte[] digestOfPasswordAndSalt = messageDigest.digest(bytes);
+        byte[] digestOfPasswordAndSalt = messageDigest.digest((salt + SALT_SEPARATOR + plaintext).getBytes());
         password.digest = DatatypeConverter.printBase64Binary(digestOfPasswordAndSalt);
         return password;
     }
