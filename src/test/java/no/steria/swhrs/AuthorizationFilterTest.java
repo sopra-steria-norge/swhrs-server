@@ -68,7 +68,7 @@ public class AuthorizationFilterTest {
         WebRequestSettings settings = new WebRequestSettings(new URL("http://localhost:8888/swhrs-app/login"), HttpMethod.POST);
         settings.setRequestParameters(Arrays.asList(
                 new NameValuePair("username", "matb"),
-                new NameValuePair("password", "password")
+                new NameValuePair("password", Password.fromPlaintext("salt", "password").toString())
         ));
         client.getPage(settings);
     }

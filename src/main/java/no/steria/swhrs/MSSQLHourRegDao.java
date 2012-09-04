@@ -16,7 +16,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 
 	private final DataSource datasource;
 	private Connection connection = null;
-	private static final String SELECT_USERS = "SELECT No_, \"WEB Password\" FROM \"Norge$Resource\" where No_ = ? and \"WEB Password\" = ?";
+	private static final String SELECT_USERS = "SELECT No_, \"WEB Password\" FROM \"Norge$Resource\" where No_ = ?";
 	private static final String SELECT_REGISTRATIONS = "SELECT * FROM \"Norge$Time Entry\" WHERE Ressourcekode = ? AND Dato = ? AND Projektnr_ NOT LIKE 'FLEX'";
 	private static final String SELECT_FAVOURITES = "SELECT \"Norge$Favourite Task\".Projektnr_, \"Norge$Favourite Task\".Aktivitetskode, \"Norge$Tasklist\".Beskrivelse, \"Norge$Tasklist\".\"Ressource fakturerbar\", \"Norge$Job\".Description, \"Norge$Job\".Name,  \"Norge$Job\".\"Internt projekt\"  FROM \"Norge$Favourite Task\"  INNER JOIN \"Norge$Tasklist\" ON \"Norge$Favourite Task\".Projektnr_= \"Norge$Tasklist\".Projektnr_ AND \"Norge$Favourite Task\".Aktivitetskode = \"Norge$Tasklist\".Kode INNER JOIN \"Norge$Job\" ON \"Norge$Favourite Task\".Projektnr_= \"Norge$Job\".No_ WHERE \"Norge$Favourite Task\".Resourcekode = ? AND \"Norge$Tasklist\".Spærret NOT LIKE '1'";
 	private static final String SELECT_WEEKREGISTRATIONS = "SELECT Dato, sum(Antal), Godkendt FROM \"Norge$Time Entry\" where Ressourcekode = ? AND Projektnr_ NOT LIKE 'FLEX' AND Dato Between ? AND ? GROUP BY Dato, Godkendt";
@@ -94,19 +94,20 @@ public class MSSQLHourRegDao implements HourRegDao {
 	}
 
 	@Override
-	public User findUser(String userid, String password) {
-        beginTransaction();
+	public User findUser(String userid, Password password) {
 		PreparedStatement statement = null;
 		try {
 			statement = connection.prepareStatement(SELECT_USERS);
 			statement.setString(1, userid.toUpperCase());
-			statement.setString(2, password);
 			ResultSet res = statement.executeQuery();
 			if (res.next()){
-		        User user = new User();
-				user.setUsername(res.getString(1));
-                user.setPassword(res.getString(2));
-                return user;
+                Password passwordInDb = Password.fromPlaintext(password.getSalt(), res.getString(2));
+                if (password.equals(passwordInDb)) {
+                    User user = new User();
+                    user.setUsername(res.getString(1));
+                    user.setPassword(passwordInDb);
+                    return user;
+                }
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
@@ -116,7 +117,6 @@ public class MSSQLHourRegDao implements HourRegDao {
 			} catch (SQLException e) {
 				throw new RuntimeException(e);
 			}
-            endTransaction();
 		}
         return null;
     }

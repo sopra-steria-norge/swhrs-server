@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.MessageDigest;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
@@ -17,6 +18,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.xml.bind.DatatypeConverter;
 
 public class MSSQLHourRegDaoTest {
     private static final Logger logger = LoggerFactory.getLogger(MSSQLHourRegDaoTest.class);
@@ -55,7 +58,7 @@ public class MSSQLHourRegDaoTest {
 	@Test
 	public void shouldValidateUser() throws Exception {
 		String username = "AK";
-		String password = "password";
+		Password password = Password.fromPlaintext("salt", "password");
 		hourRegDao.beginTransaction();
 		boolean validate = hourRegDao.findUser(username, password) != null;
 		hourRegDao.endTransaction();

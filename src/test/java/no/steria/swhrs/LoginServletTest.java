@@ -31,7 +31,7 @@ public class LoginServletTest {
         WebRequestSettings settings = new WebRequestSettings(new URL("http://localhost:8888/swhrs-app/login"), HttpMethod.POST);
         settings.setRequestParameters(Arrays.asList(
                 new NameValuePair("username", "matb"),
-                new NameValuePair("password", "password")
+                new NameValuePair("password", Password.fromPlaintext("salt", "password").toString())
         ));
         assertThat(client.getPage(settings).getWebResponse().getStatusCode()).isEqualTo(HttpServletResponse.SC_OK);
     }
@@ -41,10 +41,8 @@ public class LoginServletTest {
         WebRequestSettings settings = new WebRequestSettings(new URL("http://localhost:8888/swhrs-app/login"), HttpMethod.POST);
         settings.setRequestParameters(Arrays.asList(
                 new NameValuePair("username", "matb"),
-                new NameValuePair("password", "passwort")
+                new NameValuePair("password", Password.fromPlaintext("salt", "passwort").toString())
         ));
         WebResponse webResponse = client.getPage(settings).getWebResponse();
     }
-
-
 }

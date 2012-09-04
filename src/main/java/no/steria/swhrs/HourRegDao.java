@@ -26,11 +26,12 @@ public interface HourRegDao {
 	/**
 	 * This method validate the user by both username and password.
 	 *
+     *
      * @param userid The userid is sent as a String(User initials)
-     * @param password The password is sent as a String
+     * @param password The password is sent as a "salt_digest"
      * @return returns a boolean to give or deny access.
 	 */
-	User findUser(String userid, String password);
+	User findUser(String userid, Password password);
 	
 	/**
 	 * This method takes in the task number and deletes it from the database
