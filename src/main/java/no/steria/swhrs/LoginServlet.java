@@ -18,8 +18,15 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession();
-        User user = hourRegDao.findUser(req.getParameter("username"), req.getParameter("password"));
-
+        User user = null;
+        try {
+            hourRegDao.beginTransaction();
+            user = hourRegDao.findUser(req.getParameter("username"), Password.fromHashed(req.getParameter("password")));
+        } catch (RuntimeException e) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Username and password not set.");
+        } finally {
+            hourRegDao.endTransaction();
+        }
         if (user != null && session != null) {
             session.setAttribute("user", user);
             resp.setStatus(HttpServletResponse.SC_OK);

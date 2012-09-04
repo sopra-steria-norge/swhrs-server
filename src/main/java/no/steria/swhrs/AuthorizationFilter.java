@@ -12,12 +12,9 @@ import java.util.Set;
 
 public class AuthorizationFilter implements Filter {
     private static final Logger logger = LoggerFactory.getLogger(AuthorizationFilter.class);
-    private HourRegDao hourRegDao;
-    private Set<String> restrictedUris;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        hourRegDao = MSSQLHourRegDao.createInstance();
     }
 
     @Override
