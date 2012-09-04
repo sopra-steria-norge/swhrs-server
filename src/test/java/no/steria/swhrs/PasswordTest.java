@@ -32,4 +32,5 @@ public class PasswordTest {
         Password second = Password.fromHashed(first.getSalt() + Password.SALT_SEPARATOR + first.getDigest());
         assertThat(first).isEqualTo(second);
     }
+
 }
