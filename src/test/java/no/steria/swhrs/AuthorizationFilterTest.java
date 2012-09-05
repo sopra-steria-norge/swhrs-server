@@ -1,24 +1,19 @@
 package no.steria.swhrs;
 
 import com.gargoylesoftware.htmlunit.HttpMethod;
-import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequestSettings;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
-import com.sun.deploy.net.HttpResponse;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import javax.security.auth.login.FailedLoginException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 public class AuthorizationFilterTest {
     private static WebClient client;
