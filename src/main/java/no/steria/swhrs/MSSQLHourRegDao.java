@@ -1,9 +1,9 @@
 package no.steria.swhrs;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import org.apache.commons.lang.StringUtils;
+import org.joda.time.DateTime;
+
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,11 +29,10 @@ public class MSSQLHourRegDao implements HourRegDao {
 	private static final String DELETE_FAVOURITE = "DELETE FROM \"Norge$Favourite Task\" WHERE Resourcekode = ? AND Projektnr_ = ? AND Aktivitetskode = ?";
 	private static final String UPDATE_REGISTRATIONHOURS = "UPDATE \"Norge$Time Entry\" SET Antal = ?, Beskrivelse = ? WHERE Løbenr_ = ?";
 	private static final String SELECT_NORMTIME = "SELECT \"Norge$Norm Time Data\".Kode, \"Norge$Norm Time Data\".Mandag, \"Norge$Norm Time Data\".Tirsdag, \"Norge$Norm Time Data\".Onsdag, \"Norge$Norm Time Data\".Torsdag, \"Norge$Norm Time Data\".Fredag, \"Norge$Norm Time Data\".Lørdag, \"Norge$Norm Time Data\".Søndag from \"Norge$Norm Time Data\" INNER JOIN \"Norge$Resource\" ON \"Norge$Norm Time Data\".Kode = \"Norge$Resource\".\"Norm Tid\" WHERE \"Norge$Resource\".No_ = ?";
-	//	private static final String INSERT_REGISTRATION = "INSERT into \"Norge$Time Entry\" (Projektnr_, Aktivitetskode, Ressourcekode, Arbejdstype, Dato, Antal, Beskrivelse) Values(?, ?, ?, ?, ?, ?, ?)";
+    private static final String INSERT_STORE_PROCEDURE = "{? = call dbo.uspSTE_InsertTimeEntry(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
 
 	public MSSQLHourRegDao(DataSource datasource) {
 		this.datasource = datasource;
-
 	}
 
 	@Override
@@ -58,14 +57,13 @@ public class MSSQLHourRegDao implements HourRegDao {
 	}
 
 	@Override
-	public List<HourRegistration> getAllHoursForDate(String userid,
-			String date) {
+	public List<HourRegistration> getAllHoursForDate(String userId, String date) {
 		List<HourRegistration> result = new ArrayList<HourRegistration>();
 
 		PreparedStatement statement = null;
 		try {
 			statement = connection.prepareStatement(SELECT_REGISTRATIONS);
-			statement.setString(1, userid);
+			statement.setString(1, userId);
 			statement.setString(2, date);
 			ResultSet res = statement.executeQuery();
 			while(res.next()){
@@ -94,11 +92,11 @@ public class MSSQLHourRegDao implements HourRegDao {
 	}
 
 	@Override
-	public User findUser(String userid, Password password) {
+	public User findUser(String userId, Password password) {
 		PreparedStatement statement = null;
 		try {
 			statement = connection.prepareStatement(SELECT_USERS);
-			statement.setString(1, userid.toUpperCase());
+			statement.setString(1, userId.toUpperCase());
 			ResultSet res = statement.executeQuery();
 			if (res.next()){
                 Password passwordInDb = Password.fromPlaintext(password.getSalt(), res.getString(2));
@@ -135,7 +133,6 @@ public class MSSQLHourRegDao implements HourRegDao {
 				return true;
 			}
 
-
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
@@ -150,12 +147,12 @@ public class MSSQLHourRegDao implements HourRegDao {
 
 
 	@Override
-	public List<UserFavourites> getUserFavourites(String userid) {
+	public List<UserFavourites> getUserFavourites(String userId) {
 		List<UserFavourites> result = new ArrayList<UserFavourites>();
 		PreparedStatement statement = null;
 		try {
 			statement = connection.prepareStatement(SELECT_FAVOURITES);
-			statement.setString(1, userid);
+			statement.setString(1, userId);
 			ResultSet res = statement.executeQuery();
 			while(res.next()){
 				String projectNumber = res.getString(1);
@@ -212,13 +209,13 @@ public class MSSQLHourRegDao implements HourRegDao {
 	}
 
 	@Override
-	public List<WeekRegistration> getWeekList(String userid, String dateFrom,
+	public List<WeekRegistration> getWeekList(String userId, String dateFrom,
 			String dateTo) {
 		List<WeekRegistration> result = new ArrayList<WeekRegistration>();
 		PreparedStatement statement = null;
 		try {
 			statement = connection.prepareStatement(SELECT_WEEKREGISTRATIONS);
-			statement.setString(1, userid);
+			statement.setString(1, userId);
 			statement.setString(2, dateFrom);
 			statement.setString(3, dateTo);
 			ResultSet res = statement.executeQuery();
@@ -243,12 +240,12 @@ public class MSSQLHourRegDao implements HourRegDao {
 	}
 
 	@Override
-	public DatePeriod getPeriod(String userid, String date) {
+	public DatePeriod getPeriod(String userId, String date) {
 		DatePeriod datePeriod = new DatePeriod();
 		PreparedStatement statement = null;
 		try {
 			statement = connection.prepareStatement(SELECT_PERIODS);
-			statement.setString(1, userid);
+			statement.setString(1, userId);
 			statement.setString(2, date);
 			statement.setString(3, date);
 			ResultSet res = statement.executeQuery();
@@ -271,12 +268,11 @@ public class MSSQLHourRegDao implements HourRegDao {
 	}
 
 	@Override
-	public boolean addFavourites(String userid, String project_id, String activityCode) {
-
+	public boolean addFavourites(String userId, String project_id, String activityCode) {
 		PreparedStatement statement = null;
 		try {
 			statement = connection.prepareStatement(INSERT_FAVOURITE);
-			statement.setString(1, userid);
+			statement.setString(1, userId);
 			statement.setString(2, project_id);
 			statement.setString(3, activityCode);
 			statement.executeUpdate();
@@ -295,75 +291,48 @@ public class MSSQLHourRegDao implements HourRegDao {
 	}
 
 	@Override
-	public boolean addHourRegistrations(String projectNumber, String activityCode,
-			String userid, String workType, String date, double hours, String description,
-			int submitted, int approved , int billable, int linenumber, int internalProject,
-			int addNormTime, String departmentManager, String shortcutDimensionOneCode,
-			String shortcutDimensionTwoCode, String resourceGroupNumber, int exportTieto, int notApproved,
-			String notApprovedDescription, String notApprovedBy, String changedDate, String changedBy,
-			String transferedTieto, int approvedByLMPM, int adjustFlexLimit) {
+	public Integer addHourRegistrations(String country, String username, String userRegisteredFor, String projectNumber,
+                                        String activity, DateTime date, double hours, boolean isChargedHours,
+                                        String workType, String description, boolean bypassChecks) {
 
-		PreparedStatement statement = null;
-		try {
-			statement = connection.prepareStatement(INSERT_REGISTRATION );
-			statement.setString(1, projectNumber);
-			statement.setString(2, activityCode);
-			statement.setString(3, userid);
-			statement.setString(4, workType);
-			statement.setString(5, date);
-			statement.setDouble(6, hours);
-			statement.setString(7, description);
-			statement.setInt(8, submitted);
-			statement.setInt(9, approved);
-			statement.setInt(10, billable);
-			statement.setInt(11, linenumber);
-			statement.setInt(12, internalProject);
-			statement.setInt(13, addNormTime);
-			statement.setString(14, departmentManager);
-			statement.setString(15, shortcutDimensionOneCode);
-			statement.setString(16, shortcutDimensionTwoCode);
-			statement.setString(17, resourceGroupNumber);
-			statement.setInt(18, exportTieto);
-			statement.setInt(19, notApproved);
-			statement.setString(20, notApprovedDescription);
-			statement.setString(21, notApprovedBy);
-			statement.setString(22, changedDate);
-			statement.setString(23, changedBy);
-			statement.setString(24, transferedTieto);
-			statement.setInt(25, approvedByLMPM);
-			statement.setInt(26, adjustFlexLimit);
-			statement.executeUpdate();
-			return true;
+        CallableStatement statement = null;
+        try {
+            statement = connection.prepareCall(INSERT_STORE_PROCEDURE);
+            statement.registerOutParameter(1, Types.INTEGER);
+            statement.setString(2, country);
+            statement.setString(3, username);
+            statement.setString(4, userRegisteredFor);
+            statement.setString(5, projectNumber);
+            statement.setString(6, activity);
+            statement.setDate(7, new Date(date.getMillis()));
+            statement.setDouble(8, hours);
+            statement.setBoolean(9, isChargedHours);
+            statement.setString(10, workType);
+            statement.setString(11, description);
+            statement.setBoolean(12, bypassChecks);
 
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-		finally{
-			try {
-				if(statement != null)statement.close();
-			} catch (SQLException e) {
-				throw new RuntimeException(e);
-			}
-		}
-	}
+            statement.execute();
+            return statement.getInt(1);
 
-	@Override
-	//remove this method later
-	public boolean addHourRegistrations(String projectNumber,
-			String activityCode, String workType, String date, String username,
-			double hours, String description) {
-		// TODO This is what the addHourRegistration should look like
-		return false;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        finally{
+            try {
+                if(statement != null)statement.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
 	}
 
 
 	@Override
-	public void deleteFavourite(String userid, String projectNumber,
-			String activityCode) {
+	public void deleteFavourite(String userId, String projectNumber, String activityCode) {
 		PreparedStatement statement = null;
 		try {
 			statement = connection.prepareStatement(DELETE_FAVOURITE);
-			statement.setString(1, userid);
+			statement.setString(1, userId);
 			statement.setString(2, projectNumber);
 			statement.setString(3, activityCode);
 			statement.executeUpdate();
@@ -381,8 +350,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 	}
 
 	@Override
-	public void updateRegistration(int taskNumber, double hours,
-			String description) {
+	public void updateRegistration(int taskNumber, double hours, String description) {
 		PreparedStatement statement = null;
 		try {
 			statement = connection.prepareStatement(UPDATE_REGISTRATIONHOURS);
@@ -403,15 +371,13 @@ public class MSSQLHourRegDao implements HourRegDao {
 		}
 	}
 
-
 	@Override
-	public void updatePeriod(String userid, int option, String fromDate,
-			String toDate) {
+	public void updatePeriod(String userId, int option, String fromDate, String toDate) {
 		PreparedStatement statement = null;
 		try {
 			statement = connection.prepareStatement(UPDATE_REGISTRATION);
 			statement.setInt(1, option);
-			statement.setString(2, userid);
+			statement.setString(2, userId);
 			statement.setString(3, fromDate);
 			statement.setString(4, toDate);
 			statement.executeUpdate();
@@ -464,7 +430,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 	}
 
     public static MSSQLHourRegDao createInstance() throws ServletException {
-        if ("true".equals(System.getProperty("swhrs.useSqlServer"))) {
+        if (StringUtils.equalsIgnoreCase(Boolean.TRUE.toString(), System.getProperty("swhrs.useSqlServer"))) {
             try {
                 return new MSSQLHourRegDao((DataSource) new InitialContext().lookup("jdbc/registerHoursDS"));
             } catch (NamingException e) {
