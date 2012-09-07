@@ -13,6 +13,7 @@ import java.util.Properties;
 import net.sourceforge.jtds.jdbc.Driver;
 import net.sourceforge.jtds.jdbcx.JtdsDataSource;
 
+import org.joda.time.DateTime;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -129,14 +130,28 @@ public class MSSQLHourRegDaoTest {
 		
 	}
 
-	@Ignore
-	@Test
-	public void shouldAddRegistration() throws Exception {
-		hourRegDao.beginTransaction();
-		boolean isAdded = hourRegDao.addHourRegistrations("1095754", "3", "AK", "","2012-05-25", 6, "Ny insert", 0, 0, 1, 10101, 0, 0, "HRA", "", "1095754", "", 0, 0, "", "", "2012-05-30", "HRA", "", 0, 0);
-		hourRegDao.endTransaction();
-		
-		assertTrue(isAdded);
-	}
+    @Ignore
+    @Test
+    public void shouldAddRegistrationStoreProcedure() throws Exception {
+        String country = "NO";
+        String username = "ROR";
+        String userRegisteredFor = "ROR";
+        String projectNumber = "1114330";
+        String activity = "1";
+        DateTime date = new DateTime(2012, 9, 3, 0, 0);
+        double hours = 1.0;
+        boolean isChargedHours = true;
+        String workType = "";
+        String description = "";
+        boolean bypassChecks = false;
+
+        hourRegDao.beginTransaction();
+        Integer entryId = hourRegDao.addHourRegistrations(country, username, userRegisteredFor, projectNumber, activity,
+                date, hours, isChargedHours, workType, description, bypassChecks);
+        hourRegDao.endTransaction();
+
+        System.out.println(entryId);
+        assertNotNull(entryId);
+    }
 	
 }

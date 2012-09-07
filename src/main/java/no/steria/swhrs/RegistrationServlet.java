@@ -1,5 +1,7 @@
 package no.steria.swhrs;
 
+import org.apache.commons.lang.StringUtils;
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
@@ -27,6 +29,7 @@ import java.util.List;
 public class RegistrationServlet extends HttpServlet{
 	private static final long serialVersionUID = -1090477374982937503L;
     private static final Logger logger = LoggerFactory.getLogger(RegistrationServlet.class);
+    private static final String COUNTRY = "NO";
 
 	private HourRegDao db;
 
@@ -265,19 +268,16 @@ public class RegistrationServlet extends HttpServlet{
 	 */
 	private void addHourRegistationToDatabase(HttpServletRequest req) {
         User user = getUserAttribute(req);
+        String username = user.getUsername();
         String projectNumber = req.getParameter("projectNr");
 		String activityCode = req.getParameter("activityCode");
 		double hours = Double.parseDouble(req.getParameter("hours"));
-		String lunchNumber = req.getParameter("lunchNumber");
 		String description = req.getParameter("description");
-		int billable = Integer.parseInt(req.getParameter("billable"));
-		int internal = Integer.parseInt(req.getParameter("internalproject"));
+		boolean billable = StringUtils.equals("1", req.getParameter("billable"));
+        DateTime date = new DateTime(); // todo: add date to values that should be read - req.getParameter("date");
 		
-		
-		db.addHourRegistrations(projectNumber, activityCode, user.getUsername(), "", date.toString(), hours, description, 0, 0, billable, 10101, internal, 0, "HRA", "", projectNumber, "", 0, 0, "", "", "2012-05-30", "HRA", "", 0, 0);
-		if(lunchNumber.equals("1")){
-			db.addHourRegistrations("LUNSJ", "LU", user.getUsername(), "", date.toString(), 0.5, "Lunsj", 0, 0, 1, 10101, 0, 0, "HRA", "", lunchNumber, "", 0, 0, "", "", "2012-05-30", "HRA", "", 0, 0);
-		}
+		db.addHourRegistrations(COUNTRY, username, username, projectNumber, activityCode, date, hours, billable,
+                "", description, false);
 	}
 
 
