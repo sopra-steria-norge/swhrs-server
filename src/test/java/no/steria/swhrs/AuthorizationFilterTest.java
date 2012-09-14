@@ -4,14 +4,12 @@ import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequestSettings;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -31,7 +29,7 @@ public class AuthorizationFilterTest {
 
     @Test
     public void testShallDenyProtectedResource() throws Exception {
-        HtmlPage page = client.getPage(new WebRequestSettings(new URL("http://localhost:8888/swhrs-app/hours"), HttpMethod.GET));
+        HtmlPage page = client.getPage(new WebRequestSettings(new URL("http://localhost:8888/swhrs-app/hours/"), HttpMethod.GET));
         assertThat(page.getWebResponse().getStatusCode()).isEqualTo(HttpServletResponse.SC_FORBIDDEN);
     }
 
@@ -44,27 +42,15 @@ public class AuthorizationFilterTest {
 
     @Test
     public void testAllowAfterLogin() throws Exception {
-        login();
+        WebRequestSettings settings = new WebRequestSettings(new URL("http://localhost:8888/swhrs-app/hours"), HttpMethod.GET);
 
-        HtmlPage page = client.getPage(new WebRequestSettings(new URL("http://localhost:8888/swhrs-app/hours"), HttpMethod.GET));
+        HtmlPage page = client.getPage(withAuthenticationHeader(settings));
         assertThat(page.getWebResponse().getStatusCode()).isEqualTo(HttpServletResponse.SC_OK);
-
-        logout();
-
-        page = client.getPage(new WebRequestSettings(new URL("http://localhost:8888/swhrs-app/hours"), HttpMethod.GET));
-        assertThat(page.getWebResponse().getStatusCode()).isEqualTo(HttpServletResponse.SC_FORBIDDEN);
     }
 
-    private void logout() throws IOException {
-        client.getPage(new WebRequestSettings(new URL("http://localhost:8888/swhrs-app/logout"), HttpMethod.POST));
-    }
 
-    private void login() throws IOException {
-        WebRequestSettings settings = new WebRequestSettings(new URL("http://localhost:8888/swhrs-app/login"), HttpMethod.POST);
-        settings.setRequestParameters(Arrays.asList(
-                new NameValuePair("username", "matb"),
-                new NameValuePair("password", Password.fromPlaintext("salt", "password").toString())
-        ));
-        client.getPage(settings);
+    private static WebRequestSettings withAuthenticationHeader(WebRequestSettings settings) throws IOException {
+        settings.setAdditionalHeader(AuthorizationFilter.AUTHENTICATION_TOKEN_HEADER_NAME, "{username: 'matb', password: + '" + Password.fromPlaintext("salt", "password") + "'}");
+        return settings;
     }
 }

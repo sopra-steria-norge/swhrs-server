@@ -37,8 +37,12 @@ public class RegistrationServlet extends HttpServlet{
 
     @Override
     public void init() throws ServletException {
-		db = MSSQLHourRegDao.createInstance();
-	}
+        try {
+            db = MSSQLHourRegDao.createInstance();
+        } catch (NamingException e) {
+            throw new ServletException(e);
+        }
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -111,7 +115,7 @@ public class RegistrationServlet extends HttpServlet{
 	}
 
     private static User getUserAttribute(HttpServletRequest req) {
-        return (User) req.getSession(false).getAttribute("user");
+        return (User) req.getAttribute("user");
     }
 
 
@@ -381,17 +385,4 @@ public class RegistrationServlet extends HttpServlet{
 		return json;
 		
 	}
-
-
-	@Override
-	protected void service(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
-		try {
-			db.beginTransaction();
-			super.service(req, resp);
-		} finally {
-			db.endTransaction();
-		}
-	}
-
 }
