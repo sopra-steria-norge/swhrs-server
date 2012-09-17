@@ -47,12 +47,11 @@ public class AuthorizationFilter implements Filter {
 
         User user;
         try {
-            user = hourRegDao.findUser(
-                    (String) authenticationTokenJsonObject.get("username"),
-                    Password.fromHashed((String) authenticationTokenJsonObject.get("password"))
-            );
+            String username = (String) authenticationTokenJsonObject.get("username");
+            String password = (String) authenticationTokenJsonObject.get("password");
+            user = hourRegDao.findUser(username, Password.fromHashed(password));
         } catch (RuntimeException e) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Username and password not set.");
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Username and password not set.");
             return;
         }
         if (user != null) {
@@ -67,7 +66,7 @@ public class AuthorizationFilter implements Filter {
     }
 
     private static void incorrectAuthenticationHeader(HttpServletResponse response) throws IOException {
-        response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Did not specify correct authentication header");
+        response.sendError(HttpServletResponse.SC_FORBIDDEN, "Did not specify correct authentication header");
     }
 
     @Override

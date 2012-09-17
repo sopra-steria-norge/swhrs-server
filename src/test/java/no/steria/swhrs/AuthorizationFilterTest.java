@@ -24,28 +24,27 @@ public class AuthorizationFilterTest {
         client.setThrowExceptionOnFailingStatusCode(false);
         client.setThrowExceptionOnScriptError(false);
         jettyServer = new JettyServer();
-        jettyServer.setPort(8888);
+        jettyServer.setPort(10000);
         jettyServer.startServer();
     }
 
     @Test
-    @Ignore
     public void testShallDenyProtectedResource() throws Exception {
-        HtmlPage page = client.getPage(new WebRequestSettings(new URL("http://localhost:8888/swhrs-app/hours/"), HttpMethod.GET));
+        HtmlPage page = client.getPage(new WebRequestSettings(new URL("http://localhost:10000/swhrs-app/hours/daylist"), HttpMethod.GET));
         assertThat(page.getWebResponse().getStatusCode()).isEqualTo(HttpServletResponse.SC_FORBIDDEN);
     }
 
 
     @Test
     public void testAllowUnprotectedResource() throws Exception {
-        HtmlPage page = client.getPage(new WebRequestSettings(new URL("http://localhost:8888/swhrs-app/"), HttpMethod.GET));
+        HtmlPage page = client.getPage(new WebRequestSettings(new URL("http://localhost:10000/swhrs-app/"), HttpMethod.GET));
         assertThat(page.getWebResponse().getStatusCode()).isEqualTo(HttpServletResponse.SC_OK);
     }
 
     @Test
     @Ignore
     public void testAllowAfterLogin() throws Exception {
-        WebRequestSettings settings = new WebRequestSettings(new URL("http://localhost:8888/swhrs-app/hours"), HttpMethod.GET);
+        WebRequestSettings settings = new WebRequestSettings(new URL("http://localhost:10000/swhrs-app/hours"), HttpMethod.GET);
 
         HtmlPage page = client.getPage(withAuthenticationHeader(settings));
         assertThat(page.getWebResponse().getStatusCode()).isEqualTo(HttpServletResponse.SC_OK);

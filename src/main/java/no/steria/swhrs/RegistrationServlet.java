@@ -281,7 +281,6 @@ public class RegistrationServlet extends HttpServlet {
 
 	/**
 	 * Returns a HTTP response containing all hour registrations for a certain day stored in a JSON object
-	 * @param req The HTTP request containing a parameter "day" containing either "today", "prevDay"
 	 * @param resp The HTTP response contains a json object with all data about a registration needed to display it in the app
 	 * @throws IOException
 	 */
