@@ -1,25 +1,38 @@
 package no.steria.swhrs;
 
-import net.sourceforge.jtds.jdbc.Driver;
-import net.sourceforge.jtds.jdbcx.JtdsDataSource;
+import org.apache.commons.dbcp.ConnectionFactory;
+import org.apache.commons.dbcp.DriverManagerConnectionFactory;
+import org.apache.commons.dbcp.PoolableConnectionFactory;
+import org.apache.commons.dbcp.PoolingDataSource;
+import org.apache.commons.pool.ObjectPool;
+import org.apache.commons.pool.impl.GenericKeyedObjectPoolFactory;
+import org.apache.commons.pool.impl.GenericObjectPool;
 import org.eclipse.jetty.plus.jndi.EnvEntry;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.hibernate.cfg.Environment;
-import org.hsqldb.jdbc.JDBCDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
+import javax.sql.DataSource;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
 public class JettyServer {
-
     private static final Logger logger = LoggerFactory.getLogger(JettyServer.class);
     public static final String DB_JNDI = "jdbc/registerHoursDS";
+    public static final String JDBC_DRIVER = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+    public static final String VALIDATION_QUERY = "sql select 1";
+
     private Server server;
     private Integer port;
+
+    public String dbServerAddress;
+    public String dbName;
+    public String dbUser;
+    public String dbPassword;
+    public String dbConnectUri;
 
     public static void main(String[] args) throws Exception {
         JettyServer jettyServer = new JettyServer();
@@ -28,18 +41,17 @@ public class JettyServer {
     }
 
     public void startServer() throws Exception {
-        InputStream resourceAsStream = JettyServer.class.getResourceAsStream("/config.properties");
-        Properties properties = System.getProperties();
-        properties.load(resourceAsStream);
-
-        if ("true".equals(System.getProperty("swhrs.useSqlServer"))) {
-            registerSqlServerDatasource();
-        } else {
-            registerInmemoryDatasource();
+        loadConfigFile();
+        loadJdbcDriver();
+        DataSource dataSource = makeSqlServerPoolingDatasource();
+        logger.info("Validating database connection ...");
+        if (dataSource.getConnection().isValid(0)) {
+            logger.info("Database connection valid");
         }
+        new EnvEntry(DB_JNDI, dataSource);
 
         if (port == null) {
-            port = Integer.parseInt(System.getProperty("swhrs.serverPort"));
+            port = Integer.valueOf(System.getProperty("swhrs.serverPort"));
         }
 
         server = new Server(port);
@@ -48,33 +60,32 @@ public class JettyServer {
         logger.info("Server started! - port " + port);
     }
 
-    private void registerInmemoryDatasource() throws NamingException {
-        JDBCDataSource jdbcDataSource = new JDBCDataSource();
-        jdbcDataSource.setDatabase("jdbc:hsqldb:mem:testDb");
-        jdbcDataSource.setUser("sa");
-        jdbcDataSource.setPassword("");
-        System.setProperty(Environment.HBM2DDL_AUTO, "create");
-        new EnvEntry(DB_JNDI, jdbcDataSource);
+    public void loadConfigFile() throws IOException {
+        InputStream resourceAsStream = JettyServer.class.getResourceAsStream("/config.properties");
+        Properties properties = System.getProperties();
+        properties.load(resourceAsStream);
+        dbServerAddress = System.getProperty("swhrs.dbServer");
+        dbName = System.getProperty("swhrs.dbName");
+        dbUser = System.getProperty("swhrs.dbUsername");
+        dbPassword = System.getProperty("swhrs.dbPassword");
+        dbConnectUri = String.format("jdbc:sqlserver://%s;database=%s", dbServerAddress, dbName);
     }
 
-    private void registerSqlServerDatasource() throws NamingException {
-        String serverAddress = System.getProperty("swhrs.dbServer");
-        String databaseName = System.getProperty("swhrs.dbName");
-        String user = System.getProperty("swhrs.dbUsername");
-        String password = System.getProperty("swhrs.dbPassword");
-        int dbPort = Integer.parseInt(System.getProperty("swhrs.dbPort"));
+    private void loadJdbcDriver() {
+        try {
+            Class.forName(JDBC_DRIVER);
+            logger.info(String.format("JDBC driver '%s' loaded", JDBC_DRIVER));
+        } catch (ClassNotFoundException e) {
+            logger.error("Could not load JDBC driver", e);
+        }
+    }
 
-        logger.info("Connecting to '" + serverAddress + "' db '" + databaseName + "' port '" + dbPort + "' user '" + user + "'");
-
-        JtdsDataSource datasource = new JtdsDataSource();
-        datasource.setServerType(Driver.SQLSERVER);
-        datasource.setServerName(serverAddress);
-        datasource.setPortNumber(dbPort);
-        datasource.setDatabaseName(databaseName);
-        datasource.setUser(user);
-        datasource.setPassword(password);
-
-        new EnvEntry(DB_JNDI, datasource);
+    public DataSource makeSqlServerPoolingDatasource() throws NamingException {
+        ConnectionFactory connectionFactory = new DriverManagerConnectionFactory(dbConnectUri, dbUser, dbPassword);
+        ObjectPool objectPool = new GenericObjectPool();
+        PoolableConnectionFactory poolableConnectionFactory = new PoolableConnectionFactory(connectionFactory, objectPool, new GenericKeyedObjectPoolFactory(null), VALIDATION_QUERY, false, true);
+        objectPool.setFactory(poolableConnectionFactory);
+        return new PoolingDataSource(objectPool);
     }
 
     public void setPort(int port) {

@@ -7,6 +7,7 @@ import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.naming.NamingException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -36,8 +37,12 @@ public class RegistrationServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-		db = MSSQLHourRegDao.createInstance();
-	}
+        try {
+            db = MSSQLHourRegDao.createInstance();
+        } catch (NamingException e) {
+            throw new ServletException(e);
+        }
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -149,6 +154,9 @@ public class RegistrationServlet extends HttpServlet {
 		db.addFavourites(user.getUsername(), projectNumber, activityCode);
 	}
 
+    private static User getUserAttribute(HttpServletRequest req) {
+        return (User) req.getAttribute("user");
+    }
     /**
      * Returns a HTTP response containing a JSON object of the users favourites stored in the database
      * @param resp HTTP request containing a JSON object of the users favourites
@@ -290,16 +298,58 @@ public class RegistrationServlet extends HttpServlet {
 		writer.append(JSONBuilder.createFromHours(hourRegistrationList, date.getDayOfWeek() + " " + date.toString()));
 	}
 
-	@Override
-	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		try {
-			db.beginTransaction();
-			super.service(req, resp);
-		} finally {
-			db.endTransaction();
+	/**
+	 * Helper method to make a JSON object from a list of HourRegistrations
+	 * @param hrlist the list of HourRegistration objects
+	 * @param stringDate the date of the registrations
+	 * @return A json object of the format: key: taskNumber values: [description, hours]
+	 */
+	@SuppressWarnings("unchecked")
+	private JSONObject createJsonObjectFromHours(List<HourRegistration> hrlist, String stringDate) {
+		JSONObject json = new JSONObject();
+		for (HourRegistration hr: hrlist) {
+			@SuppressWarnings("rawtypes")
+			HashMap map = new HashMap();
+			map.put("projectnumber", hr.getProjectnumber());
+			map.put("activitycode", hr.getActivityCode());
+			map.put("description", hr.getDescription());
+			map.put("approved", hr.isApproved());
+			map.put("submitted", hr.isSubmitted());
+			map.put("hours", hr.getHours());
+			json.put(hr.getTaskNumber(), map);
 		}
+		json.put("date", stringDate);
+		return json;
 	}
-
+	
+	/**
+	 * Helper method to create JSON object from a list of UserFavourites objects
+	 * @param userList The list containing user favourite objects stored in the database
+	 * @return JSON object with the format {"projectNumber":{"internalproject":value,"activitycode":value,"description": value,"projectname": value,"customername": value,"billable": value}
+	 *         Keys are generated from 1 and up so it's easy to sort later, they contain a map with the rest of the values
+	 */
+	@SuppressWarnings("unchecked")
+	private JSONObject createJsonObjectFromFavourites(
+			List<UserFavourites> userList) {
+		JSONObject json = new JSONObject();
+		int counter = 0;
+		for (UserFavourites uf: userList) {
+			@SuppressWarnings("rawtypes")
+			HashMap map = new HashMap();
+			map.put("projectnumber", uf.getProjectNumber());
+			map.put("activitycode", uf.getActivityCode());
+			map.put("description", uf.getDescription());
+			map.put("billable", uf.getBillable());
+			map.put("projectname", uf.getProjectName());
+			map.put("customername", uf.getCustomer());
+			map.put("internalproject", uf.getInternalProject());
+			
+			json.put(counter++, map);
+			
+		}
+		return json;
+		
+	}
     private static User getUserAttribute(HttpServletRequest req) {
         return (User) req.getSession(false).getAttribute("user");
     }
