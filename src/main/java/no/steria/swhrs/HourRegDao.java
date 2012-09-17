@@ -40,7 +40,7 @@ public interface HourRegDao {
 	 * @param taskNumber The taskNumber is sent as a String and represent a unique registration
 	 * @return returns a boolean to confirm the deletion
 	 */
-	boolean deleteHourRegistration(String taskNumber);
+    int deleteHourRegistration(String userId, String taskNumber);
 
 	/**
 	 * This method returns a list of hour registrations done in a specific period
@@ -55,7 +55,7 @@ public interface HourRegDao {
 	 * This method adds new projects to the users favourite list
 	 * @param userId The userId is sent as a String(User initials)
 	 * @param project_id The project_id is sent as a String
-	 * @param activityCode The activitycode is sent as a String
+	 * @param activityCode The activityCode is sent as a String
 	 * @return returns a boolean to confirm the action
 	 */
 	boolean addFavourites(String userId, String project_id, String activityCode);
@@ -85,21 +85,20 @@ public interface HourRegDao {
 
     /**
      * This method take it hour registrations on a specific day on a specific project for a specific resource.
-     * @param country String
-     * @param username String
-     * @param userRegisteredFor String
+     * @param loggedInUser String
+     * @param registeringForUser String
      * @param projectNumber String
      * @param activity String
      * @param date Date
      * @param hours String
-     * @param isChargedHours boolean
+     * @param isBillable boolean
      * @param workType String
      * @param description String
      * @param bypassChecks boolean
      * @return The entry id in the database if successful.
      */
-    public Integer addHourRegistrations(String country, String username, String userRegisteredFor, String projectNumber,
-                                        String activity, DateTime date, double hours, boolean isChargedHours,
+    public Integer addHourRegistrations(String loggedInUser, String registeringForUser, String projectNumber,
+                                        String activity, DateTime date, double hours, boolean isBillable,
                                         String workType, String description, boolean bypassChecks);
 
 
@@ -111,14 +110,22 @@ public interface HourRegDao {
 	 */
 	void deleteFavourite(String userId, String projectNumber, String activityCode);
 
-	/**
-	 * This method updates the number of hours and description logged on a specific 
-	 * hour registration 
-	 * @param taskNumber The task number is sent as an Integer
-	 * @param hours The hours is sent as a Double
-	 * @param description The description is sent as a String
-	 */
-	void updateRegistration(int taskNumber, double hours, String description);
+    /**
+     * This method updates the number of hours and description logged on a specific
+     * hour registration
+     * @param userId string
+     * @param taskNumber string
+     * @param projectNumber string
+     * @param activity string
+     * @param date datetime
+     * @param hours double
+     * @param isBillable boolean
+     * @param workType string
+     * @param description string
+     */
+	void updateRegistration(String userId, String taskNumber, String projectNumber, String activity,
+                            DateTime date, double hours, boolean isBillable, String workType,
+                            String description);
 
 	/**
 	 * This method updates the time period of the user to either be submitted or reopened.
