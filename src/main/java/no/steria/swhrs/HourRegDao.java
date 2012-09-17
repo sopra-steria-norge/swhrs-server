@@ -6,17 +6,6 @@ import java.util.List;
 
 
 public interface HourRegDao {
-
-	/**
-	 * This method attempts to establish a connection to the data source
-	 */
-	void beginTransaction();
-
-	/**
-	 * This method commits all the new changes, and releases the connection
-     */
-	void endTransaction();
-	
 	/**
 	 * This method returns a list of hour registrations done on a specific date by a given user
 	 * @param userId The userId, the initials of the user
