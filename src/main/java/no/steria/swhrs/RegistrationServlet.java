@@ -7,13 +7,10 @@ import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -29,7 +26,6 @@ import java.util.List;
 public class RegistrationServlet extends HttpServlet{
 	private static final long serialVersionUID = -1090477374982937503L;
     private static final Logger logger = LoggerFactory.getLogger(RegistrationServlet.class);
-    private static final String COUNTRY = "NO";
 
 	private HourRegDao db;
 
@@ -58,7 +54,7 @@ public class RegistrationServlet extends HttpServlet{
 			throws ServletException, IOException {
 
         if (req.getRequestURL().toString().contains(("hours/registration"))) {
-            addHourRegistationToDatabase(req);
+            addHourRegistrationToDatabase(req);
         } else if(req.getRequestURL().toString().contains(("hours/deleteRegistration"))){
 			deleteHourRegistrationInDatabase(req, resp);
 		} else if(req.getRequestURL().toString().contains(("hours/addFavourites"))){
@@ -75,14 +71,20 @@ public class RegistrationServlet extends HttpServlet{
 
 	/**
 	 * This method updates an hour registration with a new description for time entry (comment) and new hours number
-	 * @param req
+	 * @param req HttpServletRequest
 	 */
 	private void updateRegistration(HttpServletRequest req) {
-		int taskNumber = Integer.parseInt(req.getParameter("taskNumber"));
+		String taskNumber = req.getParameter("taskNumber");
 		double hours = Double.parseDouble(req.getParameter("hours"));
 		String description = req.getParameter("description");
-		
-		db.updateRegistration(taskNumber, hours, description);
+        boolean billable = false;
+        String workType = "";
+        String userId = "";
+        String activity = "";
+        DateTime date = new DateTime();
+        String projectNumber = "";
+
+        db.updateRegistration(userId, taskNumber, projectNumber, activity, date, hours, billable, workType, description);
 	}
 
 
@@ -153,16 +155,22 @@ public class RegistrationServlet extends HttpServlet{
 	 * 			or "success" if the deletion was successful
 	 * @throws IOException
 	 */
-	private void deleteHourRegistrationInDatabase(HttpServletRequest req,
-			HttpServletResponse resp) throws IOException {
+	private void deleteHourRegistrationInDatabase(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        User user = getUserAttribute(req);
+        String username = user.getUsername();
 		String taskNumber = req.getParameter("taskNumber");
-		boolean success = db.deleteHourRegistration(taskNumber);
+
+		int statusCode = db.deleteHourRegistration(username, taskNumber);
 		resp.setContentType("text/plain");
-		if (!success) {
-			resp.getWriter().append("ERROR: Already submitted");
-		}else{
-			resp.getWriter().append("success");
-		}
+
+        switch (statusCode) {
+            case (0): // Success
+            case (6): // Doesn't exist
+                resp.getWriter().append("success");
+                break;
+            default:
+                resp.getWriter().append("Database returned unexpected error, please contact technical support");
+        }
 	}
 	
 	
@@ -219,7 +227,7 @@ public class RegistrationServlet extends HttpServlet{
 			localFromDate2 = localFromDate2.plusDays(1);
 		}
 		
-		List<WeekRegistration> weeklist = db.getWeekList(user.getUsername(), period.getFromDate(), period.getToDate());
+		List<WeekRegistration> weekList = db.getWeekList(user.getUsername(), period.getFromDate(), period.getToDate());
 		String weekDescription = period.getDescription();
 		
 		//This will get the norm time for each day of the week and should be added together with the weekHours.
@@ -232,7 +240,7 @@ public class RegistrationServlet extends HttpServlet{
 			String dateArr = dateArray.get(i).toString().split(":")[0];
 			String dayOfWeek = dateArray.get(i).toString().split(":")[1];
 			boolean found = false;
-			for(WeekRegistration wr2: weeklist){
+			for(WeekRegistration wr2: weekList){
 				if(wr2.getDate().split(" ")[0].equals(dateArr)){
 					@SuppressWarnings("rawtypes")
 					List list = new LinkedList();
@@ -266,7 +274,7 @@ public class RegistrationServlet extends HttpServlet{
 	 * Adds an hour registration the database
 	 * @param req The HTTP request containing parameters of "ProjectNr", "hours", "lunchNumber" and "description"
 	 */
-	private void addHourRegistationToDatabase(HttpServletRequest req) {
+	private void addHourRegistrationToDatabase(HttpServletRequest req) {
         User user = getUserAttribute(req);
         String username = user.getUsername();
         String projectNumber = req.getParameter("projectNr");
@@ -275,9 +283,10 @@ public class RegistrationServlet extends HttpServlet{
 		String description = req.getParameter("description");
 		boolean billable = StringUtils.equals("1", req.getParameter("billable"));
         DateTime date = new DateTime(); // todo: add date to values that should be read - req.getParameter("date");
+        String workType = "";
 		
-		db.addHourRegistrations(COUNTRY, username, username, projectNumber, activityCode, date, hours, billable,
-                "", description, false);
+		db.addHourRegistrations(username, username, projectNumber, activityCode, date, hours, billable,
+                workType, description, false);
 	}
 
 
@@ -315,14 +324,13 @@ public class RegistrationServlet extends HttpServlet{
 		else if(newDay.equals("nextDay")) date = date.plusDays(1);
 		else if(newDay.equals("today")){
 			logger.info("getting todays daylist from server");
-		}else{
-			LocalDate weekDate = new LocalDate(newDay);
-			date = weekDate;
+		} else {
+			date = new LocalDate(newDay);
 		}
-		List<HourRegistration> hrlist = db.getAllHoursForDate(user.getUsername(), date.toString());
+		List<HourRegistration> hourRegistrationList = db.getAllHoursForDate(user.getUsername(), date.toString());
 
 		String stringDate = date.toString();
-		JSONObject json = createJsonObjectFromHours(hrlist, date.getDayOfWeek()+" "+stringDate);
+		JSONObject json = createJsonObjectFromHours(hourRegistrationList, date.getDayOfWeek()+" "+stringDate);
 
 		PrintWriter writer = resp.getWriter();
 		String jsonText = json.toString();

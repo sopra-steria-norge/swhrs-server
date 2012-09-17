@@ -14,6 +14,7 @@ import javax.sql.DataSource;
 
 public class MSSQLHourRegDao implements HourRegDao {
 
+    private static final String COUNTRY = "NO";
 	private final DataSource datasource;
 	private Connection connection = null;
 	private static final String SELECT_USERS = "SELECT No_, \"WEB Password\" FROM \"Norge$Resource\" where No_ = ?";
@@ -22,14 +23,13 @@ public class MSSQLHourRegDao implements HourRegDao {
 	private static final String SELECT_WEEKREGISTRATIONS = "SELECT Dato, sum(Antal), Godkendt FROM \"Norge$Time Entry\" where Ressourcekode = ? AND Projektnr_ NOT LIKE 'FLEX' AND Dato Between ? AND ? GROUP BY Dato, Godkendt";
 	private static final String SELECT_SEARCHPROJECTS = "SELECT TOP 150 \"Norge$Tasklist\".Projektnr_, \"Norge$Tasklist\".Kode, \"Norge$Tasklist\".Beskrivelse FROM \"Norge$Tasklist\" WHERE Beskrivelse like ? OR Projektnr_ like ? ORDER BY Beskrivelse";
 	private static final String SELECT_PERIODS = "SELECT Startdato, Slutdato, Beskrivelse, Bogført FROM \"Norge$Time Periods\" WHERE Ressource = ? AND Startdato <= ? AND Slutdato >= ?";
-	private static final String DELETE_REGISTRATION = "DELETE FROM \"Norge$Time Entry\" where Løbenr_ = ? AND Godkendt = 0 AND Bogført = 0";
 	private static final String INSERT_FAVOURITE = "INSERT into \"Norge$Favourite Task\" (Resourcekode, Projektnr_, Aktivitetskode) VALUES(?, ?, ?)";
-	private static final String INSERT_REGISTRATION = "INSERT into \"Norge$Time Entry\" (Projektnr_, Aktivitetskode, Ressourcekode, Arbejdstype, Dato, Antal, Beskrivelse, Godkendt, Bogført, Fakturerbart, Linienr_, \"Internt projekt\", \"Læg til norm tid\", Afdelingsleder, \"Shortcut Dimension 1 Code\", \"Shortcut Dimension 2 Code\", \"Ressource Gruppe Nr_\", \"Exportert Tieto\", \"Ikke godkjent\", \"Ikke godkjent Beskrivelse\", \"Ikke godkjent av\", \"Endret dato\", \"Endret av\", \"Transferdate Tieto\", \"Approved By LM_PM\", \"Adjust flex limit\") VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-	private static final String UPDATE_REGISTRATION = "UPDATE \"Norge$Time Entry\" SET Godkendt=? WHERE Ressourcekode = ? AND Dato BETWEEN ? AND ?";
 	private static final String DELETE_FAVOURITE = "DELETE FROM \"Norge$Favourite Task\" WHERE Resourcekode = ? AND Projektnr_ = ? AND Aktivitetskode = ?";
-	private static final String UPDATE_REGISTRATIONHOURS = "UPDATE \"Norge$Time Entry\" SET Antal = ?, Beskrivelse = ? WHERE Løbenr_ = ?";
+    private static final String UPDATE_REGISTRATION = "UPDATE \"Norge$Time Entry\" SET Godkendt=? WHERE Ressourcekode = ? AND Dato BETWEEN ? AND ?";
 	private static final String SELECT_NORMTIME = "SELECT \"Norge$Norm Time Data\".Kode, \"Norge$Norm Time Data\".Mandag, \"Norge$Norm Time Data\".Tirsdag, \"Norge$Norm Time Data\".Onsdag, \"Norge$Norm Time Data\".Torsdag, \"Norge$Norm Time Data\".Fredag, \"Norge$Norm Time Data\".Lørdag, \"Norge$Norm Time Data\".Søndag from \"Norge$Norm Time Data\" INNER JOIN \"Norge$Resource\" ON \"Norge$Norm Time Data\".Kode = \"Norge$Resource\".\"Norm Tid\" WHERE \"Norge$Resource\".No_ = ?";
     private static final String INSERT_STORE_PROCEDURE = "{? = call dbo.uspSTE_InsertTimeEntry(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+    private static final String DELETE_STORE_PROCEDURE = "{? = call dbo.uspSTE_DeleteTimeEntry(?, ?, ?)}";
+    private static final String UPDATE_STORE_PROCEDURE = "{? = call dbo.uspSTE_UpdateTimeEntry(?, ?, ?, ?, ?, ?, ?, ?, ?, ?}";
 
 	public MSSQLHourRegDao(DataSource datasource) {
 		this.datasource = datasource;
@@ -121,28 +121,27 @@ public class MSSQLHourRegDao implements HourRegDao {
 
 
 	@Override
-	public boolean deleteHourRegistration(String taskNumber) {
-		PreparedStatement statement = null;
-		try {
-			statement = connection.prepareStatement(DELETE_REGISTRATION);
-			statement.setString(1, taskNumber);
-			int delResult = statement.executeUpdate();
-			if (delResult == 0) {
-				return false;
-			} else {
-				return true;
-			}
+	public int deleteHourRegistration(String userId, String taskNumber) {
+        CallableStatement statement = null;
+        try {
+            statement = connection.prepareCall(DELETE_STORE_PROCEDURE);
+            statement.setString(1, COUNTRY);
+            statement.setString(2, userId);
+            statement.setString(3, taskNumber);
 
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-		finally{
-			try {
-				if(statement != null)statement.close();
-			} catch (SQLException e) {
-				throw new RuntimeException(e);
-			}
-		}
+            // returns a status code detailing how the update went.
+            return statement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        finally{
+            try {
+                if(statement != null)statement.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
 	}
 
 
@@ -291,7 +290,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 	}
 
 	@Override
-	public Integer addHourRegistrations(String country, String username, String userRegisteredFor, String projectNumber,
+	public Integer addHourRegistrations(String loggedInUser, String registeringForUser, String projectNumber,
                                         String activity, DateTime date, double hours, boolean isChargedHours,
                                         String workType, String description, boolean bypassChecks) {
 
@@ -299,9 +298,9 @@ public class MSSQLHourRegDao implements HourRegDao {
         try {
             statement = connection.prepareCall(INSERT_STORE_PROCEDURE);
             statement.registerOutParameter(1, Types.INTEGER);
-            statement.setString(2, country);
-            statement.setString(3, username);
-            statement.setString(4, userRegisteredFor);
+            statement.setString(2, COUNTRY);
+            statement.setString(3, loggedInUser);
+            statement.setString(4, registeringForUser);
             statement.setString(5, projectNumber);
             statement.setString(6, activity);
             statement.setDate(7, new Date(date.getMillis()));
@@ -350,25 +349,36 @@ public class MSSQLHourRegDao implements HourRegDao {
 	}
 
 	@Override
-	public void updateRegistration(int taskNumber, double hours, String description) {
-		PreparedStatement statement = null;
-		try {
-			statement = connection.prepareStatement(UPDATE_REGISTRATIONHOURS);
-			statement.setDouble(1, hours);
-			statement.setString(2, description);
-			statement.setInt(3, taskNumber);
-			statement.executeUpdate();
+	public void updateRegistration(String userId, String taskNumber, String projectNumber, String activity,
+                                   DateTime date, double hours, boolean isBillable, String workType,
+                                   String description) {
+        CallableStatement statement = null;
 
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-		finally{
-			try {
-				if(statement != null)statement.close();
-			} catch (SQLException e) {
-				throw new RuntimeException(e);
-			}
-		}
+        try {
+            statement = connection.prepareCall(UPDATE_STORE_PROCEDURE);
+            statement.setString(1, COUNTRY);
+            statement.setString(2, userId);
+            statement.setString(3, taskNumber);
+            statement.setString(4, projectNumber);
+            statement.setString(5, activity);
+            statement.setDate(6, new Date(date.getMillis()));
+            statement.setDouble(7, hours);
+            statement.setBoolean(8, isBillable);
+            statement.setString(9, workType);
+            statement.setString(10, description);
+
+            statement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        finally{
+            try {
+                if(statement != null)statement.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
 	}
 
 	@Override
