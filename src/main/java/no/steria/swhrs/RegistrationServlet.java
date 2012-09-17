@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -23,9 +22,13 @@ import java.util.List;
  * @author xsts
  *
  */
-public class RegistrationServlet extends HttpServlet{
+public class RegistrationServlet extends HttpServlet {
 	private static final long serialVersionUID = -1090477374982937503L;
     private static final Logger logger = LoggerFactory.getLogger(RegistrationServlet.class);
+    private static final String APPLICATION_JSON = "application/json";
+    private static final String APPLICATION_TEXT = "application/text";
+    private static final String TEXT_PLAIN = "text/plain";
+    private static final String TEXT_JSON = "text/json";
 
 	private HourRegDao db;
 
@@ -41,7 +44,7 @@ public class RegistrationServlet extends HttpServlet{
         if(req.getRequestURL().toString().contains(("hours/daylist"))){
             getDaylistResponseAsJSON(req, resp);
         } else if(req.getRequestURL().toString().contains(("hours/favourite"))){
-            getFavouritesResponse(req, resp);
+            getFavorites(req, resp);
         } else if(req.getRequestURL().toString().contains(("hours/week"))){
             getWeeklistResponseAsJSON(req, resp);
         } else if(req.getRequestURL().toString().contains(("hours/searchFavourites"))){
@@ -50,13 +53,11 @@ public class RegistrationServlet extends HttpServlet{
     }
 
     @Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
-
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp)	throws ServletException, IOException {
         if (req.getRequestURL().toString().contains(("hours/registration"))) {
-            addHourRegistrationToDatabase(req);
+            addRegistration(req);
         } else if(req.getRequestURL().toString().contains(("hours/deleteRegistration"))){
-			deleteHourRegistrationInDatabase(req, resp);
+            deleteRegistration(req, resp);
 		} else if(req.getRequestURL().toString().contains(("hours/addFavourites"))){
 			addFavourites(req);
 		} else if(req.getRequestURL().toString().contains(("hours/updatePeriod"))){
@@ -68,25 +69,63 @@ public class RegistrationServlet extends HttpServlet{
 		}
  	}
 
+    /**
+     * Adds an hour registration the database
+     * @param req The HTTP request containing parameters of "ProjectNr", "hours", "lunchNumber" and "description"
+     */
+    private void addRegistration(HttpServletRequest req) {
+        User user = getUserAttribute(req);
+        String username = user.getUsername();
+        String projectNumber = req.getParameter(RegistrationConstants.PROJECT_NUMBER);
+        String activityCode = req.getParameter(RegistrationConstants.ACTIVITY_CODE);
+        double hours = Double.parseDouble(req.getParameter(RegistrationConstants.HOURS));
+        String description = req.getParameter(RegistrationConstants.DESCRIPTION);
+        boolean billable = StringUtils.equals("1", req.getParameter(RegistrationConstants.BILLABLE));
+        DateTime date = new DateTime(); // todo: add date to values that should be read - req.getParameter("date");
+        String workType = "";
+
+        db.addHourRegistrations(username, username, projectNumber, activityCode, date, hours, billable,
+                workType, description, false);
+    }
 
 	/**
 	 * This method updates an hour registration with a new description for time entry (comment) and new hours number
 	 * @param req HttpServletRequest
 	 */
 	private void updateRegistration(HttpServletRequest req) {
-		String taskNumber = req.getParameter("taskNumber");
-		double hours = Double.parseDouble(req.getParameter("hours"));
-		String description = req.getParameter("description");
-        boolean billable = false;
+        User user = getUserAttribute(req);
+        String userId = user.getUsername();
+		String taskNumber = req.getParameter(RegistrationConstants.TASK_NUMBER);
+		double hours = Double.parseDouble(req.getParameter(RegistrationConstants.HOURS));
+		String description = req.getParameter(RegistrationConstants.DESCRIPTION);
+        boolean billable = StringUtils.equals("1", req.getParameter(RegistrationConstants.BILLABLE));
         String workType = "";
-        String userId = "";
-        String activity = "";
+        String activity = req.getParameter(RegistrationConstants.ACTIVITY_CODE);
+        String projectNumber = req.getParameter(RegistrationConstants.PROJECT_NUMBER);
         DateTime date = new DateTime();
-        String projectNumber = "";
 
         db.updateRegistration(userId, taskNumber, projectNumber, activity, date, hours, billable, workType, description);
 	}
 
+    /**
+     * This method will delete an hour registration from the database
+     * @param req The HTTP request contains taskNumber which is the unique identifier for each registration in the database
+     * @param resp The HTTP response will return plain text with either
+     * 			   "ERROR: Already submitted" if the deleteHourRegistration returns false, meaning that the registration is locked
+     * 			or "success" if the deletion was successful
+     * @throws IOException
+     */
+    private void deleteRegistration(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        User user = getUserAttribute(req);
+        String username = user.getUsername();
+        String taskNumber = req.getParameter(RegistrationConstants.TASK_NUMBER);
+
+        db.deleteHourRegistration(username, taskNumber);
+        resp.setContentType(TEXT_PLAIN);
+
+
+        resp.getWriter().append("success");
+    }
 
 	/**
 	 * This method removes a project from the users favourite list in the database
@@ -94,11 +133,10 @@ public class RegistrationServlet extends HttpServlet{
 	 */
 	private void deleteFavourite(HttpServletRequest req){
         User user = getUserAttribute(req);
-        String projectNumber = req.getParameter("projectNumber");
-		String activityCode = req.getParameter("activityCode");
+        String projectNumber = req.getParameter(RegistrationConstants.PROJECT_NUMBER);
+		String activityCode = req.getParameter(RegistrationConstants.ACTIVITY_CODE);
 		db.deleteFavourite(user.getUsername(), projectNumber, activityCode);
 	}
-
 
 	/**
 	 * This method adds new projects to the users favourite list
@@ -106,16 +144,24 @@ public class RegistrationServlet extends HttpServlet{
 	 */
 	private void addFavourites(HttpServletRequest req) {
         User user = getUserAttribute(req);
-		String projectNumber = req.getParameter("projectNumber");
-		String activityCode = req.getParameter("activityCode");
+        String projectNumber = req.getParameter(RegistrationConstants.PROJECT_NUMBER);
+        String activityCode = req.getParameter(RegistrationConstants.ACTIVITY_CODE);
 		db.addFavourites(user.getUsername(), projectNumber, activityCode);
-		
 	}
 
-    private static User getUserAttribute(HttpServletRequest req) {
-        return (User) req.getSession(false).getAttribute("user");
-    }
+    /**
+     * Returns a HTTP response containing a JSON object of the users favourites stored in the database
+     * @param resp HTTP request containing a JSON object of the users favourites
+     * @throws IOException
+     */
+    private void getFavorites(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        User user = getUserAttribute(req);
+        resp.setContentType(APPLICATION_JSON);
+        List<UserFavourites> userList = db.getUserFavourites(user.getUsername());
 
+        PrintWriter writer = resp.getWriter();
+        writer.append(JSONBuilder.createFromFavourites(userList));
+    }
 
     /**
 	 * This method will search through Projects with the search input, and 
@@ -126,53 +172,14 @@ public class RegistrationServlet extends HttpServlet{
 	 * @throws IOException
 	 */
 	@SuppressWarnings("unchecked")
-	private void searchFavourites(HttpServletRequest req,
-			HttpServletResponse resp) throws IOException {
-		resp.setContentType("application/json");
+	private void searchFavourites(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		resp.setContentType(APPLICATION_JSON);
 		String searchInput = req.getParameter("search");
 		List<Projects> project = db.searchProjects(searchInput);
-		int counter = 0;
-		JSONObject projectJson = new JSONObject();
-		for(Projects po: project){
-			HashMap<String, String> map = new HashMap<String, String>();
-			map.put("projectnumber", po.getProjectNumber());
-			map.put("activitycode", po.getActivityCode());
-			map.put("description", po.getDescription());
-			counter++;
-			projectJson.put(counter, map);
-		}
+
 		PrintWriter writer = resp.getWriter();
-		String jsonText = projectJson.toString();
-		writer.append(jsonText);
+		writer.append(JSONBuilder.createProjects(project));
 	}
-
-
-	/**
-	 * This method will delete an hour registration from the database
-	 * @param req The HTTP request contains taskNumber which is the unique identifier for each registration in the database
-	 * @param resp The HTTP response will return plain text with either 
-	 * 			   "ERROR: Already submitted" if the deleteHourRegistration returns false, meaning that the registration is locked
-	 * 			or "success" if the deletion was successful
-	 * @throws IOException
-	 */
-	private void deleteHourRegistrationInDatabase(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        User user = getUserAttribute(req);
-        String username = user.getUsername();
-		String taskNumber = req.getParameter("taskNumber");
-
-		int statusCode = db.deleteHourRegistration(username, taskNumber);
-		resp.setContentType("text/plain");
-
-        switch (statusCode) {
-            case (0): // Success
-            case (6): // Doesn't exist
-                resp.getWriter().append("success");
-                break;
-            default:
-                resp.getWriter().append("Database returned unexpected error, please contact technical support");
-        }
-	}
-	
 	
 	/**
 	 * This method will update a users period based on the HTTP request, it will either submit the period if the request is 1 
@@ -186,15 +193,13 @@ public class RegistrationServlet extends HttpServlet{
         DatePeriod period = db.getPeriod(user.getUsername(), date.toString());
         int option = Integer.parseInt(req.getParameter("option"));
         db.updatePeriod(user.getUsername(), option, period.getFromDate(), period.getToDate());
-        resp.setContentType("text/plain");
+        resp.setContentType(TEXT_PLAIN);
         if (option == 1) {
             resp.getWriter().append("Period is submitted");
         } else {
             resp.getWriter().append("Period is reopened");
         }
-
     }
-	
 	
 	/**
 	 * This method returns a HTTP request containing JSON data for a period
@@ -203,11 +208,10 @@ public class RegistrationServlet extends HttpServlet{
 	 * @throws IOException
 	 */
 	@SuppressWarnings("unchecked")
-	private void getWeeklistResponseAsJSON(HttpServletRequest req,
-			HttpServletResponse resp) throws IOException {
+	private void getWeeklistResponseAsJSON(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         User user = getUserAttribute(req);
         String week = req.getParameter("week");
-		resp.setContentType("application/text");
+		resp.setContentType(APPLICATION_TEXT);
 		DatePeriod period2 = db.getPeriod(user.getUsername(), date.toString());
 		
 		LocalDate localFromDate = new LocalDate(period2.getFromDate().split(" ")[0]);
@@ -240,14 +244,14 @@ public class RegistrationServlet extends HttpServlet{
 			String dateArr = dateArray.get(i).toString().split(":")[0];
 			String dayOfWeek = dateArray.get(i).toString().split(":")[1];
 			boolean found = false;
-			for(WeekRegistration wr2: weekList){
-				if(wr2.getDate().split(" ")[0].equals(dateArr)){
+			for(WeekRegistration weekRegistration: weekList){
+				if(weekRegistration.getDate().split(" ")[0].equals(dateArr)){
 					@SuppressWarnings("rawtypes")
 					List list = new LinkedList();
 					list.add(dayOfWeek);
-					list.add(wr2.getHours());
-					list.add(wr2.getApproved());
-					obj.put(wr2.getDate().split(" ")[0], list);
+					list.add(weekRegistration.getHours());
+					list.add(weekRegistration.getApproved());
+					obj.put(weekRegistration.getDate().split(" ")[0], list);
 					found = true;
 					break;
 				}
@@ -264,48 +268,11 @@ public class RegistrationServlet extends HttpServlet{
 		
 		obj.put("weekNumber", weekDescription);
 		obj.put("dateHdr", date.getDayOfWeek()+" "+date.toString());
-		resp.setContentType("text/json");
+		resp.setContentType(TEXT_JSON);
 		PrintWriter writer = resp.getWriter();
 		String jsonText = obj.toJSONString();
 		writer.append(jsonText);
 	}
-
-	/**
-	 * Adds an hour registration the database
-	 * @param req The HTTP request containing parameters of "ProjectNr", "hours", "lunchNumber" and "description"
-	 */
-	private void addHourRegistrationToDatabase(HttpServletRequest req) {
-        User user = getUserAttribute(req);
-        String username = user.getUsername();
-        String projectNumber = req.getParameter("projectNr");
-		String activityCode = req.getParameter("activityCode");
-		double hours = Double.parseDouble(req.getParameter("hours"));
-		String description = req.getParameter("description");
-		boolean billable = StringUtils.equals("1", req.getParameter("billable"));
-        DateTime date = new DateTime(); // todo: add date to values that should be read - req.getParameter("date");
-        String workType = "";
-		
-		db.addHourRegistrations(username, username, projectNumber, activityCode, date, hours, billable,
-                workType, description, false);
-	}
-
-
-	/**
-	 * Returns a HTTP response containing a JSON object of the users favourites stored in the database
-	 * @param resp HTTP request containing a JSON object of the users favourites
-	 * @throws IOException
-	 */
-	private void getFavouritesResponse(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        User user = getUserAttribute(req);
-        resp.setContentType("application/json");
-		List<UserFavourites> userList = db.getUserFavourites(user.getUsername());
-		JSONObject json = createJsonObjectFromFavourites(userList);
-
-		PrintWriter writer = resp.getWriter();
-		String jsonText = json.toString();
-		writer.append(jsonText);
-	}
-
 
 	/**
 	 * Returns a HTTP response containing all hour registrations for a certain day stored in a JSON object
@@ -313,87 +280,18 @@ public class RegistrationServlet extends HttpServlet{
 	 * @param resp The HTTP response contains a json object with all data about a registration needed to display it in the app
 	 * @throws IOException
 	 */
-	private void getDaylistResponseAsJSON(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
+	private void getDaylistResponseAsJSON(HttpServletRequest req, HttpServletResponse resp)	throws IOException {
         User user = getUserAttribute(req);
+        LocalDate date = new LocalDate(req.getParameter("day"));
 
-        String newDay = req.getParameter("day");
-		
-		resp.setContentType("application/json");
-		if(newDay.equals("prevDay")) date = date.minusDays(1);
-		else if(newDay.equals("nextDay")) date = date.plusDays(1);
-		else if(newDay.equals("today")){
-			logger.info("getting todays daylist from server");
-		} else {
-			date = new LocalDate(newDay);
-		}
 		List<HourRegistration> hourRegistrationList = db.getAllHoursForDate(user.getUsername(), date.toString());
 
-		String stringDate = date.toString();
-		JSONObject json = createJsonObjectFromHours(hourRegistrationList, date.getDayOfWeek()+" "+stringDate);
-
 		PrintWriter writer = resp.getWriter();
-		String jsonText = json.toString();
-		writer.append(jsonText);
+		writer.append(JSONBuilder.createFromHours(hourRegistrationList, date.getDayOfWeek() + " " + date.toString()));
 	}
-
-	/**
-	 * Helper method to make a JSON object from a list of HourRegistrations
-	 * @param hrlist the list of HourRegistration objects
-	 * @param stringDate the date of the registrations
-	 * @return A json object of the format: key: taskNumber values: [description, hours]
-	 */
-	@SuppressWarnings("unchecked")
-	private JSONObject createJsonObjectFromHours(List<HourRegistration> hrlist, String stringDate) {
-		JSONObject json = new JSONObject();
-		for (HourRegistration hr: hrlist) {
-			@SuppressWarnings("rawtypes")
-			HashMap map = new HashMap();
-			map.put("projectnumber", hr.getProjectnumber());
-			map.put("activitycode", hr.getActivityCode());
-			map.put("description", hr.getDescription());
-			map.put("approved", hr.isApproved());
-			map.put("submitted", hr.isSubmitted());
-			map.put("hours", hr.getHours());
-			json.put(hr.getTaskNumber(), map);
-		}
-		json.put("date", stringDate);
-		return json;
-	}
-	
-	/**
-	 * Helper method to create JSON object from a list of UserFavourites objects
-	 * @param userList The list containing user favourite objects stored in the database
-	 * @return JSON object with the format {"projectNumber":{"internalproject":value,"activitycode":value,"description": value,"projectname": value,"customername": value,"billable": value}
-	 *         Keys are generated from 1 and up so it's easy to sort later, they contain a map with the rest of the values
-	 */
-	@SuppressWarnings("unchecked")
-	private JSONObject createJsonObjectFromFavourites(
-			List<UserFavourites> userList) {
-		JSONObject json = new JSONObject();
-		int counter = 0;
-		for (UserFavourites uf: userList) {
-			@SuppressWarnings("rawtypes")
-			HashMap map = new HashMap();
-			map.put("projectnumber", uf.getProjectNumber());
-			map.put("activitycode", uf.getActivityCode());
-			map.put("description", uf.getDescription());
-			map.put("billable", uf.getBillable());
-			map.put("projectname", uf.getProjectName());
-			map.put("customername", uf.getCustomer());
-			map.put("internalproject", uf.getInternalProject());
-			
-			json.put(counter++, map);
-			
-		}
-		return json;
-		
-	}
-
 
 	@Override
-	protected void service(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
+	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		try {
 			db.beginTransaction();
 			super.service(req, resp);
@@ -402,4 +300,7 @@ public class RegistrationServlet extends HttpServlet{
 		}
 	}
 
+    private static User getUserAttribute(HttpServletRequest req) {
+        return (User) req.getSession(false).getAttribute("user");
+    }
 }

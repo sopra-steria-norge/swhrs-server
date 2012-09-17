@@ -40,7 +40,7 @@ public interface HourRegDao {
 	 * @param taskNumber The taskNumber is sent as a String and represent a unique registration
 	 * @return returns a boolean to confirm the deletion
 	 */
-    int deleteHourRegistration(String userId, String taskNumber);
+    void deleteHourRegistration(String userId, String taskNumber);
 
 	/**
 	 * This method returns a list of hour registrations done in a specific period

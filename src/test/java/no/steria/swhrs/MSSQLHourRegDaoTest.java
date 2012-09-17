@@ -106,14 +106,13 @@ public class MSSQLHourRegDaoTest {
 		hourRegDao.endTransaction();
 		assertThat(period.getFromDate()).contains("2012-11-05");
 	}
-	
-	@Ignore
+
+    @Ignore
 	@Test
 	public void shouldDeleteRegistration() throws Exception {
 		hourRegDao.beginTransaction();
-		int deleted = hourRegDao.deleteHourRegistration("userid", "2101620");
+		hourRegDao.deleteHourRegistration("ROR", "2105832");
 		hourRegDao.endTransaction();
-		assertEquals(0, deleted);
 	}
 	
 	@Ignore

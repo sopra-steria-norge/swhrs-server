@@ -28,8 +28,8 @@ public class MSSQLHourRegDao implements HourRegDao {
     private static final String UPDATE_REGISTRATION = "UPDATE \"Norge$Time Entry\" SET Godkendt=? WHERE Ressourcekode = ? AND Dato BETWEEN ? AND ?";
 	private static final String SELECT_NORMTIME = "SELECT \"Norge$Norm Time Data\".Kode, \"Norge$Norm Time Data\".Mandag, \"Norge$Norm Time Data\".Tirsdag, \"Norge$Norm Time Data\".Onsdag, \"Norge$Norm Time Data\".Torsdag, \"Norge$Norm Time Data\".Fredag, \"Norge$Norm Time Data\".Lørdag, \"Norge$Norm Time Data\".Søndag from \"Norge$Norm Time Data\" INNER JOIN \"Norge$Resource\" ON \"Norge$Norm Time Data\".Kode = \"Norge$Resource\".\"Norm Tid\" WHERE \"Norge$Resource\".No_ = ?";
     private static final String INSERT_STORE_PROCEDURE = "{? = call dbo.uspSTE_InsertTimeEntry(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
-    private static final String DELETE_STORE_PROCEDURE = "{? = call dbo.uspSTE_DeleteTimeEntry(?, ?, ?)}";
-    private static final String UPDATE_STORE_PROCEDURE = "{? = call dbo.uspSTE_UpdateTimeEntry(?, ?, ?, ?, ?, ?, ?, ?, ?, ?}";
+    private static final String DELETE_STORE_PROCEDURE = "{call dbo.uspSTE_DeleteTimeEntry(?, ?, ?)}";
+    private static final String UPDATE_STORE_PROCEDURE = "{call dbo.uspSTE_UpdateTimeEntry(?, ?, ?, ?, ?, ?, ?, ?, ?, ?}";
 
 	public MSSQLHourRegDao(DataSource datasource) {
 		this.datasource = datasource;
@@ -121,16 +121,14 @@ public class MSSQLHourRegDao implements HourRegDao {
 
 
 	@Override
-	public int deleteHourRegistration(String userId, String taskNumber) {
+	public void deleteHourRegistration(String userId, String taskNumber) {
         CallableStatement statement = null;
         try {
             statement = connection.prepareCall(DELETE_STORE_PROCEDURE);
             statement.setString(1, COUNTRY);
             statement.setString(2, userId);
             statement.setString(3, taskNumber);
-
-            // returns a status code detailing how the update went.
-            return statement.executeUpdate();
+            statement.executeUpdate();
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -143,7 +141,6 @@ public class MSSQLHourRegDao implements HourRegDao {
             }
         }
 	}
-
 
 	@Override
 	public List<UserFavourites> getUserFavourites(String userId) {
