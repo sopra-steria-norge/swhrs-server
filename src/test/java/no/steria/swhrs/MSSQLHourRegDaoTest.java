@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.MessageDigest;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
@@ -19,8 +18,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.xml.bind.DatatypeConverter;
 
 public class MSSQLHourRegDaoTest {
     private static final Logger logger = LoggerFactory.getLogger(MSSQLHourRegDaoTest.class);
@@ -114,9 +111,9 @@ public class MSSQLHourRegDaoTest {
 	@Test
 	public void shouldDeleteRegistration() throws Exception {
 		hourRegDao.beginTransaction();
-		boolean deleted = hourRegDao.deleteHourRegistration("2101620");
+		int deleted = hourRegDao.deleteHourRegistration("userid", "2101620");
 		hourRegDao.endTransaction();
-		assertTrue(deleted);
+		assertEquals(0, deleted);
 	}
 	
 	@Ignore
@@ -133,7 +130,6 @@ public class MSSQLHourRegDaoTest {
     @Ignore
     @Test
     public void shouldAddRegistrationStoreProcedure() throws Exception {
-        String country = "NO";
         String username = "ROR";
         String userRegisteredFor = "ROR";
         String projectNumber = "1114330";
@@ -146,7 +142,7 @@ public class MSSQLHourRegDaoTest {
         boolean bypassChecks = false;
 
         hourRegDao.beginTransaction();
-        Integer entryId = hourRegDao.addHourRegistrations(country, username, userRegisteredFor, projectNumber, activity,
+        Integer entryId = hourRegDao.addHourRegistrations(username, userRegisteredFor, projectNumber, activity,
                 date, hours, isChargedHours, workType, description, bypassChecks);
         hourRegDao.endTransaction();
 
