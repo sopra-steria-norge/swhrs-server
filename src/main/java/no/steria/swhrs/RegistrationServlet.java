@@ -46,30 +46,30 @@ public class RegistrationServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if(req.getRequestURL().toString().contains(("hours/daylist"))){
+        if(req.getRequestURL().toString().contains("hours/daylist")){
             getDaylistResponseAsJSON(req, resp);
-        } else if(req.getRequestURL().toString().contains(("hours/favourite"))){
+        } else if(req.getRequestURL().toString().contains("hours/favourite")){
             getFavorites(req, resp);
-        } else if(req.getRequestURL().toString().contains(("hours/week"))){
+        } else if(req.getRequestURL().toString().contains("hours/week")){
             getWeeklistResponseAsJSON(req, resp);
-        } else if(req.getRequestURL().toString().contains(("hours/searchFavourites"))){
+        } else if(req.getRequestURL().toString().contains("hours/searchFavourites")){
             searchFavourites(req, resp);
         }
     }
 
     @Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)	throws ServletException, IOException {
-        if (req.getRequestURL().toString().contains(("hours/registration"))) {
+        if (req.getRequestURL().toString().contains("hours/registration")) {
             addRegistration(req);
-        } else if(req.getRequestURL().toString().contains(("hours/deleteRegistration"))){
+        } else if(req.getRequestURL().toString().contains("hours/deleteRegistration")){
             deleteRegistration(req, resp);
-		} else if(req.getRequestURL().toString().contains(("hours/addFavourites"))){
+		} else if(req.getRequestURL().toString().contains("hours/addFavourites")){
 			addFavourites(req);
-		} else if(req.getRequestURL().toString().contains(("hours/updatePeriod"))){
+		} else if(req.getRequestURL().toString().contains("hours/updatePeriod")){
 			updatePeriod(req, resp);
-		} else if(req.getRequestURL().toString().contains(("hours/deleteFavourite"))){
+		} else if(req.getRequestURL().toString().contains("hours/deleteFavourite")){
 			deleteFavourite(req);
-		} else if(req.getRequestURL().toString().contains(("hours/updateRegistration"))){
+		} else if(req.getRequestURL().toString().contains("hours/updateRegistration")){
 			updateRegistration(req);
 		}
  	}
@@ -154,9 +154,6 @@ public class RegistrationServlet extends HttpServlet {
 		db.addFavourites(user.getUsername(), projectNumber, activityCode);
 	}
 
-    private static User getUserAttribute(HttpServletRequest req) {
-        return (User) req.getAttribute("user");
-    }
     /**
      * Returns a HTTP response containing a JSON object of the users favourites stored in the database
      * @param resp HTTP request containing a JSON object of the users favourites
@@ -298,59 +295,7 @@ public class RegistrationServlet extends HttpServlet {
 		writer.append(JSONBuilder.createFromHours(hourRegistrationList, date.getDayOfWeek() + " " + date.toString()));
 	}
 
-	/**
-	 * Helper method to make a JSON object from a list of HourRegistrations
-	 * @param hrlist the list of HourRegistration objects
-	 * @param stringDate the date of the registrations
-	 * @return A json object of the format: key: taskNumber values: [description, hours]
-	 */
-	@SuppressWarnings("unchecked")
-	private JSONObject createJsonObjectFromHours(List<HourRegistration> hrlist, String stringDate) {
-		JSONObject json = new JSONObject();
-		for (HourRegistration hr: hrlist) {
-			@SuppressWarnings("rawtypes")
-			HashMap map = new HashMap();
-			map.put("projectnumber", hr.getProjectnumber());
-			map.put("activitycode", hr.getActivityCode());
-			map.put("description", hr.getDescription());
-			map.put("approved", hr.isApproved());
-			map.put("submitted", hr.isSubmitted());
-			map.put("hours", hr.getHours());
-			json.put(hr.getTaskNumber(), map);
-		}
-		json.put("date", stringDate);
-		return json;
-	}
-	
-	/**
-	 * Helper method to create JSON object from a list of UserFavourites objects
-	 * @param userList The list containing user favourite objects stored in the database
-	 * @return JSON object with the format {"projectNumber":{"internalproject":value,"activitycode":value,"description": value,"projectname": value,"customername": value,"billable": value}
-	 *         Keys are generated from 1 and up so it's easy to sort later, they contain a map with the rest of the values
-	 */
-	@SuppressWarnings("unchecked")
-	private JSONObject createJsonObjectFromFavourites(
-			List<UserFavourites> userList) {
-		JSONObject json = new JSONObject();
-		int counter = 0;
-		for (UserFavourites uf: userList) {
-			@SuppressWarnings("rawtypes")
-			HashMap map = new HashMap();
-			map.put("projectnumber", uf.getProjectNumber());
-			map.put("activitycode", uf.getActivityCode());
-			map.put("description", uf.getDescription());
-			map.put("billable", uf.getBillable());
-			map.put("projectname", uf.getProjectName());
-			map.put("customername", uf.getCustomer());
-			map.put("internalproject", uf.getInternalProject());
-			
-			json.put(counter++, map);
-			
-		}
-		return json;
-		
-	}
     private static User getUserAttribute(HttpServletRequest req) {
-        return (User) req.getSession(false).getAttribute("user");
+        return (User) req.getAttribute("user");
     }
 }

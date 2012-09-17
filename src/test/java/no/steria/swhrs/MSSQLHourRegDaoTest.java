@@ -41,13 +41,13 @@ public class MSSQLHourRegDaoTest {
 
 		logger.info("Connecting to '" + serverAddress + "' db '" + databaseName + "' port '" + port + "' user '" + user + "'");
 
-        SQLServerDataSource datasource = new SQLServerDataSource();
-		datasource.setServerName(serverAddress);
-		datasource.setPortNumber(port);
-		datasource.setDatabaseName(databaseName);
-		datasource.setUser(user);
-		datasource.setPassword(password);
-		return new MSSQLHourRegDao(datasource);
+        SQLServerDataSource dataSource = new SQLServerDataSource();
+		dataSource.setServerName(serverAddress);
+		dataSource.setPortNumber(port);
+		dataSource.setDatabaseName(databaseName);
+		dataSource.setUser(user);
+		dataSource.setPassword(password);
+		return new MSSQLHourRegDao(dataSource);
 	}
 
 	@Test
@@ -95,7 +95,7 @@ public class MSSQLHourRegDaoTest {
     @Ignore
 	@Test
 	public void shouldDeleteRegistration() throws Exception {
-		assertThat(hourRegDao.deleteHourRegistration("AK", "2101620")).isEqualTo(1);
+        hourRegDao.deleteHourRegistration("AK", "2101620");
 	}
 
     @Ignore
