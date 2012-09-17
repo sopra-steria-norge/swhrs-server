@@ -34,6 +34,9 @@ public class AuthorizationFilter implements Filter {
         JSONObject authenticationTokenJsonObject;
         try {
             authenticationTokenJsonObject = (JSONObject) JSONValue.parseWithException(request.getHeader(AUTHENTICATION_TOKEN_HEADER_NAME));
+        } catch (NullPointerException e) {
+            incorrectAuthenticationHeader(response);
+            return;
         } catch (ParseException e) {
             incorrectAuthenticationHeader(response);
             return;
@@ -42,7 +45,7 @@ public class AuthorizationFilter implements Filter {
             return;
         }
 
-        User user = null;
+        User user;
         try {
             user = hourRegDao.findUser(
                     (String) authenticationTokenJsonObject.get("username"),
@@ -50,12 +53,14 @@ public class AuthorizationFilter implements Filter {
             );
         } catch (RuntimeException e) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Username and password not set.");
+            return;
         }
         if (user != null) {
             request.setAttribute("user", user);
             response.setStatus(HttpServletResponse.SC_OK);
         } else {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Username and password was not recognized.");
+            return;
         }
 
         chain.doFilter(req, resp);

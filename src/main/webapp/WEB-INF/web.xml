@@ -13,6 +13,22 @@
         <url-pattern>/swhrs-app/hours/*</url-pattern>
     </filter-mapping>
 
+
+    <filter-mapping>
+        <filter-name>authorizationFilter</filter-name>
+        <url-pattern>/swhrs-app/checkAuthentication</url-pattern>
+    </filter-mapping>
+
+    <servlet>
+        <servlet-name>checkAuthenticationServlet</servlet-name>
+        <servlet-class>no.steria.swhrs.CheckAuthenticationServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>checkAuthenticationServlet</servlet-name>
+        <url-pattern>/swhrs-app/checkAuthentication</url-pattern>
+    </servlet-mapping>
+
     <servlet>
         <servlet-name>registrationServlet</servlet-name>
         <servlet-class>no.steria.swhrs.RegistrationServlet</servlet-class>
