@@ -218,8 +218,8 @@ public class RegistrationServlet extends HttpServlet{
 		LocalDate localFromDate = new LocalDate(period2.getFromDate().split(" ")[0]);
 		LocalDate localToDate = new LocalDate(period2.getToDate().split(" ")[0]);
 		
-		if(week.equals("nextWeek")) date = localToDate.plusDays(1);
-		if(week.equals("prevWeek")) date = localFromDate.minusDays(1);
+		if("nextWeek".equals(week)) date = localToDate.plusDays(1);
+		if("prevWeek".equals(week)) date = localFromDate.minusDays(1);
 		
 		DatePeriod period = db.getPeriod(user.getUsername(), date.toString());
 		
