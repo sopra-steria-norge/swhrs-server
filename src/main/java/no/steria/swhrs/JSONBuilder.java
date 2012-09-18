@@ -1,5 +1,6 @@
 package no.steria.swhrs;
 
+import org.joda.time.DateTime;
 import org.json.simple.JSONObject;
 
 import java.util.HashMap;
@@ -32,10 +33,10 @@ public class JSONBuilder {
     /**
      * Helper method to make a JSON object from a list of HourRegistrations
      * @param hourRegistrationList the list of HourRegistration objects
-     * @param stringDate the date of the registrations
+     * @param date the date of the registrations
      * @return A json object of the format: key: taskNumber values: [description, hours]
      */
-    public static JSONObject createFromHours(List<HourRegistration> hourRegistrationList, String stringDate) {
+    public static JSONObject createFromHours(List<HourRegistration> hourRegistrationList, DateTime date) {
         JSONObject json = new JSONObject();
         for (HourRegistration hourRegistration : hourRegistrationList) {
             HashMap map = new HashMap();
@@ -47,7 +48,7 @@ public class JSONBuilder {
             map.put(RegistrationConstants.HOURS, hourRegistration.getHours());
             json.put(hourRegistration.getTaskNumber(), map);
         }
-        json.put("date", stringDate);
+        json.put(RegistrationConstants.DATE, date.toString());
         return json;
     }
 

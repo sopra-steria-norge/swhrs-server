@@ -25,9 +25,9 @@ public class MSSQLHourRegDao implements HourRegDao {
 	private static final String SELECT_NORMTIME = "SELECT \"Norge$Norm Time Data\".Kode, \"Norge$Norm Time Data\".Mandag, \"Norge$Norm Time Data\".Tirsdag, \"Norge$Norm Time Data\".Onsdag, \"Norge$Norm Time Data\".Torsdag, \"Norge$Norm Time Data\".Fredag, \"Norge$Norm Time Data\".Lørdag, \"Norge$Norm Time Data\".Søndag from \"Norge$Norm Time Data\" INNER JOIN \"Norge$Resource\" ON \"Norge$Norm Time Data\".Kode = \"Norge$Resource\".\"Norm Tid\" WHERE \"Norge$Resource\".No_ = ?";
     private static final String STORE_PROCEDURE_INSERT_HOURS = "{? = call dbo.uspSTE_InsertTimeEntry(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
     private static final String STORE_PROCEDURE_DELETE_HOURS = "{call dbo.uspSTE_DeleteTimeEntry(?, ?, ?)}";
-    private static final String STORE_PROCEDURE_UPDATE_HOURS = "{call dbo.uspSTE_UpdateTimeEntry(?, ?, ?, ?, ?, ?, ?, ?, ?, ?}";
-    private static final String STORE_PROCEDURE_SUBMIT_HOURS = "{call dbo.uspSTE_EMPApprovePeriod(?, ?, ?, ?}";
-    private static final String STORE_PROCEDURE_REOPEN_HOURS = "{call dbo.uspSTE_ReopenPeriod(?, ?, ?, ?}";
+    private static final String STORE_PROCEDURE_UPDATE_HOURS = "{call dbo.uspSTE_UpdateTimeEntry(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+    private static final String STORE_PROCEDURE_SUBMIT_HOURS = "{call dbo.uspSTE_EMPApprovePeriod(?, ?, ?, ?)}";
+    private static final String STORE_PROCEDURE_REOPEN_HOURS = "{call dbo.uspSTE_ReopenPeriod(?, ?, ?, ?)}";
 
 	public MSSQLHourRegDao(DataSource datasource) {
 		this.datasource = datasource;
@@ -209,14 +209,14 @@ public class MSSQLHourRegDao implements HourRegDao {
     }
 
     @Override
-	public List<HourRegistration> getAllHoursForDate(String userId, String date) {
+	public List<HourRegistration> getAllHoursForDate(String userId, DateTime date) {
 		List<HourRegistration> result = new ArrayList<HourRegistration>();
 
 		PreparedStatement statement = null;
 		try {
 			statement = getConnection().prepareStatement(SELECT_REGISTRATIONS);
 			statement.setString(1, userId);
-			statement.setString(2, date);
+			statement.setDate(2, new Date(date.getMillis()));
 			ResultSet res = statement.executeQuery();
 			while(res.next()){
 				int taskNumber = res.getInt(2);
