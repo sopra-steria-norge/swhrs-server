@@ -26,9 +26,7 @@ import java.util.List;
 public class RegistrationServlet extends HttpServlet {
 	private static final long serialVersionUID = -1090477374982937503L;
     private static final String APPLICATION_JSON = "application/json";
-    private static final String APPLICATION_TEXT = "application/text";
     private static final String TEXT_PLAIN = "text/plain";
-    private static final String TEXT_JSON = "text/json";
 
 	private HourRegDao db;
 
@@ -215,8 +213,6 @@ public class RegistrationServlet extends HttpServlet {
 	 */
 	@SuppressWarnings("unchecked")
 	private void getWeeklistResponseAsJSON(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        response.setContentType(APPLICATION_TEXT);
-
         User user = getUserAttribute(request);
         String week = request.getParameter("week");
 
@@ -276,7 +272,7 @@ public class RegistrationServlet extends HttpServlet {
 		
 		obj.put("weekNumber", weekDescription);
 		obj.put("dateHdr", date.getDayOfWeek()+" "+date.toString());
-		response.setContentType(TEXT_JSON);
+		response.setContentType(APPLICATION_JSON);
 		PrintWriter writer = response.getWriter();
 		String jsonText = obj.toJSONString();
 		writer.append(jsonText);
