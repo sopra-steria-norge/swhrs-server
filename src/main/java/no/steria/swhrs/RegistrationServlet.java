@@ -4,8 +4,6 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.json.simple.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import javax.servlet.ServletException;
@@ -25,7 +23,6 @@ import java.util.List;
  */
 public class RegistrationServlet extends HttpServlet {
 	private static final long serialVersionUID = -1090477374982937503L;
-    private static final Logger logger = LoggerFactory.getLogger(RegistrationServlet.class);
     private static final String APPLICATION_JSON = "application/json";
     private static final String APPLICATION_TEXT = "application/text";
     private static final String TEXT_PLAIN = "text/plain";
@@ -60,17 +57,19 @@ public class RegistrationServlet extends HttpServlet {
     @Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)	throws ServletException, IOException {
         if (req.getRequestURL().toString().contains("hours/registration")) {
-            addRegistration(req);
+            addHourRegistration(req);
         } else if(req.getRequestURL().toString().contains("hours/deleteRegistration")){
-            deleteRegistration(req, resp);
+            deleteHourRegistration(req, resp);
 		} else if(req.getRequestURL().toString().contains("hours/addFavourites")){
 			addFavourites(req);
-		} else if(req.getRequestURL().toString().contains("hours/updatePeriod")){
-			updatePeriod(req, resp);
-		} else if(req.getRequestURL().toString().contains("hours/deleteFavourite")){
+		} else if(req.getRequestURL().toString().contains("hours/submitPeriod")){
+			submitPeriod(req, resp);
+		} else if(req.getRequestURL().toString().contains("hours/reopenPeriod")){
+            reopenPeriod(req, resp);
+        } else if(req.getRequestURL().toString().contains("hours/deleteFavourite")){
 			deleteFavourite(req);
 		} else if(req.getRequestURL().toString().contains("hours/updateRegistration")){
-			updateRegistration(req);
+			updateHourRegistration(req);
 		}
  	}
 
@@ -78,7 +77,7 @@ public class RegistrationServlet extends HttpServlet {
      * Adds an hour registration the database
      * @param req The HTTP request containing parameters of "ProjectNr", "hours", "lunchNumber" and "description"
      */
-    private void addRegistration(HttpServletRequest req) {
+    private void addHourRegistration(HttpServletRequest req) {
         User user = getUserAttribute(req);
         String username = user.getUsername();
         String projectNumber = req.getParameter(RegistrationConstants.PROJECT_NUMBER);
@@ -86,8 +85,8 @@ public class RegistrationServlet extends HttpServlet {
         double hours = Double.parseDouble(req.getParameter(RegistrationConstants.HOURS));
         String description = req.getParameter(RegistrationConstants.DESCRIPTION);
         boolean billable = StringUtils.equals("1", req.getParameter(RegistrationConstants.BILLABLE));
-        DateTime date = new DateTime(); // todo: add date to values that should be read - req.getParameter("date");
-        String workType = "";
+        DateTime date = new DateTime(req.getParameter(RegistrationConstants.DATE));
+        String workType = req.getParameter(RegistrationConstants.WORK_TYPE);
 
         db.addHourRegistrations(username, username, projectNumber, activityCode, date, hours, billable,
                 workType, description, false);
@@ -97,19 +96,19 @@ public class RegistrationServlet extends HttpServlet {
 	 * This method updates an hour registration with a new description for time entry (comment) and new hours number
 	 * @param req HttpServletRequest
 	 */
-	private void updateRegistration(HttpServletRequest req) {
+	private void updateHourRegistration(HttpServletRequest req) {
         User user = getUserAttribute(req);
         String userId = user.getUsername();
 		String taskNumber = req.getParameter(RegistrationConstants.TASK_NUMBER);
 		double hours = Double.parseDouble(req.getParameter(RegistrationConstants.HOURS));
 		String description = req.getParameter(RegistrationConstants.DESCRIPTION);
-        boolean billable = StringUtils.equals("1", req.getParameter(RegistrationConstants.BILLABLE));
-        String workType = "";
         String activity = req.getParameter(RegistrationConstants.ACTIVITY_CODE);
         String projectNumber = req.getParameter(RegistrationConstants.PROJECT_NUMBER);
-        DateTime date = new DateTime();
+        DateTime date = new DateTime(req.getParameter(RegistrationConstants.DATE));
+        boolean billable = StringUtils.equals("1", req.getParameter(RegistrationConstants.BILLABLE));
+        String workType = req.getParameter(RegistrationConstants.WORK_TYPE);
 
-        db.updateRegistration(userId, taskNumber, projectNumber, activity, date, hours, billable, workType, description);
+        db.updateHourRegistration(userId, taskNumber, projectNumber, activity, date, hours, billable, workType, description);
 	}
 
     /**
@@ -120,16 +119,15 @@ public class RegistrationServlet extends HttpServlet {
      * 			or "success" if the deletion was successful
      * @throws IOException
      */
-    private void deleteRegistration(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    private void deleteHourRegistration(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         User user = getUserAttribute(req);
         String username = user.getUsername();
         String taskNumber = req.getParameter(RegistrationConstants.TASK_NUMBER);
-
         db.deleteHourRegistration(username, taskNumber);
+
         resp.setContentType(TEXT_PLAIN);
-
-
-        resp.getWriter().append("success");
+        resp.setStatus(RegistrationConstants.HTTP_STATUS_CODE_SUCCESS);
+        resp.getWriter().append(RegistrationConstants.TEXT_SUCCESS);
     }
 
 	/**
@@ -160,12 +158,13 @@ public class RegistrationServlet extends HttpServlet {
      * @throws IOException
      */
     private void getFavorites(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        User user = getUserAttribute(req);
         resp.setContentType(APPLICATION_JSON);
+        User user = getUserAttribute(req);
         List<UserFavourites> userList = db.getUserFavourites(user.getUsername());
 
         PrintWriter writer = resp.getWriter();
-        writer.append(JSONBuilder.createFromFavourites(userList));
+        writer.append(JSONBuilder.createFromFavourites(userList).toString());
+        resp.setStatus(RegistrationConstants.HTTP_STATUS_CODE_SUCCESS);
     }
 
     /**
@@ -183,27 +182,34 @@ public class RegistrationServlet extends HttpServlet {
 		List<Projects> project = db.searchProjects(searchInput);
 
 		PrintWriter writer = resp.getWriter();
-		writer.append(JSONBuilder.createProjects(project));
+		writer.append(JSONBuilder.createProjects(project).toString());
+        resp.setStatus(RegistrationConstants.HTTP_STATUS_CODE_SUCCESS);
 	}
 	
 	/**
-	 * This method will update a users period based on the HTTP request, it will either submit the period if the request is 1 
-	 * or reopen if the request is 0.
-	 * @param req The HTTP request contains option which decides whether to submit(1) or reopen(0) period
-	 * @param resp The HTTP response returns in plain text if the period is submitted or reopened
+	 * This method will submit a period entry - start date of the period needs to be passed as an argument.
+	 * @param req The HTTP request
+	 * @param resp The HTTP response
 	 * @throws IOException
 	 */
-	private void updatePeriod(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        User user = getUserAttribute(req);
-        DatePeriod period = db.getPeriod(user.getUsername(), date.toString());
-        int option = Integer.parseInt(req.getParameter("option"));
-        db.updatePeriod(user.getUsername(), option, period.getFromDate(), period.getToDate());
-        resp.setContentType(TEXT_PLAIN);
-        if (option == 1) {
-            resp.getWriter().append("Period is submitted");
-        } else {
-            resp.getWriter().append("Period is reopened");
-        }
+	private void submitPeriod(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String username = getUserAttribute(req).getUsername();
+        DateTime startDate = new DateTime(req.getParameter(RegistrationConstants.DATE));
+        db.submitHours(username, username, startDate);
+        resp.setStatus(RegistrationConstants.HTTP_STATUS_CODE_SUCCESS);
+    }
+
+    /**
+     * This method will attempt to reopen a period entry - start date of the period needs to be passed as an argument.
+     * @param req The HTTP request
+     * @param resp The HTTP response
+     * @throws IOException
+     */
+    private void reopenPeriod(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String username = getUserAttribute(req).getUsername();
+        DateTime startDate = new DateTime(req.getParameter(RegistrationConstants.DATE));
+        db.reopenHours(username, username, startDate);
+        resp.setStatus(RegistrationConstants.HTTP_STATUS_CODE_SUCCESS);
     }
 	
 	/**
@@ -214,9 +220,11 @@ public class RegistrationServlet extends HttpServlet {
 	 */
 	@SuppressWarnings("unchecked")
 	private void getWeeklistResponseAsJSON(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        resp.setContentType(APPLICATION_TEXT);
+
         User user = getUserAttribute(req);
         String week = req.getParameter("week");
-		resp.setContentType(APPLICATION_TEXT);
+
 		DatePeriod period2 = db.getPeriod(user.getUsername(), date.toString());
 		
 		LocalDate localFromDate = new LocalDate(period2.getFromDate().split(" ")[0]);
@@ -292,7 +300,8 @@ public class RegistrationServlet extends HttpServlet {
 		List<HourRegistration> hourRegistrationList = db.getAllHoursForDate(user.getUsername(), date.toString());
 
 		PrintWriter writer = resp.getWriter();
-		writer.append(JSONBuilder.createFromHours(hourRegistrationList, date.getDayOfWeek() + " " + date.toString()));
+		writer.append(JSONBuilder.createFromHours(hourRegistrationList, date.getDayOfWeek() + " " + date.toString()).toString());
+        resp.setStatus(RegistrationConstants.HTTP_STATUS_CODE_SUCCESS);
 	}
 
     private static User getUserAttribute(HttpServletRequest req) {

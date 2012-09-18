@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class JSONBuilder {
 
-    public static String createProjects(List<Projects> project) {
+    public static JSONObject createProjects(List<Projects> project) {
         int counter = 0;
 
         JSONObject projectJson = new JSONObject();
@@ -26,9 +26,8 @@ public class JSONBuilder {
             projectJson.put(counter, map);
         }
 
-        return projectJson.toString();
+        return projectJson;
     }
-
 
     /**
      * Helper method to make a JSON object from a list of HourRegistrations
@@ -36,7 +35,7 @@ public class JSONBuilder {
      * @param stringDate the date of the registrations
      * @return A json object of the format: key: taskNumber values: [description, hours]
      */
-    public static String createFromHours(List<HourRegistration> hourRegistrationList, String stringDate) {
+    public static JSONObject createFromHours(List<HourRegistration> hourRegistrationList, String stringDate) {
         JSONObject json = new JSONObject();
         for (HourRegistration hourRegistration : hourRegistrationList) {
             HashMap map = new HashMap();
@@ -49,7 +48,7 @@ public class JSONBuilder {
             json.put(hourRegistration.getTaskNumber(), map);
         }
         json.put("date", stringDate);
-        return json.toString();
+        return json;
     }
 
     /**
@@ -59,7 +58,7 @@ public class JSONBuilder {
      *         Keys are generated from 1 and up so it's easy to sort later, they contain a map with the rest of the values
      */
     @SuppressWarnings("unchecked")
-    public static String createFromFavourites(List<UserFavourites> userList) {
+    public static JSONObject createFromFavourites(List<UserFavourites> userList) {
         JSONObject json = new JSONObject();
         int counter = 0;
         for (UserFavourites userFavourites: userList) {
@@ -76,6 +75,6 @@ public class JSONBuilder {
             json.put(counter++, map);
 
         }
-        return json.toString();
+        return json;
     }
 }
