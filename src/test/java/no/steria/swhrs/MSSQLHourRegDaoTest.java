@@ -61,14 +61,14 @@ public class MSSQLHourRegDaoTest {
 	
 	@Test
 	public void shouldGetRegistrations() throws Exception {
-		List<HourRegistration> allHoursForDate = hourRegDao.getAllHoursForDate("AK", "2012-05-30 00:00:00.0");
+		List<HourRegistration> allHoursForDate = hourRegDao.getAllHoursForDate("AK", new DateTime(2012, 5, 30, 0, 0));
 		assertThat(allHoursForDate).hasSize(5);
 	}
 	
 	@Test
 	public void shouldGetUserFavourites() throws Exception {
-		List<UserFavourites> userFavourites = hourRegDao.getUserFavourites("SOLJ");
-		assertThat(userFavourites).hasSize(8);
+		List<UserFavourites> userFavourites = hourRegDao.getUserFavourites("AK");
+		assertThat(userFavourites).hasSize(13);
 	}
 	
 	
@@ -129,20 +129,35 @@ public class MSSQLHourRegDaoTest {
     @Test
     public void shouldUpdateRegistration() throws Exception {
         String username = "ROR";
-        String userRegisteredFor = "ROR";
-        String projectNumber = "1114330";
+        String entryId = "2105803";
+        String projectNumber = "1112790";
         String activity = "1";
         DateTime date = new DateTime(2012, 9, 3, 0, 0);
-        double hours = 2.0;
+        double hours = 1.0;
         boolean isChargedHours = true;
         String workType = "";
         String description = "updated";
-        boolean bypassChecks = false;
 
-        Integer entryId = hourRegDao.addHourRegistrations(username, userRegisteredFor, projectNumber, activity,
-                date, hours, isChargedHours, workType, description, bypassChecks);
+        hourRegDao.updateHourRegistration(username, entryId,  projectNumber, activity, date, hours, isChargedHours,
+                workType, description);
 
         assertNotNull(entryId);
     }
-	
+
+
+    @Test
+    public void shouldSubmitHours() throws Exception {
+        String username = "ROR";
+        DateTime date = new DateTime(2012, 9, 3, 0, 0);
+        hourRegDao.submitHours(username, username, date);
+    }
+
+
+    @Test
+    public void shouldReOpenHours() throws Exception {
+        String username = "ROR";
+        DateTime date = new DateTime(2012, 9, 3, 0, 0);
+        hourRegDao.reopenHours(username, username, date);
+    }
+
 }
