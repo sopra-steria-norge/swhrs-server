@@ -159,9 +159,13 @@ public class RegistrationServlet extends HttpServlet {
      * @throws IOException
      */
     private void getFavorites(HttpServletRequest request, HttpServletResponse response) throws IOException {
+       try {
         User user = getUserAttribute(request);
         List<UserFavourites> userList = db.getUserFavourites(user.getUsername());
         fillInSuccessResponse(response, APPLICATION_JSON, JSONBuilder.createFromFavourites(userList).toString());
+       } catch (Throwable t) {
+           t.printStackTrace();
+       }
     }
 
     /**
@@ -286,9 +290,9 @@ public class RegistrationServlet extends HttpServlet {
 	 */
 	private void getDaylistResponseAsJSON(HttpServletRequest request, HttpServletResponse response)	throws IOException {
         User user = getUserAttribute(request);
-        LocalDate date = new LocalDate(request.getParameter("day"));
-		List<HourRegistration> hourRegistrationList = db.getAllHoursForDate(user.getUsername(), date.toString());
-        fillInSuccessResponse(response, APPLICATION_JSON, JSONBuilder.createFromHours(hourRegistrationList, date.getDayOfWeek() + " " + date.toString()).toString());
+        DateTime date = getDate(request.getParameter(RegistrationConstants.DATE));
+		List<HourRegistration> hourRegistrationList = db.getAllHoursForDate(user.getUsername(), date);
+        fillInSuccessResponse(response, APPLICATION_JSON, JSONBuilder.createFromHours(hourRegistrationList, date).toString());
 	}
 
     private static User getUserAttribute(HttpServletRequest req) {

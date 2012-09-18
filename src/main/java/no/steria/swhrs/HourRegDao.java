@@ -78,7 +78,7 @@ public interface HourRegDao {
 	 * @param date The date is sent as a String with the format (yyyy-MM-dd)
 	 * @return returns a List of HourRegistration objects
 	 */
-	List<HourRegistration> getAllHoursForDate(String userId, String date);
+	List<HourRegistration> getAllHoursForDate(String userId, DateTime date);
 
 	/**
 	 * This method returns a list of hour registrations done in a specific period
