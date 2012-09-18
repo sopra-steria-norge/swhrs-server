@@ -9,5 +9,6 @@ import java.io.IOException;
 public class CheckAuthenticationServlet extends HttpServlet {
     @Override
     protected void doHead(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.setStatus(HttpServletResponse.SC_OK);
     }
 }
