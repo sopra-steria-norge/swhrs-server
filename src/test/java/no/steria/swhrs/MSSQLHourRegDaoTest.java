@@ -95,7 +95,7 @@ public class MSSQLHourRegDaoTest {
     @Ignore
 	@Test
 	public void shouldDeleteRegistration() throws Exception {
-        hourRegDao.deleteHourRegistration("AK", "2101620");
+        hourRegDao.deleteHourRegistration("ROR", "2101620");
 	}
 
     @Ignore
@@ -105,6 +105,7 @@ public class MSSQLHourRegDaoTest {
 		assertTrue(addFavourite);
 	}
 
+    @Ignore
     @Test
     public void shouldAddRegistrationStoreProcedure() throws Exception {
         String username = "ROR";
@@ -116,6 +117,26 @@ public class MSSQLHourRegDaoTest {
         boolean isChargedHours = true;
         String workType = "";
         String description = "";
+        boolean bypassChecks = false;
+
+        Integer entryId = hourRegDao.addHourRegistrations(username, userRegisteredFor, projectNumber, activity,
+                date, hours, isChargedHours, workType, description, bypassChecks);
+
+        assertNotNull(entryId);
+    }
+
+    @Ignore
+    @Test
+    public void shouldUpdateRegistration() throws Exception {
+        String username = "ROR";
+        String userRegisteredFor = "ROR";
+        String projectNumber = "1114330";
+        String activity = "1";
+        DateTime date = new DateTime(2012, 9, 3, 0, 0);
+        double hours = 2.0;
+        boolean isChargedHours = true;
+        String workType = "";
+        String description = "updated";
         boolean bypassChecks = false;
 
         Integer entryId = hourRegDao.addHourRegistrations(username, userRegisteredFor, projectNumber, activity,

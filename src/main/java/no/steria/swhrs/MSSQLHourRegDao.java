@@ -23,13 +23,190 @@ public class MSSQLHourRegDao implements HourRegDao {
 	private static final String DELETE_FAVOURITE = "DELETE FROM \"Norge$Favourite Task\" WHERE Resourcekode = ? AND Projektnr_ = ? AND Aktivitetskode = ?";
     private static final String UPDATE_REGISTRATION = "UPDATE \"Norge$Time Entry\" SET Godkendt=? WHERE Ressourcekode = ? AND Dato BETWEEN ? AND ?";
 	private static final String SELECT_NORMTIME = "SELECT \"Norge$Norm Time Data\".Kode, \"Norge$Norm Time Data\".Mandag, \"Norge$Norm Time Data\".Tirsdag, \"Norge$Norm Time Data\".Onsdag, \"Norge$Norm Time Data\".Torsdag, \"Norge$Norm Time Data\".Fredag, \"Norge$Norm Time Data\".Lørdag, \"Norge$Norm Time Data\".Søndag from \"Norge$Norm Time Data\" INNER JOIN \"Norge$Resource\" ON \"Norge$Norm Time Data\".Kode = \"Norge$Resource\".\"Norm Tid\" WHERE \"Norge$Resource\".No_ = ?";
-    private static final String INSERT_STORE_PROCEDURE = "{? = call dbo.uspSTE_InsertTimeEntry(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
-    private static final String DELETE_STORE_PROCEDURE = "{call dbo.uspSTE_DeleteTimeEntry(?, ?, ?)}";
-    private static final String UPDATE_STORE_PROCEDURE = "{call dbo.uspSTE_UpdateTimeEntry(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+    private static final String STORE_PROCEDURE_INSERT_HOURS = "{? = call dbo.uspSTE_InsertTimeEntry(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+    private static final String STORE_PROCEDURE_DELETE_HOURS = "{call dbo.uspSTE_DeleteTimeEntry(?, ?, ?)}";
+    private static final String STORE_PROCEDURE_UPDATE_HOURS = "{call dbo.uspSTE_UpdateTimeEntry(?, ?, ?, ?, ?, ?, ?, ?, ?, ?}";
+    private static final String STORE_PROCEDURE_SUBMIT_HOURS = "{call dbo.uspSTE_EMPApprovePeriod(?, ?, ?, ?}";
+    private static final String STORE_PROCEDURE_REOPEN_HOURS = "{call dbo.uspSTE_ReopenPeriod(?, ?, ?, ?}";
 
 	public MSSQLHourRegDao(DataSource datasource) {
 		this.datasource = datasource;
 	}
+
+    public static MSSQLHourRegDao createInstance() throws NamingException {
+        DataSource dataSource = (DataSource) new InitialContext().lookup(JettyServer.DB_JNDI);
+        if (dataSource == null) {
+            throw new RuntimeException("Could not find datasource");
+        }
+        return new MSSQLHourRegDao(dataSource);
+    }
+
+    private Connection getConnection() throws SQLException {
+        return datasource.getConnection();
+    }
+
+    @Override
+    public Integer addHourRegistrations(String loggedInUser, String registeringForUser, String projectNumber,
+                                        String activity, DateTime date, double hours, boolean isChargedHours,
+                                        String workType, String description, boolean bypassChecks) {
+
+        CallableStatement statement = null;
+        try {
+            statement = getConnection().prepareCall(STORE_PROCEDURE_INSERT_HOURS);
+            statement.registerOutParameter(1, Types.INTEGER);
+            statement.setString(2, COUNTRY);
+            statement.setString(3, loggedInUser);
+            statement.setString(4, registeringForUser);
+            statement.setString(5, projectNumber);
+            statement.setString(6, activity);
+            statement.setDate(7, new Date(date.getMillis()));
+            statement.setDouble(8, hours);
+            statement.setBoolean(9, isChargedHours);
+            statement.setString(10, workType);
+            statement.setString(11, description);
+            statement.setBoolean(12, bypassChecks);
+
+            statement.execute();
+            return statement.getInt(1);
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (statement != null) statement.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    @Override
+    public void updateHourRegistration(String userId, String taskNumber, String projectNumber, String activity,
+                                       DateTime date, double hours, boolean isBillable, String workType,
+                                       String description) {
+        CallableStatement statement = null;
+
+        try {
+            statement = getConnection().prepareCall(STORE_PROCEDURE_UPDATE_HOURS);
+            statement.setString(1, COUNTRY);
+            statement.setString(2, userId);
+            statement.setString(3, taskNumber);
+            statement.setString(4, projectNumber);
+            statement.setString(5, activity);
+            statement.setDate(6, new Date(date.getMillis()));
+            statement.setDouble(7, hours);
+            statement.setBoolean(8, isBillable);
+            statement.setString(9, workType);
+            statement.setString(10, description);
+
+            statement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (statement != null) statement.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    @Override
+    public void deleteHourRegistration(String userId, String taskNumber) {
+        CallableStatement statement = null;
+        try {
+            statement = getConnection().prepareCall(STORE_PROCEDURE_DELETE_HOURS);
+            statement.setString(1, COUNTRY);
+            statement.setString(2, userId);
+            statement.setString(3, taskNumber);
+            statement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        finally{
+            try {
+                if(statement != null)statement.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    @Override
+    public boolean addFavourites(String userId, String project_id, String activityCode) {
+        PreparedStatement statement = null;
+        try {
+            statement = getConnection().prepareStatement(INSERT_FAVOURITE);
+            statement.setString(1, userId);
+            statement.setString(2, project_id);
+            statement.setString(3, activityCode);
+            statement.executeUpdate();
+            return true;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (statement != null) statement.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    @Override
+    public List<UserFavourites> getUserFavourites(String userId) {
+        List<UserFavourites> result = new ArrayList<UserFavourites>();
+        PreparedStatement statement = null;
+        try {
+            statement = getConnection().prepareStatement(SELECT_FAVOURITES);
+            statement.setString(1, userId);
+            ResultSet res = statement.executeQuery();
+            while (res.next()) {
+                String projectNumber = res.getString(1);
+                String activityCode = res.getString(2);
+                String description = res.getString(3);
+                int billable = res.getInt(4);
+                String projectName = res.getString(5);
+                String customer = res.getString(6);
+                int internalProject = res.getInt(7);
+                UserFavourites userFav = new UserFavourites(projectNumber, activityCode, description, billable, projectName, customer, internalProject);
+                result.add(userFav);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (statement != null) statement.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public void deleteFavourite(String userId, String projectNumber, String activityCode) {
+        PreparedStatement statement = null;
+        try {
+            statement = getConnection().prepareStatement(DELETE_FAVOURITE);
+            statement.setString(1, userId);
+            statement.setString(2, projectNumber);
+            statement.setString(3, activityCode);
+            statement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (statement != null) statement.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 
     @Override
 	public List<HourRegistration> getAllHoursForDate(String userId, String date) {
@@ -66,91 +243,6 @@ public class MSSQLHourRegDao implements HourRegDao {
 		return result;
 	}
 
-    private Connection getConnection() throws SQLException {
-        return datasource.getConnection();
-    }
-
-    @Override
-    public User findUser(String userId, Password password) {
-        PreparedStatement statement = null;
-        try {
-            statement = getConnection().prepareStatement(SELECT_USERS);
-            statement.setString(1, userId.toUpperCase());
-            ResultSet res = statement.executeQuery();
-            if (res.next()) {
-                Password passwordInDb = Password.fromPlaintext(password.getSalt(), res.getString(2));
-                if (password.equals(passwordInDb)) {
-                    User user = new User();
-                    user.setUsername(res.getString(1));
-                    user.setPassword(passwordInDb);
-                    return user;
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            try {
-                if (statement != null) statement.close();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return null;
-    }
-
-
-	@Override
-	public void deleteHourRegistration(String userId, String taskNumber) {
-        CallableStatement statement = null;
-        try {
-            statement = getConnection().prepareCall(DELETE_STORE_PROCEDURE);
-            statement.setString(1, COUNTRY);
-            statement.setString(2, userId);
-            statement.setString(3, taskNumber);
-            statement.executeUpdate();
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        finally{
-            try {
-                if(statement != null)statement.close();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        }
-	}
-
-    @Override
-    public List<UserFavourites> getUserFavourites(String userId) {
-        List<UserFavourites> result = new ArrayList<UserFavourites>();
-        PreparedStatement statement = null;
-        try {
-			statement = getConnection().prepareStatement(SELECT_FAVOURITES);
-            statement.setString(1, userId);
-            ResultSet res = statement.executeQuery();
-            while (res.next()) {
-                String projectNumber = res.getString(1);
-                String activityCode = res.getString(2);
-                String description = res.getString(3);
-                int billable = res.getInt(4);
-                String projectName = res.getString(5);
-                String customer = res.getString(6);
-                int internalProject = res.getInt(7);
-                UserFavourites userFav = new UserFavourites(projectNumber, activityCode, description, billable, projectName, customer, internalProject);
-                result.add(userFav);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            try {
-                if (statement != null) statement.close();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return result;
-    }
 
     @Override
     public List<Projects> searchProjects(String projectName) {
@@ -239,102 +331,15 @@ public class MSSQLHourRegDao implements HourRegDao {
     }
 
     @Override
-    public boolean addFavourites(String userId, String project_id, String activityCode) {
-        PreparedStatement statement = null;
-        try {
-            statement = getConnection().prepareStatement(INSERT_FAVOURITE);
-            statement.setString(1, userId);
-            statement.setString(2, project_id);
-            statement.setString(3, activityCode);
-            statement.executeUpdate();
-            return true;
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            try {
-                if (statement != null) statement.close();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    @Override
-	public Integer addHourRegistrations(String loggedInUser, String registeringForUser, String projectNumber,
-                                        String activity, DateTime date, double hours, boolean isChargedHours,
-                                        String workType, String description, boolean bypassChecks) {
-
-        CallableStatement statement = null;
-        try {
-            statement = getConnection().prepareCall(INSERT_STORE_PROCEDURE);
-            statement.registerOutParameter(1, Types.INTEGER);
-            statement.setString(2, COUNTRY);
-            statement.setString(3, loggedInUser);
-            statement.setString(4, registeringForUser);
-            statement.setString(5, projectNumber);
-            statement.setString(6, activity);
-            statement.setDate(7, new Date(date.getMillis()));
-            statement.setDouble(8, hours);
-            statement.setBoolean(9, isChargedHours);
-            statement.setString(10, workType);
-            statement.setString(11, description);
-            statement.setBoolean(12, bypassChecks);
-
-            statement.execute();
-            return statement.getInt(1);
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            try {
-                if (statement != null) statement.close();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-
-    @Override
-    public void deleteFavourite(String userId, String projectNumber, String activityCode) {
-        PreparedStatement statement = null;
-        try {
-            statement = getConnection().prepareStatement(DELETE_FAVOURITE);
-            statement.setString(1, userId);
-            statement.setString(2, projectNumber);
-            statement.setString(3, activityCode);
-            statement.executeUpdate();
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            try {
-                if (statement != null) statement.close();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    @Override
-	public void updateRegistration(String userId, String taskNumber, String projectNumber, String activity,
-                                   DateTime date, double hours, boolean isBillable, String workType,
-                                   String description) {
+    public void submitHours(String loggedInUser, String registeringForUser, DateTime dayInPeriod) {
         CallableStatement statement = null;
 
         try {
-            statement = getConnection().prepareCall(UPDATE_STORE_PROCEDURE);
+            statement = getConnection().prepareCall(STORE_PROCEDURE_SUBMIT_HOURS);
             statement.setString(1, COUNTRY);
-            statement.setString(2, userId);
-            statement.setString(3, taskNumber);
-            statement.setString(4, projectNumber);
-            statement.setString(5, activity);
-            statement.setDate(6, new Date(date.getMillis()));
-            statement.setDouble(7, hours);
-            statement.setBoolean(8, isBillable);
-            statement.setString(9, workType);
-            statement.setString(10, description);
+            statement.setString(2, loggedInUser);
+            statement.setString(3, registeringForUser);
+            statement.setDate(4, new Date(dayInPeriod.getMillis()));
 
             statement.executeUpdate();
 
@@ -350,14 +355,16 @@ public class MSSQLHourRegDao implements HourRegDao {
     }
 
     @Override
-    public void updatePeriod(String userId, int option, String fromDate, String toDate) {
-        PreparedStatement statement = null;
+    public void reopenHours(String loggedInUser, String registeringForUser, DateTime dayInPeriod) {
+        CallableStatement statement = null;
+
         try {
-            statement = getConnection().prepareStatement(UPDATE_REGISTRATION);
-            statement.setInt(1, option);
-            statement.setString(2, userId);
-            statement.setString(3, fromDate);
-            statement.setString(4, toDate);
+            statement = getConnection().prepareCall(STORE_PROCEDURE_REOPEN_HOURS);
+            statement.setString(1, COUNTRY);
+            statement.setString(2, loggedInUser);
+            statement.setString(3, registeringForUser);
+            statement.setDate(4, new Date(dayInPeriod.getMillis()));
+
             statement.executeUpdate();
 
         } catch (SQLException e) {
@@ -369,7 +376,6 @@ public class MSSQLHourRegDao implements HourRegDao {
                 throw new RuntimeException(e);
             }
         }
-
     }
 
     @Override
@@ -405,12 +411,31 @@ public class MSSQLHourRegDao implements HourRegDao {
         return result;
     }
 
-    public static MSSQLHourRegDao createInstance() throws NamingException {
-        DataSource dataSource = (DataSource) new InitialContext().lookup(JettyServer.DB_JNDI);
-        if (dataSource == null) {
-            throw new RuntimeException("Could not find datasource");
+    @Override
+    public User findUser(String userId, Password password) {
+        PreparedStatement statement = null;
+        try {
+            statement = getConnection().prepareStatement(SELECT_USERS);
+            statement.setString(1, userId.toUpperCase());
+            ResultSet res = statement.executeQuery();
+            if (res.next()) {
+                Password passwordInDb = Password.fromPlaintext(password.getSalt(), res.getString(2));
+                if (password.equals(passwordInDb)) {
+                    User user = new User();
+                    user.setUsername(res.getString(1));
+                    user.setPassword(passwordInDb);
+                    return user;
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (statement != null) statement.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         }
-
-        return new MSSQLHourRegDao(dataSource);
+        return null;
     }
 }
