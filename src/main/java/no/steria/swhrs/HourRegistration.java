@@ -1,11 +1,13 @@
 package no.steria.swhrs;
 
+import org.joda.time.DateTime;
+
 public class HourRegistration {
 	
 	private int taskNumber;
 	private String projectnumber; //maybe this will be changed to type "Project" later
 	private String activityCode;
-	private String date;
+	private DateTime date;
 	private double hours;
 	private String description;
 	private boolean submitted;
@@ -13,7 +15,7 @@ public class HourRegistration {
 	
 	
 	
-	public HourRegistration(String date, int item2, String projectNumber2,
+	public HourRegistration(DateTime date, int item2, String projectNumber2,
 			String activityCode2, double hours2, String description2, boolean submitted, boolean approved) {
 		this.taskNumber = item2;
 		this.projectnumber = projectNumber2;
@@ -25,11 +27,11 @@ public class HourRegistration {
 		this.date = date;
 	}
 
-	public String getDate() {
+	public DateTime getDate() {
 		return date;
 	}
 	
-	public void setDate(String date) {
+	public void setDate(DateTime date) {
 		this.date = date;
 	}
 	
