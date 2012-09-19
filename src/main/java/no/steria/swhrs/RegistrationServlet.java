@@ -30,8 +30,6 @@ public class RegistrationServlet extends HttpServlet {
 
 	private HourRegDao db;
 
-	LocalDate date = LocalDate.now();
-
     @Override
     public void init() throws ServletException {
         try {
@@ -219,6 +217,7 @@ public class RegistrationServlet extends HttpServlet {
 	private void getWeeklistResponseAsJSON(HttpServletRequest request, HttpServletResponse response) throws IOException {
         User user = getUserAttribute(request);
         String week = request.getParameter("week");
+        LocalDate date = LocalDate.now();
 
 		DatePeriod period2 = db.getPeriod(user.getUsername(), date.toString());
 		
