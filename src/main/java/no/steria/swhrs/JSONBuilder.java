@@ -1,6 +1,8 @@
 package no.steria.swhrs;
 
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.json.simple.JSONObject;
 
 import java.util.HashMap;
@@ -51,7 +53,6 @@ public class JSONBuilder {
             map.put(RegistrationConstants.HOURS, hourRegistration.getHours());
             json.put(hourRegistration.getTaskNumber(), map);
         }
-        json.put(RegistrationConstants.DATE, date.toString());
         return json;
     }
 
@@ -92,7 +93,7 @@ public class JSONBuilder {
         JSONObject json = new JSONObject();
 
         for(Map.Entry<DateTime, List<HourRegistration>> entry : hourRegistrations.entrySet()) {
-            json.put(entry.getKey(), createFromHours(entry.getValue(), entry.getKey()));
+            json.put(entry.getKey().toString(RegistrationConstants.dateTimeFormatter), createFromHours(entry.getValue(), entry.getKey()));
         }
 
         return json;

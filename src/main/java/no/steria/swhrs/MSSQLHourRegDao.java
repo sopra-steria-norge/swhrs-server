@@ -245,7 +245,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 			statement.setString(1, userId);
 			statement.setDate(2, new Date(date.getMillis()));
 			ResultSet res = statement.executeQuery();
-			while(res.next()){
+			while(res.next()) {
 				Integer taskNumber = res.getInt(2);
 				String projectNumber = res.getString(3);
 				String activityCode = res.getString(4);
@@ -330,7 +330,7 @@ public class MSSQLHourRegDao implements HourRegDao {
                 String customerName = resultSet.getString(16);
                 String activityDescription = resultSet.getString(17);
 
-                weekDetails.addEntry(recordId, projectNumber, activityCode, date, entryDescription, hours, submitted,
+                weekDetails.addEntry(recordId, projectNumber, activityCode, new DateTime(date.getTime()), entryDescription, hours, submitted,
                         approved, projectName, customerName, activityDescription);
             }
 
@@ -381,7 +381,6 @@ public class MSSQLHourRegDao implements HourRegDao {
             statement.setString(2, loggedInUser);
             statement.setString(3, registeringForUser);
             statement.setDate(4, new Date(dayInPeriod.getMillis()));
-
             statement.executeUpdate();
 
         } catch (SQLException e) {

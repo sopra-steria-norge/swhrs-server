@@ -1,10 +1,7 @@
 package no.steria.swhrs;
 
-import no.steria.swhrs.HourRegistration;
-import no.steria.swhrs.ProjectDetail;
 import org.joda.time.DateTime;
 
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +19,7 @@ public class WeekDetails {
     private Map<String, HourRegistration> hourRegistrations = new HashMap<String, HourRegistration>() {};
     private Map<DateTime, List<HourRegistration>> hourRegistrationsByDate = new HashMap<DateTime, List<HourRegistration>>();
 
-    public void addEntry(Integer recordId, String projectNumber, String activityCode, Date date, String entryDescription,
+    public void addEntry(Integer recordId, String projectNumber, String activityCode, DateTime date, String entryDescription,
                          double hours, boolean submitted, boolean approved, String projectName, String customerName,
                          String activityDescription) {
         // All entries with a recordId is hours that has been entered, the ones without are just other projects without hours
@@ -42,11 +39,10 @@ public class WeekDetails {
                 new ProjectDetail(projectNumber, activityCode, projectName, customerName, activityDescription));
     }
 
-    private void registerHour(Integer recordId, String projectNumber, String activityCode, Date date,
+    private void registerHour(Integer recordId, String projectNumber, String activityCode, DateTime date,
                               String entryDescription, double hours, boolean submitted, boolean approved,
                               String projectName, String customerName, String activityDescription) {
-        DateTime dateTime = new DateTime(date.getTime());
-        hourRegistrations.put(recordId.toString(), new HourRegistration(recordId, projectNumber, activityCode, dateTime, entryDescription,
+        hourRegistrations.put(recordId.toString(), new HourRegistration(recordId, projectNumber, activityCode, date, entryDescription,
                 hours, submitted, approved, projectName, customerName, activityDescription));
     }
 

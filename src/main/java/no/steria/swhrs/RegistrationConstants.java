@@ -1,5 +1,8 @@
 package no.steria.swhrs;
 
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
 /**
  * User: chrm@steria.no
  * Date: 17.09.12
@@ -20,4 +23,6 @@ public interface RegistrationConstants {
 
     public final static String TEXT_SUCCESS = "Success";
     public final static int HTTP_STATUS_CODE_SUCCESS = 200;
+
+    public final static DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd");
 }
