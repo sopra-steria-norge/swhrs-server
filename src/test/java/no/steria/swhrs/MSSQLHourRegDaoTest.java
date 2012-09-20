@@ -15,9 +15,7 @@ import java.util.List;
 import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class MSSQLHourRegDaoTest {
     private static final Logger logger = LoggerFactory.getLogger(MSSQLHourRegDaoTest.class);
@@ -159,6 +157,14 @@ public class MSSQLHourRegDaoTest {
         PeriodDetails periodDetails = hourRegDao.getPeriodDetails("ROR", new DateTime(2012, 9, 1, 0, 0));
         assertEquals(periodDetails.getStartDate(), new DateTime(2012, 8, 30, 0, 0));
         assertEquals(periodDetails.getEndDate(), new DateTime(2012, 9, 2, 0, 0));
+    }
+
+    @Test
+    public void shouldReturnWeekPeriodWithData() throws Exception {
+        WeekDetails weekDetails = hourRegDao.getWeekList("ROR", "ROR", "EMP", new DateTime(2012, 9, 3, 0, 0));
+        assertFalse(weekDetails.getHourRegistrations().isEmpty());
+        assertFalse(weekDetails.getProjectDetailsAsList().isEmpty());
+        assertFalse(weekDetails.getHourRegistrationsByDate().isEmpty());
     }
 
 }
