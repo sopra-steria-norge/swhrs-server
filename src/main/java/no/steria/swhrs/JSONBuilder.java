@@ -5,6 +5,7 @@ import org.json.simple.JSONObject;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * User: chrm@steria.no
@@ -14,17 +15,19 @@ import java.util.List;
  */
 public class JSONBuilder {
 
-    public static JSONObject createProjects(List<Projects> project) {
-        int counter = 0;
-
+    public static JSONObject createProjects(List<ProjectDetail> projectDetails) {
         JSONObject projectJson = new JSONObject();
-        for(Projects po : project){
+        for(ProjectDetail projectDetail : projectDetails){
+            String projectNumber = projectDetail.getProjectNumber();
+            String activityCode = projectDetail.getActivityCode();
+
             HashMap<String, String> map = new HashMap<String, String>();
-            map.put(RegistrationConstants.PROJECT_NUMBER, po.getProjectNumber());
-            map.put(RegistrationConstants.ACTIVITY_CODE, po.getActivityCode());
-            map.put(RegistrationConstants.DESCRIPTION, po.getDescription());
-            counter++;
-            projectJson.put(counter, map);
+            map.put(RegistrationConstants.PROJECT_NUMBER, projectNumber);
+            map.put(RegistrationConstants.ACTIVITY_CODE, activityCode);
+            map.put(RegistrationConstants.DESCRIPTION, projectDetail.getDescription());
+            map.put(RegistrationConstants.CUSTOMER_NAME, projectDetail.getCustomerName());
+            map.put(RegistrationConstants.PROJECT_NAME, projectDetail.getProjectName());
+            projectJson.put(UtilityMethods.getProjectKey(projectNumber, activityCode), map);
         }
 
         return projectJson;
@@ -40,7 +43,7 @@ public class JSONBuilder {
         JSONObject json = new JSONObject();
         for (HourRegistration hourRegistration : hourRegistrationList) {
             HashMap map = new HashMap();
-            map.put(RegistrationConstants.PROJECT_NUMBER, hourRegistration.getProjectnumber());
+            map.put(RegistrationConstants.PROJECT_NUMBER, hourRegistration.getProjectNumber());
             map.put(RegistrationConstants.ACTIVITY_CODE, hourRegistration.getActivityCode());
             map.put(RegistrationConstants.DESCRIPTION, hourRegistration.getDescription());
             map.put("approved", hourRegistration.isApproved());
@@ -74,8 +77,24 @@ public class JSONBuilder {
             map.put("internalproject", userFavourites.getInternalProject());
 
             json.put(counter++, map);
-
         }
+        return json;
+    }
+
+    public static JSONObject createFromWeekDetails(WeekDetails weekDetails) {
+        JSONObject json = new JSONObject();
+        json.put("days", createFromWeekDetails(weekDetails.getHourRegistrationsByDate())) ;
+        json.put("projects", createProjects(weekDetails.getProjectDetailsAsList()));
+        return json;
+    }
+
+    private static JSONObject createFromWeekDetails(Map<DateTime, List<HourRegistration>> hourRegistrations) {
+        JSONObject json = new JSONObject();
+
+        for(Map.Entry<DateTime, List<HourRegistration>> entry : hourRegistrations.entrySet()) {
+            json.put(entry.getKey(), createFromHours(entry.getValue(), entry.getKey()));
+        }
+
         return json;
     }
 }

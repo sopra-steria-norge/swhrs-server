@@ -82,28 +82,21 @@ public interface HourRegDao {
 
 	/**
 	 * This method returns a list of hour registrations done in a specific period
-	 * @param userId The userId is sent as a String(User initials)
-	 * @param dateFrom The dateFrom is sent as a String with the format (yyyy-MM-dd)
-	 * @param dateTo The dateTo is sent as a String with the format (yyyy-MM-dd)
-	 * @return returns a List of WeekRegistration objects
+	 * @param loggedInUser The userId who is logged in
+	 * @param registeringForUser The user which one does the changes on
+	 * @param viewer EMP or BOSS
+     * @param startDate start date of the period
+	 * @return returns week details
 	 */
-	List<WeekRegistration> getWeekList(String userId, String dateFrom, String dateTo);
+	WeekDetails getWeekList(String loggedInUser, String registeringForUser, String viewer, DateTime startDate);
 
 	/**
 	 * This method searches for projects in the database, and returns a list of projects
 	 * @param projectName The projectName is sent as a String and will search for both projectID and 
 	 * project description. The projectID must be complete, but the project description can be incomplete.
-	 * @return returns a list of Projects objects with affiliation to the search string
+	 * @return returns a list of ProjectDetail objects with affiliation to the search string
 	 */
-	List<Projects> searchProjects(String projectName);
-
-	/**
-	 * This method returns a work period for a specific user when given a date
-	 * @param userId The userId is sent as a String(User initials)
-	 * @param date The date is sent as a String with the format (yyyy-MM-dd)
-	 * @return returns a DatePeriod object that contains a periods description as well as the start- and end-date
-	 */
-	DatePeriod getPeriod(String userId, String date);
+	List<ProjectDetail> searchProjects(String projectName);
 
     /**
      * This method submit hours in a time period
@@ -137,5 +130,12 @@ public interface HourRegDao {
      * @return returns a boolean to give or deny access.
      */
     User findUser(String userId, Password password);
-	
+
+    /**
+     * This method returns a work period for a specific user when given a date
+     * @param userId The userId is sent as a String(User initials)
+     * @param date The date is sent as a String with the format (yyyy-MM-dd)
+     * @return returns a PeriodDetails object that contains a periods description as well as the start- and end-date
+     */
+    PeriodDetails getPeriodDetails(String userId, DateTime date);
 }

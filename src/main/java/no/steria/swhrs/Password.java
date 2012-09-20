@@ -1,6 +1,5 @@
 package no.steria.swhrs;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.builder.EqualsBuilder;
 
 import javax.xml.bind.DatatypeConverter;

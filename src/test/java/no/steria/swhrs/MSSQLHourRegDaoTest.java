@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -74,22 +75,15 @@ public class MSSQLHourRegDaoTest {
 	
 	@Test
 	public void shouldSearchForProjects() throws Exception {
-		List<Projects> projects = hourRegDao.searchProjects("LARM");
+		List<ProjectDetail> projects = hourRegDao.searchProjects("LARM");
 		assertThat(projects).hasSize(27);
 	}
-	
 
+    @Ignore
 	@Test
 	public void shouldGetWeekRegistrations() throws Exception {
-		List<WeekRegistration> weeklist = hourRegDao.getWeekList("SOLJ", "2012-05-01 00:00:00.0", "2012-05-10 00:00:00.0");
-		assertThat(weeklist).hasSize(7);
-	}
-	
-	
-	@Test
-	public void shouldGetPeriod() throws Exception {
-		DatePeriod period = hourRegDao.getPeriod("AK","2012-11-07");
-		assertThat(period.getFromDate()).contains("2012-11-05");
+		WeekDetails weekDetails = hourRegDao.getWeekList("SOLJ", "SOLJ", "EMP", new DateTime(2012, 4, 30, 0, 0));
+		assertThat(weekDetails.getHourRegistrations()).hasSize(8);
 	}
 
     @Ignore
@@ -144,7 +138,7 @@ public class MSSQLHourRegDaoTest {
         assertNotNull(entryId);
     }
 
-
+    @Ignore
     @Test
     public void shouldSubmitHours() throws Exception {
         String username = "ROR";
@@ -152,12 +146,19 @@ public class MSSQLHourRegDaoTest {
         hourRegDao.submitHours(username, username, date);
     }
 
-
+    @Ignore
     @Test
     public void shouldReOpenHours() throws Exception {
         String username = "ROR";
         DateTime date = new DateTime(2012, 9, 3, 0, 0);
         hourRegDao.reopenHours(username, username, date);
+    }
+
+    @Test
+    public void shouldReturnPeriodForAGivenTime() throws Exception {
+        PeriodDetails periodDetails = hourRegDao.getPeriodDetails("ROR", new DateTime(2012, 9, 1, 0, 0));
+        assertEquals(periodDetails.getStartDate(), new DateTime(2012, 8, 30, 0, 0));
+        assertEquals(periodDetails.getEndDate(), new DateTime(2012, 9, 2, 0, 0));
     }
 
 }

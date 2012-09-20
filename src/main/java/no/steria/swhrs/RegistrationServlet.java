@@ -2,10 +2,10 @@ package no.steria.swhrs;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import javax.servlet.ServletException;
@@ -13,17 +13,15 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 
 /**
  * @author xsts
- *
+ * @author chrm@steria.no
  */
 public class RegistrationServlet extends HttpServlet {
+    private static final Logger logger = LoggerFactory.getLogger(JettyServer.class);
 	private static final long serialVersionUID = -1090477374982937503L;
     private static final String APPLICATION_JSON = "application/json";
     private static final String TEXT_PLAIN = "text/plain";
@@ -42,11 +40,11 @@ public class RegistrationServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if(req.getRequestURL().toString().contains("hours/daylist")){
-            getDaylistResponseAsJSON(req, resp);
+            getDayListResponseAsJSON(req, resp);
         } else if(req.getRequestURL().toString().contains("hours/favourite")){
             getFavorites(req, resp);
         } else if(req.getRequestURL().toString().contains("hours/week")){
-            getWeeklistResponseAsJSON(req, resp);
+            getWeekDetails(req, resp);
         } else if(req.getRequestURL().toString().contains("hours/searchFavourites")){
             searchFavourites(req, resp);
         }
@@ -153,21 +151,26 @@ public class RegistrationServlet extends HttpServlet {
 
     /**
      * Returns a HTTP response containing a JSON object of the users favourites stored in the database
+     *
      * @param response HTTP request containing a JSON object of the users favourites
      * @throws IOException
      */
     private void getFavorites(HttpServletRequest request, HttpServletResponse response) throws IOException {
-       try {
-        User user = getUserAttribute(request);
-        List<UserFavourites> userList = db.getUserFavourites(user.getUsername());
-        fillInSuccessResponse(response, APPLICATION_JSON, JSONBuilder.createFromFavourites(userList).toString());
-       } catch (Throwable t) {
-           t.printStackTrace();
-       }
+        try {
+            User user = getUserAttribute(request);
+            List<UserFavourites> userList = db.getUserFavourites(user.getUsername());
+            fillInSuccessResponse(response, APPLICATION_JSON, JSONBuilder.createFromFavourites(userList).toString());
+        } catch (Throwable t) {
+            logger.debug(request.toString());
+            logger.debug(response.toString());
+            t.printStackTrace();
+            response.setStatus(500);
+            response.getWriter().append(t.getMessage());
+        }
     }
 
     /**
-	 * This method will search through Projects with the search input, and 
+	 * This method will search through ProjectDetail with the search input, and
 	 * return a JSON string with project number, activity code and description
 	 * @param request The HTTP request contains a search input which is used to search through
 	 * projects in the database
@@ -177,7 +180,7 @@ public class RegistrationServlet extends HttpServlet {
 	@SuppressWarnings("unchecked")
 	private void searchFavourites(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String searchInput = request.getParameter("search");
-		List<Projects> project = db.searchProjects(searchInput);
+		List<ProjectDetail> project = db.searchProjects(searchInput);
         fillInSuccessResponse(response, APPLICATION_JSON, JSONBuilder.createProjects(project).toString());
 	}
 	
@@ -214,71 +217,12 @@ public class RegistrationServlet extends HttpServlet {
 	 * @throws IOException
 	 */
 	@SuppressWarnings("unchecked")
-	private void getWeeklistResponseAsJSON(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	private void getWeekDetails(HttpServletRequest request, HttpServletResponse response) throws IOException {
         User user = getUserAttribute(request);
-        String week = request.getParameter("week");
-        LocalDate date = LocalDate.now();
-
-		DatePeriod period2 = db.getPeriod(user.getUsername(), date.toString());
-		
-		LocalDate localFromDate = new LocalDate(period2.getFromDate().split(" ")[0]);
-		LocalDate localToDate = new LocalDate(period2.getToDate().split(" ")[0]);
-		
-		if(week.equals("nextWeek")) date = localToDate.plusDays(1);
-		if(week.equals("prevWeek")) date = localFromDate.minusDays(1);
-		
-		DatePeriod period = db.getPeriod(user.getUsername(), date.toString());
-		
-		LocalDate localFromDate2 = new LocalDate(period.getFromDate().split(" ")[0]);
-		LocalDate localToDate2 = new LocalDate(period.getToDate().split(" ")[0]);
-		
-		ArrayList<String> dateArray = new ArrayList<String>();
-		while(localFromDate2.compareTo(localToDate2) <= 0  ){
-			dateArray.add(localFromDate2.toString()+":"+localFromDate2.getDayOfWeek());
-			localFromDate2 = localFromDate2.plusDays(1);
-		}
-		
-		List<WeekRegistration> weekList = db.getWeekList(user.getUsername(), period.getFromDate(), period.getToDate());
-		String weekDescription = period.getDescription();
-		
-		//This will get the norm time for each day of the week and should be added together with the weekHours.
-		//List<NormTime> norm = db.getNormTime(username);
-		
-		
-		JSONObject obj = new JSONObject();
-		//JSONObject weekJson = new JSONObject();
-		for(int i=0; i<dateArray.size(); i++){
-			String dateArr = dateArray.get(i).toString().split(":")[0];
-			String dayOfWeek = dateArray.get(i).toString().split(":")[1];
-			boolean found = false;
-			for(WeekRegistration weekRegistration: weekList){
-				if(weekRegistration.getDate().split(" ")[0].equals(dateArr)){
-					@SuppressWarnings("rawtypes")
-					List list = new LinkedList();
-					list.add(dayOfWeek);
-					list.add(weekRegistration.getHours());
-					list.add(weekRegistration.getApproved());
-					obj.put(weekRegistration.getDate().split(" ")[0], list);
-					found = true;
-					break;
-				}
-			}
-			
-			if (!found) {
-				@SuppressWarnings("rawtypes")
-				List list = new LinkedList();
-				list.add(dayOfWeek);
-				list.add(0);
-				obj.put(dateArr, list);
-			}
-		}
-		
-		obj.put("weekNumber", weekDescription);
-		obj.put("dateHdr", date.getDayOfWeek()+" "+date.toString());
-		response.setContentType(APPLICATION_JSON);
-		PrintWriter writer = response.getWriter();
-		String jsonText = obj.toJSONString();
-		writer.append(jsonText);
+        String userId = user.getUsername();
+        PeriodDetails periodDetails = db.getPeriodDetails(userId, new DateTime());
+        WeekDetails weekDetails = db.getWeekList(userId, userId, "EMP", periodDetails.getStartDate());
+        fillInSuccessResponse(response, APPLICATION_JSON, JSONBuilder.createFromWeekDetails(weekDetails).toString());
 	}
 
 	/**
@@ -287,7 +231,7 @@ public class RegistrationServlet extends HttpServlet {
 	 * @param response The HTTP response contains a json object with all data about a registration needed to display it in the app
 	 * @throws IOException
 	 */
-	private void getDaylistResponseAsJSON(HttpServletRequest request, HttpServletResponse response)	throws IOException {
+	private void getDayListResponseAsJSON(HttpServletRequest request, HttpServletResponse response)	throws IOException {
         User user = getUserAttribute(request);
         DateTime date = getDate(request.getParameter(RegistrationConstants.DATE));
 		List<HourRegistration> hourRegistrationList = db.getAllHoursForDate(user.getUsername(), date);

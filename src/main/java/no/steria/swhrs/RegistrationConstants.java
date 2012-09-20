@@ -15,6 +15,8 @@ public interface RegistrationConstants {
     public final static String BILLABLE = "billable";
     public final static String DATE = "date";
     public final static String WORK_TYPE = "workType";
+    public final static String CUSTOMER_NAME = "customerName";
+    public final static String PROJECT_NAME = "projectName";
 
     public final static String TEXT_SUCCESS = "Success";
     public final static int HTTP_STATUS_CODE_SUCCESS = 200;

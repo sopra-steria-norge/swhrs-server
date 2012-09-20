@@ -13,21 +13,23 @@ public class MSSQLHourRegDao implements HourRegDao {
 
     private static final String COUNTRY = "NO";
     private final DataSource datasource;
+    private static final String SELECT_CURRENT_PERIOD = "select TP.[Startdato],TP.[Slutdato], TP.[Beskrivelse] FROM [Norge$Time Periods] TP WHERE Ressource=? AND TP.[Startdato] <= ? AND TP.[Slutdato] >= ? ORDER BY [Startdato] DESC";
 	private static final String SELECT_USERS = "SELECT No_, \"WEB Password\" FROM \"Norge$Resource\" where No_ = ?";
 	private static final String SELECT_REGISTRATIONS = "SELECT * FROM \"Norge$Time Entry\" WHERE Ressourcekode = ? AND Dato = ? AND Projektnr_ NOT LIKE 'FLEX'";
-	private static final String SELECT_FAVOURITES = "SELECT \"Norge$Favourite Task\".Projektnr_, \"Norge$Favourite Task\".Aktivitetskode, \"Norge$Tasklist\".Beskrivelse, \"Norge$Tasklist\".\"Ressource fakturerbar\", \"Norge$Job\".Description, \"Norge$Job\".Name,  \"Norge$Job\".\"Internt projekt\"  FROM \"Norge$Favourite Task\"  INNER JOIN \"Norge$Tasklist\" ON \"Norge$Favourite Task\".Projektnr_= \"Norge$Tasklist\".Projektnr_ AND \"Norge$Favourite Task\".Aktivitetskode = \"Norge$Tasklist\".Kode INNER JOIN \"Norge$Job\" ON \"Norge$Favourite Task\".Projektnr_= \"Norge$Job\".No_ WHERE \"Norge$Favourite Task\".Resourcekode = ? AND \"Norge$Tasklist\".Spærret NOT LIKE '1'";
+    private static final String SELECT_NORMTIME = "SELECT \"Norge$Norm Time Data\".Kode, \"Norge$Norm Time Data\".Mandag, \"Norge$Norm Time Data\".Tirsdag, \"Norge$Norm Time Data\".Onsdag, \"Norge$Norm Time Data\".Torsdag, \"Norge$Norm Time Data\".Fredag, \"Norge$Norm Time Data\".Lørdag, \"Norge$Norm Time Data\".Søndag from \"Norge$Norm Time Data\" INNER JOIN \"Norge$Resource\" ON \"Norge$Norm Time Data\".Kode = \"Norge$Resource\".\"Norm Tid\" WHERE \"Norge$Resource\".No_ = ?";
 	private static final String SELECT_WEEKREGISTRATIONS = "SELECT Dato, sum(Antal), Godkendt FROM \"Norge$Time Entry\" where Ressourcekode = ? AND Projektnr_ NOT LIKE 'FLEX' AND Dato Between ? AND ? GROUP BY Dato, Godkendt";
 	private static final String SELECT_SEARCHPROJECTS = "SELECT TOP 150 \"Norge$Tasklist\".Projektnr_, \"Norge$Tasklist\".Kode, \"Norge$Tasklist\".Beskrivelse FROM \"Norge$Tasklist\" WHERE Beskrivelse like ? OR Projektnr_ like ? ORDER BY Beskrivelse";
 	private static final String SELECT_PERIODS = "SELECT Startdato, Slutdato, Beskrivelse, Bogført FROM \"Norge$Time Periods\" WHERE Ressource = ? AND Startdato <= ? AND Slutdato >= ?";
 	private static final String INSERT_FAVOURITE = "INSERT into \"Norge$Favourite Task\" (Resourcekode, Projektnr_, Aktivitetskode) VALUES(?, ?, ?)";
 	private static final String DELETE_FAVOURITE = "DELETE FROM \"Norge$Favourite Task\" WHERE Resourcekode = ? AND Projektnr_ = ? AND Aktivitetskode = ?";
-    private static final String UPDATE_REGISTRATION = "UPDATE \"Norge$Time Entry\" SET Godkendt=? WHERE Ressourcekode = ? AND Dato BETWEEN ? AND ?";
-	private static final String SELECT_NORMTIME = "SELECT \"Norge$Norm Time Data\".Kode, \"Norge$Norm Time Data\".Mandag, \"Norge$Norm Time Data\".Tirsdag, \"Norge$Norm Time Data\".Onsdag, \"Norge$Norm Time Data\".Torsdag, \"Norge$Norm Time Data\".Fredag, \"Norge$Norm Time Data\".Lørdag, \"Norge$Norm Time Data\".Søndag from \"Norge$Norm Time Data\" INNER JOIN \"Norge$Resource\" ON \"Norge$Norm Time Data\".Kode = \"Norge$Resource\".\"Norm Tid\" WHERE \"Norge$Resource\".No_ = ?";
+    private static final String SELECT_FAVOURITES = "SELECT \"Norge$Favourite Task\".Projektnr_, \"Norge$Favourite Task\".Aktivitetskode, \"Norge$Tasklist\".Beskrivelse, \"Norge$Tasklist\".\"Ressource fakturerbar\", \"Norge$Job\".Description, \"Norge$Job\".Name,  \"Norge$Job\".\"Internt projekt\"  FROM \"Norge$Favourite Task\"  INNER JOIN \"Norge$Tasklist\" ON \"Norge$Favourite Task\".Projektnr_= \"Norge$Tasklist\".Projektnr_ AND \"Norge$Favourite Task\".Aktivitetskode = \"Norge$Tasklist\".Kode INNER JOIN \"Norge$Job\" ON \"Norge$Favourite Task\".Projektnr_= \"Norge$Job\".No_ WHERE \"Norge$Favourite Task\".Resourcekode = ? AND \"Norge$Tasklist\".Spærret NOT LIKE '1'";
     private static final String STORE_PROCEDURE_INSERT_HOURS = "{? = call dbo.uspSTE_InsertTimeEntry(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
     private static final String STORE_PROCEDURE_DELETE_HOURS = "{call dbo.uspSTE_DeleteTimeEntry(?, ?, ?)}";
     private static final String STORE_PROCEDURE_UPDATE_HOURS = "{call dbo.uspSTE_UpdateTimeEntry(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
     private static final String STORE_PROCEDURE_SUBMIT_HOURS = "{call dbo.uspSTE_EMPApprovePeriod(?, ?, ?, ?)}";
     private static final String STORE_PROCEDURE_REOPEN_HOURS = "{call dbo.uspSTE_ReopenPeriod(?, ?, ?, ?)}";
+    private static final String STORE_PROCEDURE_GET_PERIOD_INFORMATION = "{? = call dbo.uspSTE_GetPeriodRegTime(?, ?, ?, ?, ?)}";
+    public String asdf = "exec sp_executesql N' SELECT  TP.[Startdato] ,TP.[Ressource], TP.[Type], convert(bit, TP.[Bogført]) As Bogført, convert(bit, TP.[Klar til Batch bogføring]) As ReadyForBatchProcessing,TP.[Slutdato], TP.[Beskrivelse], TP.[Detaileniveau], TP.[Åben], TP.[Autojuster Flexsaldo] ,ConstructedDescription='''' ,Ct = (SELECT COUNT(*) FROM [Norge$Time Entry] TE  WHERE TE.Ressourcekode=TP.[Ressource] AND TE.Dato BETWEEN TP.[Startdato] AND TP.[Slutdato]) ,CtApprovedByEMP = (SELECT COUNT(*) FROM [Norge$Time Entry] TE  WHERE TE.Ressourcekode=TP.[Ressource] AND TE.Dato BETWEEN TP.[Startdato] AND TP.[Slutdato] AND Godkendt=1) ,CtApprovedByLMPM = (SELECT COUNT(*) FROM [Norge$Time Entry] TE  WHERE TE.Ressourcekode=TP.[Ressource] AND TE.Dato BETWEEN TP.[Startdato] AND TP.[Slutdato] AND [Approved By LM_PM]=1) ,CtRejected = (SELECT COUNT(*) FROM [Norge$Time Entry] TE  WHERE TE.Ressourcekode=TP.[Ressource] AND TE.Dato BETWEEN TP.[Startdato] AND TP.[Slutdato] AND [Ikke godkjent]=1) ,CtPosted = (SELECT COUNT(*) FROM [Norge$Time Entry] TE  WHERE TE.Ressourcekode=TP.[Ressource] AND TE.Dato BETWEEN TP.[Startdato] AND TP.[Slutdato] AND [Bogført]=1) ,SumChargeable = (SELECT coalesce(SUM(Antal),0) FROM [Norge$Time Entry] TE  WHERE TE.Ressourcekode=TP.[Ressource] AND Fakturerbart = 1  AND TE.Dato BETWEEN TP.[Startdato] AND TP.[Slutdato])  FROM [Norge$Time Periods] TP  WHERE Ressource=@ResourceNo  AND TP.[Startdato] >= @RequestedStartDate AND TP.[Startdato] <= TP.[Slutdato]  ORDER BY [Startdato] DESC ',N'@ResourceNo nvarchar(3),@RequestedStartDate datetime',@ResourceNo=N'ROR',@RequestedStartDate='2012-09-01 00:00:00:000'";
 
 	public MSSQLHourRegDao(DataSource datasource) {
 		this.datasource = datasource;
@@ -43,6 +45,34 @@ public class MSSQLHourRegDao implements HourRegDao {
 
     private Connection getConnection() throws SQLException {
         return datasource.getConnection();
+    }
+
+    public PeriodDetails getPeriodDetails(String user, DateTime date) {
+        PeriodDetails periodDetails = new PeriodDetails();
+        Date sqlDate = new Date(date.getMillis());
+
+        PreparedStatement statement = null;
+        try {
+            statement = getConnection().prepareStatement(SELECT_CURRENT_PERIOD);
+            statement.setString(1, user);
+            statement.setDate(2, sqlDate);
+            statement.setDate(3, sqlDate);
+
+            ResultSet res = statement.executeQuery();
+            if (res != null && res.next()) {
+                periodDetails.setStartDate(new DateTime(res.getDate(1).getTime()));
+                periodDetails.setEndDate(new DateTime(res.getDate(2).getTime()));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (statement != null) statement.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return periodDetails;
     }
 
     @Override
@@ -219,7 +249,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 			statement.setDate(2, new Date(date.getMillis()));
 			ResultSet res = statement.executeQuery();
 			while(res.next()){
-				int taskNumber = res.getInt(2);
+				Integer taskNumber = res.getInt(2);
 				String projectNumber = res.getString(3);
 				String activityCode = res.getString(4);
 				double hours = res.getDouble(8);
@@ -227,7 +257,9 @@ public class MSSQLHourRegDao implements HourRegDao {
 				boolean submitted = res.getBoolean(10);
 				boolean approved = res.getBoolean(11);
 
-				HourRegistration hourReg = new HourRegistration(date, taskNumber, projectNumber, activityCode, hours, description, submitted, approved);
+                HourRegistration hourReg = new HourRegistration(taskNumber, projectNumber, activityCode, date, description,
+                        hours,submitted, approved, null, null, null);
+
 				result.add(hourReg);
 			}
 		} catch (SQLException e) {
@@ -243,10 +275,9 @@ public class MSSQLHourRegDao implements HourRegDao {
 		return result;
 	}
 
-
     @Override
-    public List<Projects> searchProjects(String projectName) {
-        List<Projects> result = new ArrayList<Projects>();
+    public List<ProjectDetail> searchProjects(String projectName) {
+        List<ProjectDetail> result = new ArrayList<ProjectDetail>();
         PreparedStatement statement = null;
         String searchString = "%" + projectName + "%";
         try {
@@ -258,7 +289,7 @@ public class MSSQLHourRegDao implements HourRegDao {
                 String projectNumber = res.getString(1);
                 String activityCode = res.getString(2);
                 String description = res.getString(3);
-                Projects project = new Projects(projectNumber, activityCode, description);
+                ProjectDetail project = new ProjectDetail(projectNumber, activityCode, null, null, description);
                 result.add(project);
             }
         } catch (SQLException e) {
@@ -274,50 +305,38 @@ public class MSSQLHourRegDao implements HourRegDao {
     }
 
     @Override
-    public List<WeekRegistration> getWeekList(String userId, String dateFrom,
-                                              String dateTo) {
-        List<WeekRegistration> result = new ArrayList<WeekRegistration>();
-        PreparedStatement statement = null;
-        try {
-            statement = getConnection().prepareStatement(SELECT_WEEKREGISTRATIONS);
-            statement.setString(1, userId);
-            statement.setString(2, dateFrom);
-            statement.setString(3, dateTo);
-            ResultSet res = statement.executeQuery();
-            while (res.next()) {
-                String date = res.getString(1);
-                double hours = res.getDouble(2);
-                int approved = res.getInt(3);
-                WeekRegistration weekReg = new WeekRegistration(date, hours, approved);
-                result.add(weekReg);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            try {
-                if (statement != null) statement.close();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return result;
-    }
+    public WeekDetails getWeekList(String loggedInUser, String registeringForUser, String viewer, DateTime startDate) {
+        CallableStatement statement = null;
+        WeekDetails weekDetails = new WeekDetails();
 
-    @Override
-    public DatePeriod getPeriod(String userId, String date) {
-        DatePeriod datePeriod = new DatePeriod();
-        PreparedStatement statement = null;
         try {
-            statement = getConnection().prepareStatement(SELECT_PERIODS);
-            statement.setString(1, userId);
-            statement.setString(2, date);
-            statement.setString(3, date);
-            ResultSet res = statement.executeQuery();
-            while (res.next()) {
-                datePeriod.setFromDate(res.getString(1));
-                datePeriod.setToDate(res.getString(2));
-                datePeriod.setDescription(res.getString(3));
+            statement = getConnection().prepareCall(STORE_PROCEDURE_GET_PERIOD_INFORMATION);
+            statement.registerOutParameter(1, Types.INTEGER);
+            statement.setString(2, COUNTRY);
+            statement.setString(3, loggedInUser);
+            statement.setString(4, viewer);
+            statement.setString(5, registeringForUser);
+            statement.setDate(6, new Date(startDate.getMillis()));
+
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                Integer recordId = resultSet.getInt(1);
+                String projectNumber = resultSet.getString(2);
+                String activityCode = resultSet.getString(3);
+                Date date = resultSet.getDate(4);
+                String entryDescription = resultSet.getString(5); // The users description for an hour
+                double hours = resultSet.getDouble(6);
+                boolean submitted = resultSet.getBoolean(9);
+                boolean approved = resultSet.getBoolean(10);
+
+                String projectName = resultSet.getString(15);
+                String customerName = resultSet.getString(16);
+                String activityDescription = resultSet.getString(17);
+
+                weekDetails.addEntry(recordId, projectNumber, activityCode, date, entryDescription, hours, submitted,
+                        approved, projectName, customerName, activityDescription);
             }
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
@@ -327,7 +346,8 @@ public class MSSQLHourRegDao implements HourRegDao {
                 throw new RuntimeException(e);
             }
         }
-        return datePeriod;
+
+        return weekDetails;
     }
 
     @Override
