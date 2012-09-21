@@ -37,7 +37,7 @@ public class JSONBuilderTest {
     }
 
     @Test
-    public void testGeneratingDailyHoursJSONOBject() throws Exception {
+    public void testGeneratingDailyHoursJSONObject() throws Exception {
         HourRegistration hour = new HourRegistration(123, projectNumber, activityCode, date, entryDescription, hours,
                 submitted, approved, projectName, customerName, activityDescription);
         HourRegistration hour2 = new HourRegistration(1232, projectNumber, activityCode, date, entryDescription, hours,

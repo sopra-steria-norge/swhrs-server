@@ -2,8 +2,6 @@ package no.steria.swhrs;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -220,7 +218,8 @@ public class RegistrationServlet extends HttpServlet {
 	private void getWeekDetails(HttpServletRequest request, HttpServletResponse response) throws IOException {
         User user = getUserAttribute(request);
         String userId = user.getUsername();
-        PeriodDetails periodDetails = db.getPeriodDetails(userId, new DateTime());
+        DateTime date = RegistrationConstants.dateTimeFormatter.parseDateTime(request.getParameter(RegistrationConstants.DATE));
+        PeriodDetails periodDetails = db.getPeriodDetails(userId, date);
         WeekDetails weekDetails = db.getWeekList(userId, userId, "EMP", periodDetails.getStartDate());
         fillInSuccessResponse(response, APPLICATION_JSON, JSONBuilder.createFromWeekDetails(weekDetails).toString());
 	}
@@ -239,7 +238,7 @@ public class RegistrationServlet extends HttpServlet {
 	}
 
     private static User getUserAttribute(HttpServletRequest req) {
-        return (User) req.getAttribute("user");
+        return (User) req.getAttribute(RegistrationConstants.USER);
     }
 
     private boolean resolveBillable(String parameter) {
@@ -247,8 +246,7 @@ public class RegistrationServlet extends HttpServlet {
     }
 
     private DateTime getDate(String date) {
-        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
-        return fmt.parseDateTime(date);
+        return RegistrationConstants.dateTimeFormatter.parseDateTime(date);
     }
 
     private void fillInSuccessResponse(HttpServletResponse response, String contentType, String text) throws IOException {

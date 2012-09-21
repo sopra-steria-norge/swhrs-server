@@ -330,7 +330,8 @@ public class MSSQLHourRegDao implements HourRegDao {
                 String customerName = resultSet.getString(16);
                 String activityDescription = resultSet.getString(17);
 
-                weekDetails.addEntry(recordId, projectNumber, activityCode, new DateTime(date.getTime()), entryDescription, hours, submitted,
+                DateTime dateTime = date != null ? new DateTime(date.getTime()) : null;
+                weekDetails.addEntry(recordId, projectNumber, activityCode, dateTime, entryDescription, hours, submitted,
                         approved, projectName, customerName, activityDescription);
             }
 
