@@ -55,7 +55,6 @@ public class AuthorizationFilterTest {
     }
 
     @Test
-    @Ignore
     public void testAllowAfterLogin() throws Exception {
         WebRequestSettings settings = new WebRequestSettings(new URL("http://localhost:10000/swhrs-app/hours"), HttpMethod.GET);
 
@@ -65,7 +64,7 @@ public class AuthorizationFilterTest {
 
 
     private static WebRequestSettings withAuthenticationHeader(WebRequestSettings settings) throws IOException {
-        settings.setAdditionalHeader(AuthorizationFilter.AUTHENTICATION_TOKEN_HEADER_NAME, "{username: 'matb', password: + '" + Password.fromPlaintext("salt", "password") + "'}");
+        settings.setAdditionalHeader(AuthorizationFilter.AUTHENTICATION_TOKEN_HEADER_NAME, "{\"username\": \"matb\", \"password\":\"" + Password.fromPlaintext("salt", "password") + "\"}");
         return settings;
     }
 
