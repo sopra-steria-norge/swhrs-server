@@ -82,9 +82,9 @@ public class JSONBuilder {
         return json;
     }
 
-    public static JSONObject createFromWeekDetails(WeekDetails weekDetails) {
+    public static JSONObject createFromWeekDetails(WeekDetails weekDetails, PeriodDetails periodDetails) {
         JSONObject json = new JSONObject();
-        json.put("days", createFromWeekDetails(weekDetails.getHourRegistrationsByDate())) ;
+        json.put("days", createFromWeekDetails(weekDetails.getHourRegistrationsByDate(periodDetails))) ;
         json.put("projects", createProjects(weekDetails.getProjectDetailsAsList()));
         return json;
     }

@@ -22,10 +22,12 @@ public class WeekDetails {
     public void addEntry(Integer recordId, String projectNumber, String activityCode, DateTime date, String entryDescription,
                          double hours, boolean submitted, boolean approved, String projectName, String customerName,
                          String activityDescription) {
+
         // All entries with a recordId is hours that has been entered, the ones without are just other projects without hours
         if (recordId != null && recordId != 0) {
             registerHour(recordId, projectNumber, activityCode, date, entryDescription, hours, submitted, approved,
                     projectName, customerName, activityDescription);
+
             if (!projectDetails.containsKey(UtilityMethods.getProjectKey(projectNumber, activityCode))) {
                 registerProject(projectNumber, activityCode, projectName, customerName, activityDescription);
             }
@@ -50,23 +52,27 @@ public class WeekDetails {
         return hourRegistrations;
     }
 
-    public Map<DateTime,List<HourRegistration>> getHourRegistrationsByDate() {
-        if (hourRegistrationsByDate.isEmpty()) populateHourRegistrationByDate();
+    public Map<DateTime,List<HourRegistration>> getHourRegistrationsByDate(PeriodDetails periodDetails) {
+        if (hourRegistrationsByDate.isEmpty()) populateHourRegistrationByDate(periodDetails);
         return hourRegistrationsByDate;
     }
 
-    private void populateHourRegistrationByDate() {
+    private void populateHourRegistrationByDate(PeriodDetails periodDetails) {
+        populateDaysInList(periodDetails);
+
         for (Map.Entry<String,HourRegistration> entry : hourRegistrations.entrySet()) {
-            DateTime entryDateTime = entry.getValue().getDate();
-
-            if (!hourRegistrationsByDate.containsKey(entryDateTime)) {
-                hourRegistrationsByDate.put(entryDateTime, new ArrayList<HourRegistration>() {
-                });
-            }
-
-            List<HourRegistration> hourRegistrationList = hourRegistrationsByDate.get(entryDateTime);
+            List<HourRegistration> hourRegistrationList = hourRegistrationsByDate.get(entry.getValue().getDate());
             hourRegistrationList.add(entry.getValue());
         }
+    }
+
+    private void populateDaysInList(PeriodDetails periodDetails) {
+        DateTime date = new DateTime(periodDetails.getStartDate());
+        DateTime endDate = new DateTime(periodDetails.getEndDate().plusDays(1)); // cause of the nature of while loop
+        do {
+            hourRegistrationsByDate.put(date, new ArrayList<HourRegistration>());
+            date = date.plusDays(1);
+        } while (date.isBefore(endDate));
     }
 
     public List<ProjectDetail> getProjectDetailsAsList() {

@@ -221,7 +221,7 @@ public class RegistrationServlet extends HttpServlet {
         DateTime date = RegistrationConstants.dateTimeFormatter.parseDateTime(request.getParameter(RegistrationConstants.DATE));
         PeriodDetails periodDetails = db.getPeriodDetails(userId, date);
         WeekDetails weekDetails = db.getWeekList(userId, userId, "EMP", periodDetails.getStartDate());
-        fillInSuccessResponse(response, APPLICATION_JSON, JSONBuilder.createFromWeekDetails(weekDetails).toString());
+        fillInSuccessResponse(response, APPLICATION_JSON, JSONBuilder.createFromWeekDetails(weekDetails, periodDetails).toString());
 	}
 
 	/**
