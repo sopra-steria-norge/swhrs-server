@@ -2,6 +2,7 @@ package no.steria.swhrs;
 
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 import org.joda.time.DateTime;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -21,11 +22,19 @@ public class MSSQLHourRegDaoTest {
     private static final Logger logger = LoggerFactory.getLogger(MSSQLHourRegDaoTest.class);
 
 	private static MSSQLHourRegDao hourRegDao;
+    private PeriodDetails periodDetails;
 
     @BeforeClass
 	public static void createRegDao() throws Exception{
 		hourRegDao = createHourRegDao();
 	}
+
+    @Before
+    public void setup() throws Exception {
+        periodDetails = new PeriodDetails();
+        periodDetails.setStartDate(new DateTime(2012, 9, 3, 0, 0));
+        periodDetails.setEndDate(new DateTime(2012, 9, 9, 0, 0));
+    }
 
 	private static MSSQLHourRegDao createHourRegDao() throws SQLException, IOException {
 		InputStream resourceAsStream = MSSQLHourRegDao.class.getResourceAsStream("/config.properties");
@@ -164,7 +173,7 @@ public class MSSQLHourRegDaoTest {
         WeekDetails weekDetails = hourRegDao.getWeekList("ROR", "ROR", "EMP", new DateTime(2012, 9, 3, 0, 0));
         assertFalse(weekDetails.getHourRegistrations().isEmpty());
         assertFalse(weekDetails.getProjectDetailsAsList().isEmpty());
-        assertFalse(weekDetails.getHourRegistrationsByDate().isEmpty());
+        assertFalse(weekDetails.getHourRegistrationsByDate(periodDetails).isEmpty());
     }
 
 }
