@@ -89,6 +89,7 @@ public class ServletTest {
     }
 
     @Test
+    @Ignore
     public void testAddHourRegistration() throws Exception {
         when(request.getParameter(RegistrationConstants.DATE)).thenReturn("2012-09-03");
         when(request.getParameter(RegistrationConstants.PROJECT_NUMBER)).thenReturn("1112790");
@@ -124,6 +125,7 @@ public class ServletTest {
      * @throws Exception
      */
     @Test
+    @Ignore
     public void testUpdateHourRegistration() throws Exception {
         when(request.getParameter(RegistrationConstants.DATE)).thenReturn("2012-09-03");
         when(request.getParameter(RegistrationConstants.PROJECT_NUMBER)).thenReturn("1112790");
