@@ -73,6 +73,43 @@ public class MSSQLHourRegDao implements HourRegDao {
     }
 
     @Override
+    public List<HourRegistration> getAllHoursForDate(String userId, DateTime date) {
+        List<HourRegistration> result = new ArrayList<HourRegistration>();
+
+        PreparedStatement statement = null;
+        try {
+            statement = getConnection().prepareStatement(SELECT_REGISTRATIONS);
+            statement.setString(1, userId);
+            statement.setDate(2, new Date(date.getMillis()));
+            ResultSet res = statement.executeQuery();
+            while(res.next()) {
+                Integer taskNumber = res.getInt(2);
+                String projectNumber = res.getString(3);
+                String activityCode = res.getString(4);
+                double hours = res.getDouble(8);
+                String description = res.getString(9);
+                boolean submitted = res.getBoolean(10);
+                boolean approved = res.getBoolean(11);
+
+                HourRegistration hourReg = new HourRegistration(taskNumber, projectNumber, activityCode, date, description,
+                        hours,submitted, approved, null, null, null);
+
+                result.add(hourReg);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        finally{
+            try {
+                if(statement != null)statement.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return result;
+    }
+
+    @Override
     public Integer addHourRegistrations(String loggedInUser, String registeringForUser, String projectNumber,
                                         String activity, DateTime date, double hours, boolean isChargedHours,
                                         String workType, String description, boolean bypassChecks) {
@@ -234,43 +271,6 @@ public class MSSQLHourRegDao implements HourRegDao {
             }
         }
     }
-
-    @Override
-	public List<HourRegistration> getAllHoursForDate(String userId, DateTime date) {
-		List<HourRegistration> result = new ArrayList<HourRegistration>();
-
-		PreparedStatement statement = null;
-		try {
-			statement = getConnection().prepareStatement(SELECT_REGISTRATIONS);
-			statement.setString(1, userId);
-			statement.setDate(2, new Date(date.getMillis()));
-			ResultSet res = statement.executeQuery();
-			while(res.next()) {
-				Integer taskNumber = res.getInt(2);
-				String projectNumber = res.getString(3);
-				String activityCode = res.getString(4);
-				double hours = res.getDouble(8);
-				String description = res.getString(9);
-				boolean submitted = res.getBoolean(10);
-				boolean approved = res.getBoolean(11);
-
-                HourRegistration hourReg = new HourRegistration(taskNumber, projectNumber, activityCode, date, description,
-                        hours,submitted, approved, null, null, null);
-
-				result.add(hourReg);
-			}
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-		finally{
-			try {
-				if(statement != null)statement.close();
-			} catch (SQLException e) {
-				throw new RuntimeException(e);
-			}
-		}
-		return result;
-	}
 
     @Override
     public List<ProjectDetail> searchProjects(String projectName) {

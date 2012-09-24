@@ -37,32 +37,32 @@ public class RegistrationServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if(req.getRequestURL().toString().contains("hours/daylist")){
+        if(req.getRequestURL().toString().contains(RegistrationConstants.REQUEST_URL_HOURS_RETRIEVE_DAY)){
             getDayListResponseAsJSON(req, resp);
-        } else if(req.getRequestURL().toString().contains("hours/favourite")){
+        } else if(req.getRequestURL().toString().contains(RegistrationConstants.REQUEST_URL_FAVORITE_GET)){
             getFavorites(req, resp);
-        } else if(req.getRequestURL().toString().contains("hours/week")){
+        } else if(req.getRequestURL().toString().contains(RegistrationConstants.REQUEST_URL_HOURS_RETRIEVE_WEEK)){
             getWeekDetails(req, resp);
-        } else if(req.getRequestURL().toString().contains("hours/searchFavourites")){
+        } else if(req.getRequestURL().toString().contains(RegistrationConstants.REQUEST_URL_FAVORITE_SEARCH)){
             searchFavourites(req, resp);
         }
     }
 
     @Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)	throws ServletException, IOException {
-        if (req.getRequestURL().toString().contains("hours/registration")) {
+        if (req.getRequestURL().toString().contains(RegistrationConstants.REQUEST_URL_HOURS_ADD)) {
             addHourRegistration(req, resp);
-        } else if(req.getRequestURL().toString().contains("hours/deleteRegistration")){
+        } else if(req.getRequestURL().toString().contains(RegistrationConstants.REQUEST_URL_HOURS_DELETE)){
             deleteHourRegistration(req, resp);
-		} else if(req.getRequestURL().toString().contains("hours/addFavourites")){
+		} else if(req.getRequestURL().toString().contains(RegistrationConstants.REQUEST_URL_FAVORITE_ADD)){
 			addFavourites(req, resp);
-		} else if(req.getRequestURL().toString().contains("hours/submitPeriod")){
+		} else if(req.getRequestURL().toString().contains(RegistrationConstants.REQUEST_URL_SUBMIT)){
 			submitPeriod(req, resp);
-		} else if(req.getRequestURL().toString().contains("hours/reopenPeriod")){
+		} else if(req.getRequestURL().toString().contains(RegistrationConstants.REQUEST_URL_REOPEN)){
             reopenPeriod(req, resp);
-        } else if(req.getRequestURL().toString().contains("hours/deleteFavourite")){
+        } else if(req.getRequestURL().toString().contains(RegistrationConstants.REQUEST_URL_FAVORITE_DELETE)){
 			deleteFavourite(req, resp);
-		} else if(req.getRequestURL().toString().contains("hours/updateRegistration")){
+		} else if(req.getRequestURL().toString().contains(RegistrationConstants.REQUEST_URL_HOURS_UPDATE)){
 			updateHourRegistration(req, resp);
 		}
  	}
@@ -177,7 +177,7 @@ public class RegistrationServlet extends HttpServlet {
 	 */
 	@SuppressWarnings("unchecked")
 	private void searchFavourites(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String searchInput = request.getParameter("search");
+		String searchInput = request.getParameter(RegistrationConstants.SEARCH);
 		List<ProjectDetail> project = db.searchProjects(searchInput);
         fillInSuccessResponse(response, APPLICATION_JSON, JSONBuilder.createProjects(project).toString());
 	}
@@ -251,7 +251,7 @@ public class RegistrationServlet extends HttpServlet {
 
     private void fillInSuccessResponse(HttpServletResponse response, String contentType, String text) throws IOException {
         response.setContentType(contentType);
-        response.setStatus(RegistrationConstants.HTTP_STATUS_CODE_SUCCESS);
+        response.setStatus(HttpServletResponse.SC_OK);
         response.getWriter().append(text);
     }
 

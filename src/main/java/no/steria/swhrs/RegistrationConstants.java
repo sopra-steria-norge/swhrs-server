@@ -21,9 +21,21 @@ public interface RegistrationConstants {
     public final static String CUSTOMER_NAME = "customerName";
     public final static String PROJECT_NAME = "projectName";
     public final static String USER = "user";
+    public final static String SEARCH = "search";
 
     public final static String TEXT_SUCCESS = "Success";
-    public final static int HTTP_STATUS_CODE_SUCCESS = 200;
 
     public final static DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd");
+
+    public final static String REQUEST_URL_HOURS_RETRIEVE_WEEK = "hours/week";
+    public final static String REQUEST_URL_HOURS_RETRIEVE_DAY = "hours/daylist";
+    public final static String REQUEST_URL_HOURS_ADD = "hours/registration";
+    public final static String REQUEST_URL_HOURS_DELETE = "hours/deleteRegistration";
+    public final static String REQUEST_URL_HOURS_UPDATE = "hours/updateRegistration";
+    public final static String REQUEST_URL_SUBMIT = "hours/submitPeriod";
+    public final static String REQUEST_URL_REOPEN = "hours/reopenPeriod";
+    public final static String REQUEST_URL_FAVORITE_ADD = "hours/addFavourites";
+    public final static String REQUEST_URL_FAVORITE_DELETE = "hours/deleteFavourite";
+    public final static String REQUEST_URL_FAVORITE_GET = "hours/favourite";
+    public final static String REQUEST_URL_FAVORITE_SEARCH = "hours/searchFavourites";
 }
