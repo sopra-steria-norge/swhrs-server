@@ -98,4 +98,10 @@ public class JSONBuilder {
 
         return json;
     }
+
+    public static JSONObject createFromAddHours(Integer entryId) {
+        JSONObject json = new JSONObject();
+        json.put(RegistrationConstants.TASK_NUMBER, entryId.toString());
+        return json;
+    }
 }
