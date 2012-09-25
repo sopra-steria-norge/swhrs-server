@@ -74,8 +74,7 @@ public class ServletTest {
     @Test
     public void testRetrieveWeekInformation() throws Exception {
         when(request.getParameter(RegistrationConstants.DATE)).thenReturn("2012-09-05");
-        when(request.getRequestURL()).thenReturn(new StringBuffer(SERVER_URL + RegistrationConstants.REQUEST_URL_HOURS_RETRIEVE_WEEK));
-        servlet.doGet(request, response);
+        performCall(GET, RegistrationConstants.REQUEST_URL_HOURS_RETRIEVE_WEEK);
         assertTrue(getResponseObject().size() > 0);
         System.out.println(writer.toString());
     }
@@ -88,8 +87,7 @@ public class ServletTest {
     @Test
     public void testRetrieveDayInformation() throws Exception {
         when(request.getParameter(RegistrationConstants.DATE)).thenReturn("2012-09-03");
-        when(request.getRequestURL()).thenReturn(new StringBuffer(SERVER_URL + RegistrationConstants.REQUEST_URL_HOURS_RETRIEVE_DAY));
-        servlet.doGet(request, response);
+        performCall(GET, RegistrationConstants.REQUEST_URL_HOURS_RETRIEVE_DAY);
         assertTrue(getResponseObject().size() > 0);
     }
 
@@ -104,8 +102,7 @@ public class ServletTest {
         when(request.getParameter(RegistrationConstants.BILLABLE)).thenReturn("false");
         when(request.getParameter(RegistrationConstants.WORK_TYPE)).thenReturn("");
 
-        when(request.getRequestURL()).thenReturn(new StringBuffer(SERVER_URL + RegistrationConstants.REQUEST_URL_HOURS_ADD));
-        servlet.doPost(request, response);
+        performCall(POST, RegistrationConstants.REQUEST_URL_HOURS_ADD);
 
         JSONObject returnObject = getResponseObject();
         Integer entryId = Integer.parseInt((String)returnObject.get(RegistrationConstants.TASK_NUMBER));
@@ -123,13 +120,26 @@ public class ServletTest {
         when(request.getParameter(RegistrationConstants.DESCRIPTION)).thenReturn("integrationTest");
         when(request.getParameter(RegistrationConstants.WORK_TYPE)).thenReturn("");
 
-        when(request.getRequestURL()).thenReturn(new StringBuffer(SERVER_URL + RegistrationConstants.REQUEST_URL_HOURS_ADD));
-        servlet.doPost(request, response);
+        performCall(POST, RegistrationConstants.REQUEST_URL_HOURS_ADD);
 
         JSONObject returnObject = getResponseObject();
         Integer entryId = Integer.parseInt((String)returnObject.get(RegistrationConstants.TASK_NUMBER));
         assertNotNull(entryId);
         assertTrue(entryId != 0);
+    }
+
+    @Test
+    public void testAddHourRegistration_nullHoursSentIn() throws Exception {
+        when(request.getParameter(RegistrationConstants.DATE)).thenReturn("2012-09-03");
+        when(request.getParameter(RegistrationConstants.PROJECT_NUMBER)).thenReturn("1112790");
+        when(request.getParameter(RegistrationConstants.ACTIVITY_CODE)).thenReturn("1");
+        when(request.getParameter(RegistrationConstants.HOURS)).thenReturn(null);
+        when(request.getParameter(RegistrationConstants.DESCRIPTION)).thenReturn("integrationTest");
+        when(request.getParameter(RegistrationConstants.WORK_TYPE)).thenReturn("");
+
+        performCall(POST, RegistrationConstants.REQUEST_URL_HOURS_ADD);
+
+        verify(response).sendError(anyInt(), anyString());
     }
 
     /**
@@ -165,16 +175,30 @@ public class ServletTest {
         when(request.getParameter(RegistrationConstants.DATE)).thenReturn("2012-09-03");
         when(request.getParameter(RegistrationConstants.PROJECT_NUMBER)).thenReturn("1112790");
         when(request.getParameter(RegistrationConstants.ACTIVITY_CODE)).thenReturn("1");
-        when(request.getParameter(RegistrationConstants.HOURS)).thenReturn("1.76");
+        when(request.getParameter(RegistrationConstants.HOURS)).thenReturn(null);
         when(request.getParameter(RegistrationConstants.DESCRIPTION)).thenReturn("integrationTes2t");
         when(request.getParameter(RegistrationConstants.BILLABLE)).thenReturn("false");
         when(request.getParameter(RegistrationConstants.WORK_TYPE)).thenReturn("");
-        when(request.getParameter(RegistrationConstants.TASK_NUMBER)).thenReturn("2105842");
+        when(request.getParameter(RegistrationConstants.TASK_NUMBER)).thenReturn("2105854");
 
-        when(request.getRequestURL()).thenReturn(new StringBuffer(SERVER_URL + RegistrationConstants.REQUEST_URL_HOURS_UPDATE));
-        servlet.doPost(request, response);
+        performCall(POST, RegistrationConstants.REQUEST_URL_HOURS_UPDATE);
 
         assertEquals(RegistrationConstants.TEXT_SUCCESS, writer.toString());
+    }
+
+    @Test
+    public void testUpdateHourRegistration_missingFundamentalData() throws Exception {
+        when(request.getParameter(RegistrationConstants.DATE)).thenReturn("2012-09-03");
+        when(request.getParameter(RegistrationConstants.PROJECT_NUMBER)).thenReturn("1112790");
+        when(request.getParameter(RegistrationConstants.ACTIVITY_CODE)).thenReturn("1");
+        when(request.getParameter(RegistrationConstants.HOURS)).thenReturn(null);
+        when(request.getParameter(RegistrationConstants.DESCRIPTION)).thenReturn("integrationTes2t");
+        when(request.getParameter(RegistrationConstants.BILLABLE)).thenReturn("false");
+        when(request.getParameter(RegistrationConstants.WORK_TYPE)).thenReturn("");
+        when(request.getParameter(RegistrationConstants.TASK_NUMBER)).thenReturn("2105854");
+
+        performCall(POST, RegistrationConstants.REQUEST_URL_HOURS_UPDATE);
+        verify(response).sendError(anyInt(), anyString());
     }
 
     /**
@@ -220,7 +244,6 @@ public class ServletTest {
     /**
      * Things to consider:
      * - Favorite doesn't exist   (responds with success even then)
-     * - Invalid input
      * @throws Exception
      */
     @Test
@@ -236,7 +259,7 @@ public class ServletTest {
         when(request.getParameter(RegistrationConstants.PROJECT_NUMBER)).thenReturn(null);
         when(request.getParameter(RegistrationConstants.ACTIVITY_CODE)).thenReturn("1");
         performCall(POST, RegistrationConstants.REQUEST_URL_FAVORITE_DELETE);
-        assertEquals(RegistrationConstants.TEXT_SUCCESS, writer.toString());
+        verify(response).sendError(anyInt(), anyString());
     }
 
     /**

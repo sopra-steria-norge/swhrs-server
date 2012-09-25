@@ -78,14 +78,19 @@ public class RegistrationServlet extends HttpServlet {
         String username = user.getUsername();
         String projectNumber = request.getParameter(RegistrationConstants.PROJECT_NUMBER);
         String activityCode = request.getParameter(RegistrationConstants.ACTIVITY_CODE);
-        double hours = Double.parseDouble(request.getParameter(RegistrationConstants.HOURS));
+        String hours = request.getParameter(RegistrationConstants.HOURS);
         String description = request.getParameter(RegistrationConstants.DESCRIPTION);
         DateTime date = getDate(request.getParameter(RegistrationConstants.DATE));
         String workType = request.getParameter(RegistrationConstants.WORK_TYPE);
         boolean billable = resolveBillable(request.getParameter(RegistrationConstants.BILLABLE),
                 user.getUsername(), UtilityMethods.getProjectKey(projectNumber, activityCode));
 
-        Integer entryId = db.addHourRegistrations(username, username, projectNumber, activityCode, date, hours, billable,
+        if (StringUtils.isBlank(projectNumber) || StringUtils.isBlank(activityCode) || StringUtils.isBlank(hours)) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing input variable(s).");
+            return;
+        }
+
+        Integer entryId = db.addHourRegistrations(username, username, projectNumber, activityCode, date, Double.parseDouble(hours), billable,
                 workType, description, false);
         fillInSuccessResponse(response, APPLICATION_JSON, JSONBuilder.createFromAddHours(entryId).toString());
     }
@@ -99,7 +104,7 @@ public class RegistrationServlet extends HttpServlet {
         User user = getUserAttribute(request);
         String userId = user.getUsername();
         String taskNumber = request.getParameter(RegistrationConstants.TASK_NUMBER);
-        double hours = Double.parseDouble(request.getParameter(RegistrationConstants.HOURS));
+        String hours = request.getParameter(RegistrationConstants.HOURS);
         String description = request.getParameter(RegistrationConstants.DESCRIPTION);
         String activityCode = request.getParameter(RegistrationConstants.ACTIVITY_CODE);
         String projectNumber = request.getParameter(RegistrationConstants.PROJECT_NUMBER);
@@ -108,7 +113,13 @@ public class RegistrationServlet extends HttpServlet {
         boolean billable = resolveBillable(request.getParameter(RegistrationConstants.BILLABLE),
                 user.getUsername(), UtilityMethods.getProjectKey(projectNumber, activityCode));
 
-        db.updateHourRegistration(userId, taskNumber, projectNumber, activityCode, date, hours, billable, workType, description);
+        if (StringUtils.isBlank(taskNumber) || StringUtils.isBlank(projectNumber) || StringUtils.isBlank(activityCode)
+                || StringUtils.isBlank(hours)) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing input variable(s).");
+            return;
+        }
+
+        db.updateHourRegistration(userId, taskNumber, projectNumber, activityCode, date,  Double.parseDouble(hours), billable, workType, description);
         fillInSuccessResponse(response);
     }
 
@@ -143,6 +154,11 @@ public class RegistrationServlet extends HttpServlet {
         User user = getUserAttribute(request);
         String projectNumber = request.getParameter(RegistrationConstants.PROJECT_NUMBER);
         String activityCode = request.getParameter(RegistrationConstants.ACTIVITY_CODE);
+        if (StringUtils.isBlank(projectNumber) || StringUtils.isBlank(activityCode)) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing project number and/or activity code.");
+            return;
+        }
+
         db.deleteFavourite(user.getUsername(), projectNumber, activityCode);
         fillInSuccessResponse(response);
     }
