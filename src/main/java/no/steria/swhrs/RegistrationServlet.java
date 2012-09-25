@@ -1,5 +1,6 @@
 package no.steria.swhrs;
 
+import com.microsoft.sqlserver.jdbc.SQLServerException;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -124,7 +125,12 @@ public class RegistrationServlet extends HttpServlet {
         User user = getUserAttribute(request);
         String username = user.getUsername();
         String taskNumber = request.getParameter(RegistrationConstants.TASK_NUMBER);
-        db.deleteHourRegistration(username, taskNumber);
+
+        try {
+            db.deleteHourRegistration(username, taskNumber);
+        } catch (RuntimeException r) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, r.getMessage());
+        }
         fillInSuccessResponse(response);
     }
 
@@ -150,6 +156,14 @@ public class RegistrationServlet extends HttpServlet {
         User user = getUserAttribute(request);
         String projectNumber = request.getParameter(RegistrationConstants.PROJECT_NUMBER);
         String activityCode = request.getParameter(RegistrationConstants.ACTIVITY_CODE);
+        if (StringUtils.isBlank(projectNumber) || StringUtils.isBlank(activityCode)) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing project number and/or activity code.");
+            return;
+        }
+
+        // TODO validate that the project and activity code being added actually exists, this is a shortcoming for now
+        // TODO validate that the project isn't already a favorite of this user
+
         db.addFavourites(user.getUsername(), projectNumber, activityCode);
         fillInSuccessResponse(response);
     }
@@ -192,7 +206,14 @@ public class RegistrationServlet extends HttpServlet {
     private void submitPeriod(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String username = getUserAttribute(request).getUsername();
         DateTime startDate = getDate(request.getParameter(RegistrationConstants.DATE));
-        db.submitHours(username, username, startDate);
+
+        try {
+            db.submitHours(username, username, startDate);
+        } catch (RuntimeException t) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, t.getMessage());
+            return;
+        }
+
         fillInSuccessResponse(response);
     }
 
