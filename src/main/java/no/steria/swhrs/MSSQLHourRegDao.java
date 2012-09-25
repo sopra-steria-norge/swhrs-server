@@ -14,12 +14,12 @@ public class MSSQLHourRegDao implements HourRegDao {
     private static final String COUNTRY = "NO";
     private final DataSource datasource;
     private static final String SELECT_CURRENT_PERIOD = "select TP.[Startdato],TP.[Slutdato], TP.[Beskrivelse] FROM [Norge$Time Periods] TP WHERE Ressource=? AND TP.[Startdato] <= ? AND TP.[Slutdato] >= ? ORDER BY [Startdato] DESC";
-	private static final String SELECT_USERS = "SELECT No_, \"WEB Password\" FROM \"Norge$Resource\" where No_ = ?";
-	private static final String SELECT_REGISTRATIONS = "SELECT * FROM \"Norge$Time Entry\" WHERE Ressourcekode = ? AND Dato = ? AND Projektnr_ NOT LIKE 'FLEX'";
+    private static final String SELECT_USERS = "SELECT No_, \"WEB Password\" FROM \"Norge$Resource\" where No_ = ?";
+    private static final String SELECT_REGISTRATIONS = "SELECT * FROM \"Norge$Time Entry\" WHERE Ressourcekode = ? AND Dato = ? AND Projektnr_ NOT LIKE 'FLEX'";
     private static final String SELECT_NORMTIME = "SELECT \"Norge$Norm Time Data\".Kode, \"Norge$Norm Time Data\".Mandag, \"Norge$Norm Time Data\".Tirsdag, \"Norge$Norm Time Data\".Onsdag, \"Norge$Norm Time Data\".Torsdag, \"Norge$Norm Time Data\".Fredag, \"Norge$Norm Time Data\".Lørdag, \"Norge$Norm Time Data\".Søndag from \"Norge$Norm Time Data\" INNER JOIN \"Norge$Resource\" ON \"Norge$Norm Time Data\".Kode = \"Norge$Resource\".\"Norm Tid\" WHERE \"Norge$Resource\".No_ = ?";
-	private static final String SELECT_SEARCHPROJECTS = "SELECT TOP 150 \"Norge$Tasklist\".Projektnr_, \"Norge$Tasklist\".Kode, \"Norge$Tasklist\".Beskrivelse FROM \"Norge$Tasklist\" WHERE Beskrivelse like ? OR Projektnr_ like ? ORDER BY Beskrivelse";
-	private static final String INSERT_FAVOURITE = "INSERT into \"Norge$Favourite Task\" (Resourcekode, Projektnr_, Aktivitetskode) VALUES(?, ?, ?)";
-	private static final String DELETE_FAVOURITE = "DELETE FROM \"Norge$Favourite Task\" WHERE Resourcekode = ? AND Projektnr_ = ? AND Aktivitetskode = ?";
+    private static final String SELECT_SEARCHPROJECTS = "SELECT TOP 150 \"Norge$Tasklist\".Projektnr_, \"Norge$Tasklist\".Kode, \"Norge$Tasklist\".Beskrivelse FROM \"Norge$Tasklist\" WHERE Beskrivelse like ? OR Projektnr_ like ? ORDER BY Beskrivelse";
+    private static final String INSERT_FAVOURITE = "INSERT into \"Norge$Favourite Task\" (Resourcekode, Projektnr_, Aktivitetskode) VALUES(?, ?, ?)";
+    private static final String DELETE_FAVOURITE = "DELETE FROM \"Norge$Favourite Task\" WHERE Resourcekode = ? AND Projektnr_ = ? AND Aktivitetskode = ?";
     private static final String SELECT_FAVOURITES = "SELECT \"Norge$Favourite Task\".Projektnr_, \"Norge$Favourite Task\".Aktivitetskode, \"Norge$Tasklist\".Beskrivelse, \"Norge$Tasklist\".\"Ressource fakturerbar\", \"Norge$Job\".Description, \"Norge$Job\".Name,  \"Norge$Job\".\"Internt projekt\"  FROM \"Norge$Favourite Task\"  INNER JOIN \"Norge$Tasklist\" ON \"Norge$Favourite Task\".Projektnr_= \"Norge$Tasklist\".Projektnr_ AND \"Norge$Favourite Task\".Aktivitetskode = \"Norge$Tasklist\".Kode INNER JOIN \"Norge$Job\" ON \"Norge$Favourite Task\".Projektnr_= \"Norge$Job\".No_ WHERE \"Norge$Favourite Task\".Resourcekode = ? AND \"Norge$Tasklist\".Spærret NOT LIKE '1'";
     private static final String STORE_PROCEDURE_INSERT_HOURS = "{? = call dbo.uspSTE_InsertTimeEntry(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
     private static final String STORE_PROCEDURE_DELETE_HOURS = "{call dbo.uspSTE_DeleteTimeEntry(?, ?, ?)}";
@@ -28,9 +28,9 @@ public class MSSQLHourRegDao implements HourRegDao {
     private static final String STORE_PROCEDURE_REOPEN_HOURS = "{call dbo.uspSTE_ReopenPeriod(?, ?, ?, ?)}";
     private static final String STORE_PROCEDURE_GET_PERIOD_INFORMATION = "{? = call dbo.uspSTE_GetPeriodRegTime(?, ?, ?, ?, ?)}";
 
-	public MSSQLHourRegDao(DataSource datasource) {
-		this.datasource = datasource;
-	}
+    public MSSQLHourRegDao(DataSource datasource) {
+        this.datasource = datasource;
+    }
 
     public static MSSQLHourRegDao createInstance() throws NamingException {
         DataSource dataSource = (DataSource) new InitialContext().lookup(JettyServer.DB_JNDI);
@@ -44,18 +44,40 @@ public class MSSQLHourRegDao implements HourRegDao {
         return datasource.getConnection();
     }
 
+    private static void close(PreparedStatement statement, ResultSet res, Connection connection) {
+        if (res != null) try {
+            res.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        if (statement != null) try {
+            statement.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        if (connection != null) try {
+            connection.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
     public PeriodDetails getPeriodDetails(String user, DateTime date) {
         PeriodDetails periodDetails = new PeriodDetails();
         Date sqlDate = new Date(date.getMillis());
 
         PreparedStatement statement = null;
+        ResultSet res = null;
+        Connection connection = null;
         try {
-            statement = getConnection().prepareStatement(SELECT_CURRENT_PERIOD);
+            connection = getConnection();
+            statement = connection.prepareStatement(SELECT_CURRENT_PERIOD);
             statement.setString(1, user);
             statement.setDate(2, sqlDate);
             statement.setDate(3, sqlDate);
 
-            ResultSet res = statement.executeQuery();
+            res = statement.executeQuery();
             if (res != null && res.next()) {
                 periodDetails.setStartDate(new DateTime(res.getDate(1).getTime()));
                 periodDetails.setEndDate(new DateTime(res.getDate(2).getTime()));
@@ -63,11 +85,7 @@ public class MSSQLHourRegDao implements HourRegDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
-            try {
-                if (statement != null) statement.close();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            close(statement, res, connection);
         }
         return periodDetails;
     }
@@ -77,12 +95,15 @@ public class MSSQLHourRegDao implements HourRegDao {
         List<HourRegistration> result = new ArrayList<HourRegistration>();
 
         PreparedStatement statement = null;
+        ResultSet res = null;
+        Connection connection = null;
         try {
-            statement = getConnection().prepareStatement(SELECT_REGISTRATIONS);
+            connection = getConnection();
+            statement = connection.prepareStatement(SELECT_REGISTRATIONS);
             statement.setString(1, userId);
             statement.setDate(2, new Date(date.getMillis()));
-            ResultSet res = statement.executeQuery();
-            while(res.next()) {
+            res = statement.executeQuery();
+            while (res.next()) {
                 Integer taskNumber = res.getInt(2);
                 String projectNumber = res.getString(3);
                 String activityCode = res.getString(4);
@@ -92,19 +113,14 @@ public class MSSQLHourRegDao implements HourRegDao {
                 boolean approved = res.getBoolean(11);
 
                 HourRegistration hourReg = new HourRegistration(taskNumber, projectNumber, activityCode, date, description,
-                        hours,submitted, approved, null, null, null);
+                        hours, submitted, approved, null, null, null);
 
                 result.add(hourReg);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
-        }
-        finally{
-            try {
-                if(statement != null)statement.close();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+        } finally {
+            close(statement, res, connection);
         }
         return result;
     }
@@ -115,8 +131,10 @@ public class MSSQLHourRegDao implements HourRegDao {
                                         String workType, String description, boolean bypassChecks) {
 
         CallableStatement statement = null;
+        Connection connection = null;
         try {
-            statement = getConnection().prepareCall(STORE_PROCEDURE_INSERT_HOURS);
+            connection = getConnection();
+            statement = connection.prepareCall(STORE_PROCEDURE_INSERT_HOURS);
             statement.registerOutParameter(1, Types.INTEGER);
             statement.setString(2, COUNTRY);
             statement.setString(3, loggedInUser);
@@ -136,11 +154,7 @@ public class MSSQLHourRegDao implements HourRegDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
-            try {
-                if (statement != null) statement.close();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            close(statement, null, connection);
         }
     }
 
@@ -150,8 +164,10 @@ public class MSSQLHourRegDao implements HourRegDao {
                                        String description) {
         CallableStatement statement = null;
 
+        Connection connection = null;
         try {
-            statement = getConnection().prepareCall(STORE_PROCEDURE_UPDATE_HOURS);
+            connection = getConnection();
+            statement = connection.prepareCall(STORE_PROCEDURE_UPDATE_HOURS);
             statement.setString(1, COUNTRY);
             statement.setString(2, userId);
             statement.setString(3, taskNumber);
@@ -168,41 +184,35 @@ public class MSSQLHourRegDao implements HourRegDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
-            try {
-                if (statement != null) statement.close();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            close(statement, null, connection);
         }
     }
 
     @Override
     public void deleteHourRegistration(String userId, String taskNumber) {
         CallableStatement statement = null;
+        Connection connection = null;
         try {
-            statement = getConnection().prepareCall(STORE_PROCEDURE_DELETE_HOURS);
+            connection = getConnection();
+            statement = connection.prepareCall(STORE_PROCEDURE_DELETE_HOURS);
             statement.setString(1, COUNTRY);
             statement.setString(2, userId);
             statement.setString(3, taskNumber);
             statement.executeUpdate();
-
         } catch (SQLException e) {
             throw new RuntimeException(e);
-        }
-        finally{
-            try {
-                if(statement != null)statement.close();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+        } finally {
+            close(statement, null, connection);
         }
     }
 
     @Override
     public boolean addFavourites(String userId, String project_id, String activityCode) {
         PreparedStatement statement = null;
+        Connection connection = null;
         try {
-            statement = getConnection().prepareStatement(INSERT_FAVOURITE);
+            connection = getConnection();
+            statement = connection.prepareStatement(INSERT_FAVOURITE);
             statement.setString(1, userId);
             statement.setString(2, project_id);
             statement.setString(3, activityCode);
@@ -212,11 +222,7 @@ public class MSSQLHourRegDao implements HourRegDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
-            try {
-                if (statement != null) statement.close();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            close(statement, null, connection);
         }
     }
 
@@ -224,10 +230,13 @@ public class MSSQLHourRegDao implements HourRegDao {
     public List<UserFavourites> getUserFavourites(String userId) {
         List<UserFavourites> result = new ArrayList<UserFavourites>();
         PreparedStatement statement = null;
+        ResultSet res = null;
+        Connection connection = null;
         try {
-            statement = getConnection().prepareStatement(SELECT_FAVOURITES);
+            connection = getConnection();
+            statement = connection.prepareStatement(SELECT_FAVOURITES);
             statement.setString(1, userId);
-            ResultSet res = statement.executeQuery();
+            res = statement.executeQuery();
             while (res.next()) {
                 String projectNumber = res.getString(1);
                 String activityCode = res.getString(2);
@@ -242,11 +251,7 @@ public class MSSQLHourRegDao implements HourRegDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
-            try {
-                if (statement != null) statement.close();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            close(statement, res, connection);
         }
         return result;
     }
@@ -254,8 +259,10 @@ public class MSSQLHourRegDao implements HourRegDao {
     @Override
     public void deleteFavourite(String userId, String projectNumber, String activityCode) {
         PreparedStatement statement = null;
+        Connection connection = null;
         try {
-            statement = getConnection().prepareStatement(DELETE_FAVOURITE);
+            connection = getConnection();
+            statement = connection.prepareStatement(DELETE_FAVOURITE);
             statement.setString(1, userId);
             statement.setString(2, projectNumber);
             statement.setString(3, activityCode);
@@ -264,24 +271,22 @@ public class MSSQLHourRegDao implements HourRegDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
-            try {
-                if (statement != null) statement.close();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            close(statement, null, connection);
         }
     }
 
-    @Override
     public List<ProjectDetail> searchProjects(String projectName) {
         List<ProjectDetail> result = new ArrayList<ProjectDetail>();
         PreparedStatement statement = null;
         String searchString = "%" + projectName + "%";
+        Connection connection = null;
+        ResultSet res = null;
         try {
-            statement = getConnection().prepareStatement(SELECT_SEARCHPROJECTS);
+            connection = getConnection();
+            statement = connection.prepareStatement(SELECT_SEARCHPROJECTS);
             statement.setString(1, searchString);
             statement.setString(2, projectName);
-            ResultSet res = statement.executeQuery();
+            res = statement.executeQuery();
             while (res.next()) {
                 String projectNumber = res.getString(1);
                 String activityCode = res.getString(2);
@@ -292,11 +297,7 @@ public class MSSQLHourRegDao implements HourRegDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
-            try {
-                if (statement != null) statement.close();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            close(statement, res, connection);
         }
         return result;
     }
@@ -306,8 +307,11 @@ public class MSSQLHourRegDao implements HourRegDao {
         CallableStatement statement = null;
         WeekDetails weekDetails = new WeekDetails();
 
+        Connection connection = null;
+        ResultSet resultSet = null;
         try {
-            statement = getConnection().prepareCall(STORE_PROCEDURE_GET_PERIOD_INFORMATION);
+            connection = getConnection();
+            statement = connection.prepareCall(STORE_PROCEDURE_GET_PERIOD_INFORMATION);
             statement.registerOutParameter(1, Types.INTEGER);
             statement.setString(2, COUNTRY);
             statement.setString(3, loggedInUser);
@@ -315,7 +319,7 @@ public class MSSQLHourRegDao implements HourRegDao {
             statement.setString(5, registeringForUser);
             statement.setDate(6, new Date(startDate.getMillis()));
 
-            ResultSet resultSet = statement.executeQuery();
+            resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 Integer recordId = resultSet.getInt(1);
                 String projectNumber = resultSet.getString(2);
@@ -338,11 +342,7 @@ public class MSSQLHourRegDao implements HourRegDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
-            try {
-                if (statement != null) statement.close();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            close(statement, resultSet, connection);
         }
 
         return weekDetails;
@@ -352,8 +352,10 @@ public class MSSQLHourRegDao implements HourRegDao {
     public void submitHours(String loggedInUser, String registeringForUser, DateTime dayInPeriod) {
         CallableStatement statement = null;
 
+        Connection connection = null;
         try {
-            statement = getConnection().prepareCall(STORE_PROCEDURE_SUBMIT_HOURS);
+            connection = getConnection();
+            statement = connection.prepareCall(STORE_PROCEDURE_SUBMIT_HOURS);
             statement.setString(1, COUNTRY);
             statement.setString(2, loggedInUser);
             statement.setString(3, registeringForUser);
@@ -364,11 +366,7 @@ public class MSSQLHourRegDao implements HourRegDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
-            try {
-                if (statement != null) statement.close();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            close(statement, null, connection);
         }
     }
 
@@ -376,8 +374,10 @@ public class MSSQLHourRegDao implements HourRegDao {
     public void reopenHours(String loggedInUser, String registeringForUser, DateTime dayInPeriod) {
         CallableStatement statement = null;
 
+        Connection connection = null;
         try {
-            statement = getConnection().prepareCall(STORE_PROCEDURE_REOPEN_HOURS);
+            connection = getConnection();
+            statement = connection.prepareCall(STORE_PROCEDURE_REOPEN_HOURS);
             statement.setString(1, COUNTRY);
             statement.setString(2, loggedInUser);
             statement.setString(3, registeringForUser);
@@ -387,11 +387,7 @@ public class MSSQLHourRegDao implements HourRegDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
-            try {
-                if (statement != null) statement.close();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            close(statement, null, connection);
         }
     }
 
@@ -399,10 +395,13 @@ public class MSSQLHourRegDao implements HourRegDao {
     public List<NormTime> getNormTime(String username) {
         List<NormTime> result = new ArrayList<NormTime>();
         PreparedStatement statement = null;
+        Connection connection = null;
+        ResultSet res = null;
         try {
-            statement = getConnection().prepareStatement(SELECT_NORMTIME);
+            connection = getConnection();
+            statement = connection.prepareStatement(SELECT_NORMTIME);
             statement.setString(1, username);
-            ResultSet res = statement.executeQuery();
+            res = statement.executeQuery();
             while (res.next()) {
                 String normcode = res.getString(1);
                 int monday = res.getInt(2);
@@ -419,11 +418,7 @@ public class MSSQLHourRegDao implements HourRegDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
-            try {
-                if (statement != null) statement.close();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            close(statement, res, connection);
         }
         return result;
     }
@@ -431,10 +426,13 @@ public class MSSQLHourRegDao implements HourRegDao {
     @Override
     public User findUser(String userId, Password password) {
         PreparedStatement statement = null;
+        ResultSet res = null;
+        Connection connection = null;
         try {
-            statement = getConnection().prepareStatement(SELECT_USERS);
+            connection = getConnection();
+            statement = connection.prepareStatement(SELECT_USERS);
             statement.setString(1, userId.toUpperCase());
-            ResultSet res = statement.executeQuery();
+            res = statement.executeQuery();
             if (res.next()) {
                 Password passwordInDb = Password.fromPlaintext(password.getSalt(), res.getString(2));
                 if (password.equals(passwordInDb)) {
@@ -447,11 +445,7 @@ public class MSSQLHourRegDao implements HourRegDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
-            try {
-                if (statement != null) statement.close();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            close(statement, res, connection);
         }
         return null;
     }
