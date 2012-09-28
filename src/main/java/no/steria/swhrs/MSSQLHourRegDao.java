@@ -144,7 +144,7 @@ public class MSSQLHourRegDao implements HourRegDao {
             statement.setDate(7, new Date(date.getMillis()));
             statement.setDouble(8, hours);
             statement.setBoolean(9, isChargedHours);
-            statement.setString(10, workType);
+            statement.setString(10, workType == null ? "" : workType);
             statement.setString(11, description);
             statement.setBoolean(12, bypassChecks);
 

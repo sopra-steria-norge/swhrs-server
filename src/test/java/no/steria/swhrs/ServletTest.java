@@ -99,8 +99,7 @@ public class ServletTest {
         when(request.getParameter(RegistrationConstants.ACTIVITY_CODE)).thenReturn("1");
         when(request.getParameter(RegistrationConstants.HOURS)).thenReturn("1.25");
         when(request.getParameter(RegistrationConstants.DESCRIPTION)).thenReturn("integrationTest");
-        when(request.getParameter(RegistrationConstants.BILLABLE)).thenReturn("false");
-        when(request.getParameter(RegistrationConstants.WORK_TYPE)).thenReturn("");
+        when(request.getParameter(RegistrationConstants.BILLABLE)).thenReturn("true");
 
         performCall(POST, RegistrationConstants.REQUEST_URL_HOURS_ADD);
 
@@ -118,7 +117,6 @@ public class ServletTest {
         when(request.getParameter(RegistrationConstants.ACTIVITY_CODE)).thenReturn("1");
         when(request.getParameter(RegistrationConstants.HOURS)).thenReturn("1.25");
         when(request.getParameter(RegistrationConstants.DESCRIPTION)).thenReturn("integrationTest");
-        when(request.getParameter(RegistrationConstants.WORK_TYPE)).thenReturn("");
 
         performCall(POST, RegistrationConstants.REQUEST_URL_HOURS_ADD);
 
@@ -135,11 +133,36 @@ public class ServletTest {
         when(request.getParameter(RegistrationConstants.ACTIVITY_CODE)).thenReturn("1");
         when(request.getParameter(RegistrationConstants.HOURS)).thenReturn(null);
         when(request.getParameter(RegistrationConstants.DESCRIPTION)).thenReturn("integrationTest");
-        when(request.getParameter(RegistrationConstants.WORK_TYPE)).thenReturn("");
 
         performCall(POST, RegistrationConstants.REQUEST_URL_HOURS_ADD);
 
-        verify(response).sendError(anyInt(), anyString());
+        verify(response).sendError(HttpServletResponse.SC_BAD_REQUEST, RegistrationConstants.TEXT_VALIDATION_ERROR + RegistrationConstants.HOURS);
+    }
+
+    @Test
+    public void testAddHourRegistration_InvalidDate() throws Exception {
+        when(request.getParameter(RegistrationConstants.DATE)).thenReturn("2012-092-03");
+        when(request.getParameter(RegistrationConstants.PROJECT_NUMBER)).thenReturn("1112790");
+        when(request.getParameter(RegistrationConstants.ACTIVITY_CODE)).thenReturn("1");
+        when(request.getParameter(RegistrationConstants.HOURS)).thenReturn("1");
+        when(request.getParameter(RegistrationConstants.DESCRIPTION)).thenReturn("integrationTest");
+
+        performCall(POST, RegistrationConstants.REQUEST_URL_HOURS_ADD);
+
+        verify(response).sendError(HttpServletResponse.SC_BAD_REQUEST, RegistrationConstants.TEXT_VALIDATION_ERROR + RegistrationConstants.DATE);
+    }
+
+    @Test
+    public void testAddHourRegistration_ProjectNumberToLong() throws Exception {
+        when(request.getParameter(RegistrationConstants.DATE)).thenReturn("2012-09-03");
+        when(request.getParameter(RegistrationConstants.PROJECT_NUMBER)).thenReturn("012345678901234567890");
+        when(request.getParameter(RegistrationConstants.ACTIVITY_CODE)).thenReturn("1");
+        when(request.getParameter(RegistrationConstants.HOURS)).thenReturn(null);
+        when(request.getParameter(RegistrationConstants.DESCRIPTION)).thenReturn("integrationTest");
+
+        performCall(POST, RegistrationConstants.REQUEST_URL_HOURS_ADD);
+
+        verify(response).sendError(HttpServletResponse.SC_BAD_REQUEST, RegistrationConstants.TEXT_VALIDATION_ERROR + RegistrationConstants.PROJECT_NUMBER);
     }
 
     /**
@@ -208,6 +231,7 @@ public class ServletTest {
      * @throws Exception
      */
     @Test
+    @Ignore
     public void testSubmitPeriod_successRun() throws Exception {
         when(request.getParameter(RegistrationConstants.DATE)).thenReturn("2012-09-03");
         when(request.getRequestURL()).thenReturn(new StringBuffer(SERVER_URL + RegistrationConstants.REQUEST_URL_SUBMIT));
@@ -218,6 +242,7 @@ public class ServletTest {
 
     // This method have to be executed after the success run.
     @Test
+    @Ignore
     public void testSubmitPeriod_FailRun() throws Exception {
         when(request.getParameter(RegistrationConstants.DATE)).thenReturn("2012-09-03");
         when(request.getRequestURL()).thenReturn(new StringBuffer(SERVER_URL + RegistrationConstants.REQUEST_URL_SUBMIT));
@@ -233,6 +258,7 @@ public class ServletTest {
      * @throws Exception
      */
     @Test
+    @Ignore
     public void testReopenPeriod() throws Exception {
         when(request.getParameter(RegistrationConstants.DATE)).thenReturn("2012-09-03");
         when(request.getRequestURL()).thenReturn(new StringBuffer(SERVER_URL + RegistrationConstants.REQUEST_URL_REOPEN));
@@ -315,14 +341,14 @@ public class ServletTest {
     public void testSearchFavorites_inputEmptyString() throws Exception {
         when(request.getParameter(RegistrationConstants.SEARCH)).thenReturn("");
         performCall(GET, RegistrationConstants.REQUEST_URL_FAVORITE_SEARCH);
-        assertTrue(getResponseObject().size() > 0);
+        verify(response).sendError(HttpServletResponse.SC_BAD_REQUEST, RegistrationConstants.TEXT_VALIDATION_ERROR + RegistrationConstants.SEARCH);
     }
 
     @Test
     public void testSearchFavorites_inputNull() throws Exception {
         when(request.getParameter(RegistrationConstants.SEARCH)).thenReturn(null);
         performCall(GET, RegistrationConstants.REQUEST_URL_FAVORITE_SEARCH);
-        assertTrue(getResponseObject().isEmpty());
+        verify(response).sendError(HttpServletResponse.SC_BAD_REQUEST, RegistrationConstants.TEXT_VALIDATION_ERROR + RegistrationConstants.SEARCH);
     }
 
     @Test

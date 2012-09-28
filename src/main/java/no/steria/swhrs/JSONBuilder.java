@@ -1,8 +1,6 @@
 package no.steria.swhrs;
 
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.json.simple.JSONObject;
 
 import java.util.HashMap;
@@ -73,7 +71,7 @@ public class JSONBuilder {
             map.put(RegistrationConstants.ACTIVITY_CODE, userFavourites.getActivityCode());
             map.put(RegistrationConstants.DESCRIPTION, userFavourites.getDescription());
             map.put("billable", userFavourites.getBillable());
-            map.put("projectname", userFavourites.getProjectName());
+            map.put(RegistrationConstants.PROJECT_NAME, userFavourites.getProjectName());
             map.put("customername", userFavourites.getCustomer());
             map.put("internalproject", userFavourites.getInternalProject());
 

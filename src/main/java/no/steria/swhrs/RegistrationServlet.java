@@ -1,6 +1,6 @@
 package no.steria.swhrs;
 
-import com.microsoft.sqlserver.jdbc.SQLServerException;
+import no.steria.swhrs.validator.Validators;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 
 
@@ -74,6 +75,10 @@ public class RegistrationServlet extends HttpServlet {
      * @param request The HTTP request containing parameters of "ProjectNr", "hours", "lunchNumber" and "description"
      */
     private void addHourRegistration(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (Validators.hasValidationError(RegistrationConstants.REQUEST_URL_HOURS_ADD, request, response)) {
+            return;
+        }
+
         User user = getUserAttribute(request);
         String username = user.getUsername();
         String projectNumber = request.getParameter(RegistrationConstants.PROJECT_NUMBER);
@@ -84,11 +89,6 @@ public class RegistrationServlet extends HttpServlet {
         String workType = request.getParameter(RegistrationConstants.WORK_TYPE);
         boolean billable = resolveBillable(request.getParameter(RegistrationConstants.BILLABLE),
                 user.getUsername(), UtilityMethods.getProjectKey(projectNumber, activityCode));
-
-        if (StringUtils.isBlank(projectNumber) || StringUtils.isBlank(activityCode) || StringUtils.isBlank(hours)) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing input variable(s).");
-            return;
-        }
 
         Integer entryId = db.addHourRegistrations(username, username, projectNumber, activityCode, date, Double.parseDouble(hours), billable,
                 workType, description, false);
@@ -101,6 +101,10 @@ public class RegistrationServlet extends HttpServlet {
      * @param request HttpServletRequest
      */
     private void updateHourRegistration(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (Validators.hasValidationError(RegistrationConstants.REQUEST_URL_HOURS_UPDATE, request, response)) {
+            return;
+        }
+
         User user = getUserAttribute(request);
         String userId = user.getUsername();
         String taskNumber = request.getParameter(RegistrationConstants.TASK_NUMBER);
@@ -112,12 +116,6 @@ public class RegistrationServlet extends HttpServlet {
         String workType = request.getParameter(RegistrationConstants.WORK_TYPE);
         boolean billable = resolveBillable(request.getParameter(RegistrationConstants.BILLABLE),
                 user.getUsername(), UtilityMethods.getProjectKey(projectNumber, activityCode));
-
-        if (StringUtils.isBlank(taskNumber) || StringUtils.isBlank(projectNumber) || StringUtils.isBlank(activityCode)
-                || StringUtils.isBlank(hours)) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing input variable(s).");
-            return;
-        }
 
         db.updateHourRegistration(userId, taskNumber, projectNumber, activityCode, date,  Double.parseDouble(hours), billable, workType, description);
         fillInSuccessResponse(response);
@@ -133,6 +131,10 @@ public class RegistrationServlet extends HttpServlet {
      * @throws IOException
      */
     private void deleteHourRegistration(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (Validators.hasValidationError(RegistrationConstants.REQUEST_URL_HOURS_DELETE, request, response)) {
+            return;
+        }
+
         User user = getUserAttribute(request);
         String username = user.getUsername();
         String taskNumber = request.getParameter(RegistrationConstants.TASK_NUMBER);
@@ -151,13 +153,13 @@ public class RegistrationServlet extends HttpServlet {
      * @param request The HTTP request contains project number and activity code
      */
     private void deleteFavourite(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (Validators.hasValidationError(RegistrationConstants.REQUEST_URL_FAVORITE_DELETE, request, response)) {
+            return;
+        }
+
         User user = getUserAttribute(request);
         String projectNumber = request.getParameter(RegistrationConstants.PROJECT_NUMBER);
         String activityCode = request.getParameter(RegistrationConstants.ACTIVITY_CODE);
-        if (StringUtils.isBlank(projectNumber) || StringUtils.isBlank(activityCode)) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing project number and/or activity code.");
-            return;
-        }
 
         db.deleteFavourite(user.getUsername(), projectNumber, activityCode);
         fillInSuccessResponse(response);
@@ -169,13 +171,13 @@ public class RegistrationServlet extends HttpServlet {
      * @param request The HTTP request contains project number and activity code
      */
     private void addFavourites(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (Validators.hasValidationError(RegistrationConstants.REQUEST_URL_FAVORITE_ADD, request, response)) {
+            return;
+        }
+
         User user = getUserAttribute(request);
         String projectNumber = request.getParameter(RegistrationConstants.PROJECT_NUMBER);
         String activityCode = request.getParameter(RegistrationConstants.ACTIVITY_CODE);
-        if (StringUtils.isBlank(projectNumber) || StringUtils.isBlank(activityCode)) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing project number and/or activity code.");
-            return;
-        }
 
         // TODO validate that the project and activity code being added actually exists, this is a shortcoming for now
         // TODO validate that the project isn't already a favorite of this user
@@ -191,6 +193,10 @@ public class RegistrationServlet extends HttpServlet {
      * @throws IOException
      */
     private void getFavorites(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (Validators.hasValidationError(RegistrationConstants.REQUEST_URL_FAVORITE_GET, request, response)) {
+            return;
+        }
+
         User user = getUserAttribute(request);
         List<UserFavourites> userList = db.getUserFavourites(user.getUsername());
         fillInSuccessResponse(response, APPLICATION_JSON, JSONBuilder.createFromFavourites(userList).toString());
@@ -207,6 +213,10 @@ public class RegistrationServlet extends HttpServlet {
      */
     @SuppressWarnings("unchecked")
     private void searchFavourites(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (Validators.hasValidationError(RegistrationConstants.REQUEST_URL_FAVORITE_SEARCH, request, response)) {
+            return;
+        }
+
         String searchInput = request.getParameter(RegistrationConstants.SEARCH);
         List<ProjectDetail> project = db.searchProjects(searchInput);
         fillInSuccessResponse(response, APPLICATION_JSON, JSONBuilder.createProjects(project).toString());
@@ -220,13 +230,17 @@ public class RegistrationServlet extends HttpServlet {
      * @throws IOException
      */
     private void submitPeriod(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (Validators.hasValidationError(RegistrationConstants.REQUEST_URL_SUBMIT, request, response)) {
+            return;
+        }
+
         String username = getUserAttribute(request).getUsername();
         DateTime startDate = getDate(request.getParameter(RegistrationConstants.DATE));
 
         try {
             db.submitHours(username, username, startDate);
-        } catch (RuntimeException t) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, t.getMessage());
+        } catch (SQLException e) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
             return;
         }
 
@@ -241,6 +255,10 @@ public class RegistrationServlet extends HttpServlet {
      * @throws IOException
      */
     private void reopenPeriod(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (Validators.hasValidationError(RegistrationConstants.REQUEST_URL_REOPEN, request, response)) {
+            return;
+        }
+
         String username = getUserAttribute(request).getUsername();
         DateTime startDate = getDate(request.getParameter(RegistrationConstants.DATE));
         db.reopenHours(username, username, startDate);
@@ -256,8 +274,13 @@ public class RegistrationServlet extends HttpServlet {
      */
     @SuppressWarnings("unchecked")
     private void getWeekDetails(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (Validators.hasValidationError(RegistrationConstants.REQUEST_URL_HOURS_RETRIEVE_WEEK, request, response)) {
+            return;
+        }
+
         User user = getUserAttribute(request);
         String userId = user.getUsername();
+
         DateTime date = RegistrationConstants.dateTimeFormatter.parseDateTime(request.getParameter(RegistrationConstants.DATE));
         PeriodDetails periodDetails = db.getPeriodDetails(userId, date);
         WeekDetails weekDetails = db.getWeekList(userId, userId, "EMP", periodDetails.getStartDate());
@@ -272,6 +295,10 @@ public class RegistrationServlet extends HttpServlet {
      * @throws IOException
      */
     private void getDayListResponseAsJSON(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (Validators.hasValidationError(RegistrationConstants.REQUEST_URL_HOURS_RETRIEVE_DAY, request, response)) {
+            return;
+        }
+
         User user = getUserAttribute(request);
         DateTime date = getDate(request.getParameter(RegistrationConstants.DATE));
         List<HourRegistration> hourRegistrationList = db.getAllHoursForDate(user.getUsername(), date);
@@ -285,7 +312,7 @@ public class RegistrationServlet extends HttpServlet {
     private boolean resolveBillable(String parameter, String user, String projectKey) throws IOException {
         Boolean billable;
         if (StringUtils.isBlank(parameter)) billable = resolveBillable(user, projectKey);
-        else billable = StringUtils.equals("1", parameter);
+        else billable = Boolean.parseBoolean(parameter);
         return billable;
     }
 

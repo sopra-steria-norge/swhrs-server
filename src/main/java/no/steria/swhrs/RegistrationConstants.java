@@ -24,6 +24,7 @@ public interface RegistrationConstants {
     public final static String SEARCH = "search";
 
     public final static String TEXT_SUCCESS = "Success";
+    public final static String TEXT_VALIDATION_ERROR = "Invalid input parameter: ";
 
     public final static DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd");
 

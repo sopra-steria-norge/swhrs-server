@@ -2,6 +2,7 @@ package no.steria.swhrs;
 
 import org.joda.time.DateTime;
 
+import java.sql.SQLException;
 import java.util.List;
 
 
@@ -104,7 +105,7 @@ public interface HourRegDao {
      * @param registeringForUser The user who is having his hour-period submitted
      * @param dayInPeriod A point of time inside the period
      */
-    void submitHours(String loggedInUser, String registeringForUser, DateTime dayInPeriod);
+    void submitHours(String loggedInUser, String registeringForUser, DateTime dayInPeriod) throws SQLException;
 
     /**
      * This method reopens hours in a time period for editing if possible
