@@ -23,7 +23,6 @@
         <url-pattern>/swhrs-app/hours/*</url-pattern>
     </filter-mapping>
 
-
     <filter-mapping>
         <filter-name>authorizationFilter</filter-name>
         <url-pattern>/swhrs-app/checkAuthentication</url-pattern>
