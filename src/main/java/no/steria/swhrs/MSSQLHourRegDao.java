@@ -168,9 +168,10 @@ public class MSSQLHourRegDao implements HourRegDao {
     public void updateHourRegistration(String userId, String taskNumber, String projectNumber, String activity,
                                        DateTime date, double hours, boolean isBillable, String workType,
                                        String description) {
-        CallableStatement statement = null;
 
+        CallableStatement statement = null;
         Connection connection = null;
+        //ResultSet resultSet = null;
         try {
             connection = getConnection();
             statement = connection.prepareCall(STORE_PROCEDURE_UPDATE_HOURS);
@@ -186,6 +187,8 @@ public class MSSQLHourRegDao implements HourRegDao {
             statement.setString(10, description);
 
             statement.executeUpdate();
+
+            //resultSet = statement.getResultSet();
 
         } catch (SQLException e) {
             throw new RuntimeException(e);

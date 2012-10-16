@@ -106,7 +106,6 @@ public class MSSQLHourRegDaoTest {
 		assertTrue(addFavourite);
 	}
 
-    @Ignore
     @Test
     public void shouldAddRegistrationStoreProcedure() throws Exception {
         String username = "ROR";
@@ -124,9 +123,9 @@ public class MSSQLHourRegDaoTest {
                 date, hours, isChargedHours, workType, description, bypassChecks);
 
         assertNotNull(entryId);
+        System.out.println(entryId);
     }
 
-    @Ignore
     @Test
     public void shouldUpdateRegistration() throws Exception {
         String username = "ROR";
@@ -139,10 +138,12 @@ public class MSSQLHourRegDaoTest {
         String workType = "";
         String description = "updated";
 
+        hourRegDao.getWeekList(username, username, "EMP", date);
+
         hourRegDao.updateHourRegistration(username, entryId,  projectNumber, activity, date, hours, isChargedHours,
                 workType, description);
 
-        assertNotNull(entryId);
+        hourRegDao.getWeekList(username, username, "EMP", date);
     }
 
     @Ignore
