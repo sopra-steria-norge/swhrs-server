@@ -48,6 +48,7 @@ public class JSONBuilder {
             map.put(RegistrationConstants.DESCRIPTION, hourRegistration.getDescription());
             map.put("approved", hourRegistration.isApproved());
             map.put("submitted", hourRegistration.isSubmitted());
+            map.put("rejected", hourRegistration.isRejected());
             map.put(RegistrationConstants.HOURS, hourRegistration.getHours());
             json.put(hourRegistration.getTaskNumber(), map);
         }
@@ -84,6 +85,7 @@ public class JSONBuilder {
         JSONObject json = new JSONObject();
         json.put("days", createFromWeekDetails(weekDetails.getHourRegistrationsByDate(periodDetails))) ;
         json.put("projects", createProjects(weekDetails.getProjectDetailsAsList()));
+        json.put("periodDescription", periodDetails.getPeriodDescription()) ;
         return json;
     }
 

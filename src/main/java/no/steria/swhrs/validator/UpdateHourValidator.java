@@ -23,8 +23,8 @@ public class UpdateHourValidator extends Validator {
         mandatoryFields.add(RegistrationConstants.ACTIVITY_CODE);
         mandatoryFields.add(RegistrationConstants.HOURS);
         mandatoryFields.add(RegistrationConstants.DATE);
-        mandatoryFields.add(RegistrationConstants.WORK_TYPE);
 
+        optionalFields.add(RegistrationConstants.WORK_TYPE);
         optionalFields.add(RegistrationConstants.DESCRIPTION);
         optionalFields.add(RegistrationConstants.BILLABLE);
     }

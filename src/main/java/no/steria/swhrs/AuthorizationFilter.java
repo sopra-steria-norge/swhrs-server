@@ -11,6 +11,7 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Map;
 
 public class AuthorizationFilter implements Filter {
     private static final Logger logger = LoggerFactory.getLogger(AuthorizationFilter.class);

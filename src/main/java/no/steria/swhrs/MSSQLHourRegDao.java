@@ -8,6 +8,8 @@ import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MSSQLHourRegDao implements HourRegDao {
 
@@ -27,6 +29,8 @@ public class MSSQLHourRegDao implements HourRegDao {
     private static final String STORE_PROCEDURE_SUBMIT_HOURS = "{call dbo.uspSTE_EMPApprovePeriod(?, ?, ?, ?)}";
     private static final String STORE_PROCEDURE_REOPEN_HOURS = "{call dbo.uspSTE_ReopenPeriod(?, ?, ?, ?)}";
     private static final String STORE_PROCEDURE_GET_PERIOD_INFORMATION = "{? = call dbo.uspSTE_GetPeriodRegTime(?, ?, ?, ?, ?)}";
+
+    private Map<String, Password> userCache = new ConcurrentHashMap<String, Password>();
 
     public MSSQLHourRegDao(DataSource datasource) {
         this.datasource = datasource;
@@ -73,7 +77,7 @@ public class MSSQLHourRegDao implements HourRegDao {
         try {
             connection = getConnection();
             statement = connection.prepareStatement(SELECT_CURRENT_PERIOD);
-            statement.setString(1, user);
+            statement.setString(1, user.toUpperCase());
             statement.setDate(2, sqlDate);
             statement.setDate(3, sqlDate);
 
@@ -81,6 +85,7 @@ public class MSSQLHourRegDao implements HourRegDao {
             if (res != null && res.next()) {
                 periodDetails.setStartDate(new DateTime(res.getDate(1).getTime()));
                 periodDetails.setEndDate(new DateTime(res.getDate(2).getTime()));
+                periodDetails.setPeriodDescription(res.getString(3));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -100,7 +105,7 @@ public class MSSQLHourRegDao implements HourRegDao {
         try {
             connection = getConnection();
             statement = connection.prepareStatement(SELECT_REGISTRATIONS);
-            statement.setString(1, userId);
+            statement.setString(1, userId.toUpperCase());
             statement.setDate(2, new Date(date.getMillis()));
             res = statement.executeQuery();
             while (res.next()) {
@@ -111,9 +116,10 @@ public class MSSQLHourRegDao implements HourRegDao {
                 String description = res.getString(9);
                 boolean submitted = res.getBoolean(10);
                 boolean approved = res.getBoolean(11);
+                boolean rejected = res.getBoolean(12);
 
                 HourRegistration hourReg = new HourRegistration(taskNumber, projectNumber, activityCode, date, description,
-                        hours, submitted, approved, null, null, null);
+                        hours, submitted, approved, rejected, null, null, null);
 
                 result.add(hourReg);
             }
@@ -137,8 +143,8 @@ public class MSSQLHourRegDao implements HourRegDao {
             statement = connection.prepareCall(STORE_PROCEDURE_INSERT_HOURS);
             statement.registerOutParameter(1, Types.INTEGER);
             statement.setString(2, COUNTRY);
-            statement.setString(3, loggedInUser);
-            statement.setString(4, registeringForUser);
+            statement.setString(3, loggedInUser.toUpperCase());
+            statement.setString(4, registeringForUser.toUpperCase());
             statement.setString(5, projectNumber);
             statement.setString(6, activity);
             statement.setDate(7, new Date(date.getMillis()));
@@ -169,14 +175,14 @@ public class MSSQLHourRegDao implements HourRegDao {
             connection = getConnection();
             statement = connection.prepareCall(STORE_PROCEDURE_UPDATE_HOURS);
             statement.setString(1, COUNTRY);
-            statement.setString(2, userId);
+            statement.setString(2, userId.toUpperCase());
             statement.setString(3, taskNumber);
             statement.setString(4, projectNumber);
             statement.setString(5, activity);
             statement.setDate(6, new Date(date.getMillis()));
             statement.setDouble(7, hours);
             statement.setBoolean(8, isBillable);
-            statement.setString(9, workType);
+            statement.setString(9, workType == null ? "" : workType);
             statement.setString(10, description);
 
             statement.executeUpdate();
@@ -196,7 +202,7 @@ public class MSSQLHourRegDao implements HourRegDao {
             connection = getConnection();
             statement = connection.prepareCall(STORE_PROCEDURE_DELETE_HOURS);
             statement.setString(1, COUNTRY);
-            statement.setString(2, userId);
+            statement.setString(2, userId.toUpperCase());
             statement.setString(3, taskNumber);
             statement.executeUpdate();
         } catch (SQLException e) {
@@ -213,7 +219,7 @@ public class MSSQLHourRegDao implements HourRegDao {
         try {
             connection = getConnection();
             statement = connection.prepareStatement(INSERT_FAVOURITE);
-            statement.setString(1, userId);
+            statement.setString(1, userId.toUpperCase());
             statement.setString(2, project_id);
             statement.setString(3, activityCode);
             statement.executeUpdate();
@@ -235,7 +241,7 @@ public class MSSQLHourRegDao implements HourRegDao {
         try {
             connection = getConnection();
             statement = connection.prepareStatement(SELECT_FAVOURITES);
-            statement.setString(1, userId);
+            statement.setString(1, userId.toUpperCase());
             res = statement.executeQuery();
             while (res.next()) {
                 String projectNumber = res.getString(1);
@@ -263,7 +269,7 @@ public class MSSQLHourRegDao implements HourRegDao {
         try {
             connection = getConnection();
             statement = connection.prepareStatement(DELETE_FAVOURITE);
-            statement.setString(1, userId);
+            statement.setString(1, userId.toUpperCase());
             statement.setString(2, projectNumber);
             statement.setString(3, activityCode);
             statement.executeUpdate();
@@ -314,9 +320,9 @@ public class MSSQLHourRegDao implements HourRegDao {
             statement = connection.prepareCall(STORE_PROCEDURE_GET_PERIOD_INFORMATION);
             statement.registerOutParameter(1, Types.INTEGER);
             statement.setString(2, COUNTRY);
-            statement.setString(3, loggedInUser);
+            statement.setString(3, loggedInUser.toUpperCase());
             statement.setString(4, viewer);
-            statement.setString(5, registeringForUser);
+            statement.setString(5, registeringForUser.toUpperCase());
             statement.setDate(6, new Date(startDate.getMillis()));
 
             resultSet = statement.executeQuery();
@@ -329,14 +335,17 @@ public class MSSQLHourRegDao implements HourRegDao {
                 double hours = resultSet.getDouble(6);
                 boolean submitted = resultSet.getBoolean(9);
                 boolean approved = resultSet.getBoolean(10);
+                boolean rejected = resultSet.getBoolean(11);
 
                 String projectName = resultSet.getString(15);
                 String customerName = resultSet.getString(16);
                 String activityDescription = resultSet.getString(17);
 
                 DateTime dateTime = date != null ? new DateTime(date.getTime()) : null;
-                weekDetails.addEntry(recordId, projectNumber, activityCode, dateTime, entryDescription, hours, submitted,
-                        approved, projectName, customerName, activityDescription);
+                if (!"FLEX".equalsIgnoreCase(projectNumber)) {
+                    weekDetails.addEntry(recordId, projectNumber, activityCode, dateTime, entryDescription, hours, submitted,
+                            approved, rejected, projectName, customerName, activityDescription);
+                }
             }
 
         } catch (SQLException e) {
@@ -357,8 +366,8 @@ public class MSSQLHourRegDao implements HourRegDao {
             connection = getConnection();
             statement = connection.prepareCall(STORE_PROCEDURE_SUBMIT_HOURS);
             statement.setString(1, COUNTRY);
-            statement.setString(2, loggedInUser);
-            statement.setString(3, registeringForUser);
+            statement.setString(2, loggedInUser.toUpperCase());
+            statement.setString(3, registeringForUser.toUpperCase());
             statement.setDate(4, new Date(dayInPeriod.getMillis()));
 
             statement.executeUpdate();
@@ -379,8 +388,8 @@ public class MSSQLHourRegDao implements HourRegDao {
             connection = getConnection();
             statement = connection.prepareCall(STORE_PROCEDURE_REOPEN_HOURS);
             statement.setString(1, COUNTRY);
-            statement.setString(2, loggedInUser);
-            statement.setString(3, registeringForUser);
+            statement.setString(2, loggedInUser.toUpperCase());
+            statement.setString(3, registeringForUser.toUpperCase());
             statement.setDate(4, new Date(dayInPeriod.getMillis()));
             statement.executeUpdate();
 
@@ -400,7 +409,7 @@ public class MSSQLHourRegDao implements HourRegDao {
         try {
             connection = getConnection();
             statement = connection.prepareStatement(SELECT_NORMTIME);
-            statement.setString(1, username);
+            statement.setString(1, username.toUpperCase());
             res = statement.executeQuery();
             while (res.next()) {
                 String normcode = res.getString(1);
@@ -424,28 +433,31 @@ public class MSSQLHourRegDao implements HourRegDao {
     }
 
     @Override
-    public User findUser(String userId, Password password) {
+    public User findUser(String userId, Password providedPassword) {
         PreparedStatement statement = null;
         ResultSet res = null;
         Connection connection = null;
-        try {
-            connection = getConnection();
-            statement = connection.prepareStatement(SELECT_USERS);
-            statement.setString(1, userId.toUpperCase());
-            res = statement.executeQuery();
-            if (res.next()) {
-                Password passwordInDb = Password.fromPlaintext(password.getSalt(), res.getString(2));
-                if (password.equals(passwordInDb)) {
-                    User user = new User();
-                    user.setUsername(res.getString(1));
-                    user.setPassword(passwordInDb);
-                    return user;
+        if (!userCache.containsKey(userId)) {
+            try {
+                connection = getConnection();
+                statement = connection.prepareStatement(SELECT_USERS);
+                statement.setString(1, userId.toUpperCase());
+                res = statement.executeQuery();
+                if (res.next()) {
+                    userCache.put(userId, Password.fromPlaintext(providedPassword.getSalt(), res.getString(2)));
                 }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            } finally {
+                close(statement, res, connection);
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            close(statement, res, connection);
+        }
+        Password correctPassword = userCache.get(userId);
+        if (providedPassword.equals(correctPassword)) {
+            User user = new User();
+            user.setUsername(userId);
+            user.setPassword(correctPassword);
+            return user;
         }
         return null;
     }

@@ -12,6 +12,7 @@ public class PeriodDetails {
 
     private DateTime startDate;
     private DateTime endDate;
+    private String periodDescription;
 
     public void setStartDate(DateTime startDate) {
         this.startDate = startDate;
@@ -27,5 +28,13 @@ public class PeriodDetails {
 
     public DateTime getEndDate() {
         return endDate;
+    }
+
+    public void setPeriodDescription(String periodDescription) {
+        this.periodDescription = periodDescription;
+    }
+
+    public String getPeriodDescription() {
+        return periodDescription;
     }
 }
