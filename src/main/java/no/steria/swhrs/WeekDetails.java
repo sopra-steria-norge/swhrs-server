@@ -20,12 +20,12 @@ public class WeekDetails {
     private Map<DateTime, List<HourRegistration>> hourRegistrationsByDate = new HashMap<DateTime, List<HourRegistration>>();
 
     public void addEntry(Integer recordId, String projectNumber, String activityCode, DateTime date, String entryDescription,
-                         double hours, boolean submitted, boolean approved, boolean rejected, String projectName, String customerName,
+                         double hours, String workType, boolean submitted, boolean approved, boolean rejected, String projectName, String customerName,
                          String activityDescription) {
 
         // All entries with a recordId is hours that has been entered, the ones without are just other projects without hours
         if (recordId != null && recordId != 0) {
-            registerHour(recordId, projectNumber, activityCode, date, entryDescription, hours, submitted, approved,
+            registerHour(recordId, projectNumber, activityCode, date, entryDescription, hours, workType, submitted, approved,
                     rejected, projectName, customerName, activityDescription);
 
             if (!projectDetails.containsKey(UtilityMethods.getProjectKey(projectNumber, activityCode))) {
@@ -42,10 +42,10 @@ public class WeekDetails {
     }
 
     private void registerHour(Integer recordId, String projectNumber, String activityCode, DateTime date,
-                              String entryDescription, double hours, boolean submitted, boolean approved,
+                              String entryDescription, double hours, String workType, boolean submitted, boolean approved,
                               boolean rejected, String projectName, String customerName, String activityDescription) {
         hourRegistrations.put(recordId.toString(), new HourRegistration(recordId, projectNumber, activityCode, date, entryDescription,
-                hours, submitted, approved, rejected, projectName, customerName, activityDescription));
+                hours, workType, submitted, approved, rejected, projectName, customerName, activityDescription));
     }
 
     public Map<String, HourRegistration> getHourRegistrations() {
