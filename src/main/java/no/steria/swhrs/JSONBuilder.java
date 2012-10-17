@@ -50,6 +50,7 @@ public class JSONBuilder {
             map.put("submitted", hourRegistration.isSubmitted());
             map.put("rejected", hourRegistration.isRejected());
             map.put(RegistrationConstants.HOURS, hourRegistration.getHours());
+            map.put(RegistrationConstants.WORK_TYPE, hourRegistration.getWorkType());
             json.put(hourRegistration.getTaskNumber(), map);
         }
         return json;

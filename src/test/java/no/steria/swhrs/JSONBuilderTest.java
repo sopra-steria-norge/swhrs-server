@@ -38,9 +38,9 @@ public class JSONBuilderTest {
     @Test
     public void testGeneratingWeekDetailsJSONObject() throws Exception {
         WeekDetails weekDetails = new WeekDetails();
-        weekDetails.addEntry(123, projectNumber, activityCode, date, entryDescription, hours, submitted, approved,
+        weekDetails.addEntry(123, projectNumber, activityCode, date, entryDescription, hours, "", submitted, approved,
                 false, projectName, customerName, activityDescription);
-        weekDetails.addEntry(1233, projectNumber, activityCode, date, entryDescription, hours, submitted, approved,
+        weekDetails.addEntry(1233, projectNumber, activityCode, date, entryDescription, hours, "", submitted, approved,
                 false, projectName, customerName, activityDescription);
         System.out.println(JSONBuilder.createFromWeekDetails(weekDetails, periodDetails).toJSONString());
     }
@@ -48,9 +48,9 @@ public class JSONBuilderTest {
     @Test
     public void testGeneratingDailyHoursJSONObject() throws Exception {
         HourRegistration hour = new HourRegistration(123, projectNumber, activityCode, date, entryDescription, hours,
-                submitted, approved, false, projectName, customerName, activityDescription);
+                "", submitted, approved, false, projectName, customerName, activityDescription);
         HourRegistration hour2 = new HourRegistration(1232, projectNumber, activityCode, date, entryDescription, hours,
-                submitted, approved, false, projectName, customerName, activityDescription);
+                "", submitted, approved, false, projectName, customerName, activityDescription);
         List<HourRegistration> hours = new ArrayList<HourRegistration>();
         hours.add(hour);
         hours.add(hour2);

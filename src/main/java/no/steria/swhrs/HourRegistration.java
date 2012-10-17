@@ -11,6 +11,7 @@ public class HourRegistration {
 	private String activityCode;
 	private DateTime date;
 	private double hours;
+	private String workType;
 	private String description;
 	private boolean submitted;
 	private boolean approved;
@@ -20,7 +21,7 @@ public class HourRegistration {
     private String activityDescription;
 
     public HourRegistration(Integer recordId, String projectNumber, String activityCode, DateTime date,
-                            String entryDescription, double hours, boolean submitted, boolean approved,
+                            String entryDescription, double hours, String workType, boolean submitted, boolean approved,
                             boolean rejected, String projectName, String customerName, String activityDescription) {
         this.taskNumber = recordId;
         this.projectNumber = projectNumber;
@@ -28,6 +29,7 @@ public class HourRegistration {
         this.date = date;
         this.description = entryDescription;
         this.hours = hours;
+        this.workType = workType;
         this.submitted = submitted;
         this.approved = approved;
         this.rejected = rejected;
@@ -82,5 +84,9 @@ public class HourRegistration {
 
     public String getActivityDescription() {
         return activityDescription;
+    }
+
+    public String getWorkType() {
+        return workType;
     }
 }

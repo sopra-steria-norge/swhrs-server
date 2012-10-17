@@ -119,7 +119,7 @@ public class MSSQLHourRegDao implements HourRegDao {
                 boolean rejected = res.getBoolean(12);
 
                 HourRegistration hourReg = new HourRegistration(taskNumber, projectNumber, activityCode, date, description,
-                        hours, submitted, approved, rejected, null, null, null);
+                        hours, "", submitted, approved, rejected, null, null, null);
 
                 result.add(hourReg);
             }
@@ -336,6 +336,7 @@ public class MSSQLHourRegDao implements HourRegDao {
                 Date date = resultSet.getDate(4);
                 String entryDescription = resultSet.getString(5); // The users description for an hour
                 double hours = resultSet.getDouble(6);
+                String workType = resultSet.getString(7);
                 boolean submitted = resultSet.getBoolean(9);
                 boolean approved = resultSet.getBoolean(10);
                 boolean rejected = resultSet.getBoolean(11);
@@ -346,7 +347,7 @@ public class MSSQLHourRegDao implements HourRegDao {
 
                 DateTime dateTime = date != null ? new DateTime(date.getTime()) : null;
                 if (!"FLEX".equalsIgnoreCase(projectNumber)) {
-                    weekDetails.addEntry(recordId, projectNumber, activityCode, dateTime, entryDescription, hours, submitted,
+                    weekDetails.addEntry(recordId, projectNumber, activityCode, dateTime, entryDescription, hours, workType, submitted,
                             approved, rejected, projectName, customerName, activityDescription);
                 }
             }
