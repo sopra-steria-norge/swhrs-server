@@ -1,5 +1,6 @@
-package no.steria.swhrs;
+package no.steria.swhrs.util;
 
+import no.steria.swhrs.domain.*;
 import org.joda.time.DateTime;
 import org.json.simple.JSONObject;
 
@@ -82,11 +83,13 @@ public class JSONBuilder {
         return json;
     }
 
-    public static JSONObject createFromWeekDetails(WeekDetails weekDetails, PeriodDetails periodDetails) {
+    public static JSONObject createFromWeekDetails(WeekDetails weekDetails, PeriodDetails periodDetails,
+                                                   NormTimeDetails normTimeDetails) {
         JSONObject json = new JSONObject();
         json.put("days", createFromWeekDetails(weekDetails.getHourRegistrationsByDate(periodDetails))) ;
         json.put("projects", createProjects(weekDetails.getProjectDetailsAsList()));
-        json.put("periodDescription", periodDetails.getPeriodDescription()) ;
+        json.put("periodDescription", periodDetails.getPeriodDescription());
+        json.put("periodNormTime", normTimeDetails.getPeriodNormTime());
         return json;
     }
 

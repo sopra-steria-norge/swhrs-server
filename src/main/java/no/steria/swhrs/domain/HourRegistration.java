@@ -1,4 +1,4 @@
-package no.steria.swhrs;
+package no.steria.swhrs.domain;
 
 import org.joda.time.DateTime;
 

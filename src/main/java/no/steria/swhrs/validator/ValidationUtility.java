@@ -1,6 +1,6 @@
 package no.steria.swhrs.validator;
 
-import no.steria.swhrs.RegistrationConstants;
+import no.steria.swhrs.util.RegistrationConstants;
 
 import java.util.HashMap;
 import java.util.Map;

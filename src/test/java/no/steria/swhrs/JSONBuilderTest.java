@@ -1,5 +1,10 @@
 package no.steria.swhrs;
 
+import no.steria.swhrs.domain.HourRegistration;
+import no.steria.swhrs.domain.NormTimeDetails;
+import no.steria.swhrs.domain.PeriodDetails;
+import no.steria.swhrs.domain.WeekDetails;
+import no.steria.swhrs.util.JSONBuilder;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,12 +32,15 @@ public class JSONBuilderTest {
     private static String customerName = "customerName";
     private static String activityDescription = "activityDescription";
     private PeriodDetails periodDetails;
+    private NormTimeDetails normTimeDetails;
 
     @Before
     public void setup() throws Exception {
         periodDetails = new PeriodDetails();
         periodDetails.setStartDate(new DateTime(2012, 9, 3, 0, 0));
         periodDetails.setEndDate(new DateTime(2012, 9, 9, 0, 0));
+        normTimeDetails = new NormTimeDetails();
+        normTimeDetails.setPeriodNormTime(10);
     }
 
     @Test
@@ -42,7 +50,7 @@ public class JSONBuilderTest {
                 false, projectName, customerName, activityDescription);
         weekDetails.addEntry(1233, projectNumber, activityCode, date, entryDescription, hours, "", submitted, approved,
                 false, projectName, customerName, activityDescription);
-        System.out.println(JSONBuilder.createFromWeekDetails(weekDetails, periodDetails).toJSONString());
+        System.out.println(JSONBuilder.createFromWeekDetails(weekDetails, periodDetails, normTimeDetails).toJSONString());
     }
 
     @Test

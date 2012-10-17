@@ -1,5 +1,6 @@
-package no.steria.swhrs;
+package no.steria.swhrs.domain;
 
+import no.steria.swhrs.util.UtilityMethods;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;

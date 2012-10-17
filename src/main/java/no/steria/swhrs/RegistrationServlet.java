@@ -1,5 +1,11 @@
 package no.steria.swhrs;
 
+import no.steria.swhrs.dao.HourRegDao;
+import no.steria.swhrs.dao.MSSQLHourRegDao;
+import no.steria.swhrs.domain.*;
+import no.steria.swhrs.util.JSONBuilder;
+import no.steria.swhrs.util.RegistrationConstants;
+import no.steria.swhrs.util.UtilityMethods;
 import no.steria.swhrs.validator.Validators;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
@@ -283,8 +289,9 @@ public class RegistrationServlet extends HttpServlet {
 
         DateTime date = RegistrationConstants.dateTimeFormatter.parseDateTime(request.getParameter(RegistrationConstants.DATE));
         PeriodDetails periodDetails = db.getPeriodDetails(userId, date);
+        NormTimeDetails normTimeDetails = db.getNormTimeDetails(userId, userId, periodDetails.getStartDate());
         WeekDetails weekDetails = db.getWeekList(userId, userId, "EMP", periodDetails.getStartDate());
-        fillInSuccessResponse(response, APPLICATION_JSON, JSONBuilder.createFromWeekDetails(weekDetails, periodDetails).toString());
+        fillInSuccessResponse(response, APPLICATION_JSON, JSONBuilder.createFromWeekDetails(weekDetails, periodDetails, normTimeDetails).toString());
     }
 
     /**

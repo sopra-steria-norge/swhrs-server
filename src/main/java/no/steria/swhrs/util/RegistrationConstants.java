@@ -1,4 +1,4 @@
-package no.steria.swhrs;
+package no.steria.swhrs.util;
 
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;

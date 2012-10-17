@@ -1,5 +1,6 @@
 package no.steria.swhrs;
 
+import no.steria.swhrs.domain.Password;
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;

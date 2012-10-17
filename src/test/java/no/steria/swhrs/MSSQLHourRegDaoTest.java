@@ -1,6 +1,8 @@
 package no.steria.swhrs;
 
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
+import no.steria.swhrs.dao.MSSQLHourRegDao;
+import no.steria.swhrs.domain.*;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.BeforeClass;

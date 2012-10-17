@@ -1,5 +1,9 @@
 package no.steria.swhrs;
 
+import no.steria.swhrs.domain.Password;
+import no.steria.swhrs.domain.User;
+import no.steria.swhrs.filter.AuthorizationFilter;
+import no.steria.swhrs.util.RegistrationConstants;
 import org.apache.commons.lang.StringUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
