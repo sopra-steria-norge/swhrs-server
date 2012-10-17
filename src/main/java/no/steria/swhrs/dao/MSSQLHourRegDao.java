@@ -1,5 +1,9 @@
 package no.steria.swhrs.dao;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.config.Configuration;
 import no.steria.swhrs.JettyServer;
 import no.steria.swhrs.domain.*;
 import org.joda.time.DateTime;
@@ -10,8 +14,6 @@ import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class MSSQLHourRegDao implements HourRegDao {
 
@@ -32,7 +34,19 @@ public class MSSQLHourRegDao implements HourRegDao {
     private static final String STORE_PROCEDURE_GET_PERIOD_INFORMATION = "{call dbo.uspSTE_GetPeriodRegTime(?, ?, ?, ?, ?)}";
     private static final String STORE_PROCEDURE_GET_NORM_TIME = "{call dbo.uspSTE_GetPeriodNormTime(?, ?, ?, ?)}";
 
-    private Map<String, Password> userCache = new ConcurrentHashMap<String, Password>();
+    private Cache usernamePasswordCache;
+
+    public static final String USERNAME_PASSWORD_CACHE = "usernamePasswordCache";
+
+    {
+        Configuration cacheConfiguration = new Configuration();
+        cacheConfiguration.setUpdateCheck(false);
+        CacheManager singletonManager = CacheManager.create(cacheConfiguration);
+        if (!singletonManager.cacheExists(USERNAME_PASSWORD_CACHE)) {
+            singletonManager.addCache(new Cache(USERNAME_PASSWORD_CACHE, 1000, false, false, 120, 20));
+        }
+        usernamePasswordCache = singletonManager.getCache(USERNAME_PASSWORD_CACHE);
+    }
 
     public MSSQLHourRegDao(DataSource datasource) {
         this.datasource = datasource;
@@ -443,14 +457,14 @@ public class MSSQLHourRegDao implements HourRegDao {
         PreparedStatement statement = null;
         ResultSet res = null;
         Connection connection = null;
-        if (userCache.get(userId) == null) {
+        if (usernamePasswordCache.get(userId + providedPassword.getSalt()) == null) {
             try {
                 connection = getConnection();
                 statement = connection.prepareStatement(SELECT_USERS);
                 statement.setString(1, userId);
                 res = statement.executeQuery();
                 if (res.next()) {
-                    userCache.put(userId, Password.fromPlaintext(providedPassword.getSalt(), res.getString(2)));
+                    usernamePasswordCache.put(new Element(userId + providedPassword.getSalt(), Password.fromPlaintext(providedPassword.getSalt(), res.getString(2))));
                 }
             } catch (SQLException e) {
                 throw new RuntimeException(e);
@@ -458,7 +472,7 @@ public class MSSQLHourRegDao implements HourRegDao {
                 close(statement, res, connection);
             }
         }
-        Password correctPassword = userCache.get(userId);
+        Password correctPassword = (Password) usernamePasswordCache.get(userId + providedPassword.getSalt()).getObjectValue();
         if (providedPassword.equals(correctPassword)) {
             User user = new User();
             user.setUsername(userId);
