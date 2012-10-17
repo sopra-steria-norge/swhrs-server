@@ -1,5 +1,7 @@
-package no.steria.swhrs;
+package no.steria.swhrs.dao;
 
+import no.steria.swhrs.JettyServer;
+import no.steria.swhrs.domain.*;
 import org.joda.time.DateTime;
 
 import javax.naming.InitialContext;
@@ -18,7 +20,6 @@ public class MSSQLHourRegDao implements HourRegDao {
     private static final String SELECT_CURRENT_PERIOD = "select TP.[Startdato],TP.[Slutdato], TP.[Beskrivelse] FROM [Norge$Time Periods] TP WHERE Ressource=? AND TP.[Startdato] <= ? AND TP.[Slutdato] >= ? ORDER BY [Startdato] DESC";
     private static final String SELECT_USERS = "SELECT No_, \"WEB Password\" FROM \"Norge$Resource\" where No_ = ?";
     private static final String SELECT_REGISTRATIONS = "SELECT * FROM \"Norge$Time Entry\" WHERE Ressourcekode = ? AND Dato = ? AND Projektnr_ NOT LIKE 'FLEX'";
-    private static final String SELECT_NORMTIME = "SELECT \"Norge$Norm Time Data\".Kode, \"Norge$Norm Time Data\".Mandag, \"Norge$Norm Time Data\".Tirsdag, \"Norge$Norm Time Data\".Onsdag, \"Norge$Norm Time Data\".Torsdag, \"Norge$Norm Time Data\".Fredag, \"Norge$Norm Time Data\".Lørdag, \"Norge$Norm Time Data\".Søndag from \"Norge$Norm Time Data\" INNER JOIN \"Norge$Resource\" ON \"Norge$Norm Time Data\".Kode = \"Norge$Resource\".\"Norm Tid\" WHERE \"Norge$Resource\".No_ = ?";
     private static final String SELECT_SEARCHPROJECTS = "SELECT TOP 150 \"Norge$Tasklist\".Projektnr_, \"Norge$Tasklist\".Kode, \"Norge$Tasklist\".Beskrivelse FROM \"Norge$Tasklist\" WHERE Beskrivelse like ? OR Projektnr_ like ? ORDER BY Beskrivelse";
     private static final String INSERT_FAVOURITE = "INSERT into \"Norge$Favourite Task\" (Resourcekode, Projektnr_, Aktivitetskode) VALUES(?, ?, ?)";
     private static final String DELETE_FAVOURITE = "DELETE FROM \"Norge$Favourite Task\" WHERE Resourcekode = ? AND Projektnr_ = ? AND Aktivitetskode = ?";
@@ -28,7 +29,8 @@ public class MSSQLHourRegDao implements HourRegDao {
     private static final String STORE_PROCEDURE_UPDATE_HOURS = "{call dbo.uspSTE_UpdateTimeEntry(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
     private static final String STORE_PROCEDURE_SUBMIT_HOURS = "{call dbo.uspSTE_EMPApprovePeriod(?, ?, ?, ?)}";
     private static final String STORE_PROCEDURE_REOPEN_HOURS = "{call dbo.uspSTE_ReopenPeriod(?, ?, ?, ?)}";
-    private static final String STORE_PROCEDURE_GET_PERIOD_INFORMATION = "{? = call dbo.uspSTE_GetPeriodRegTime(?, ?, ?, ?, ?)}";
+    private static final String STORE_PROCEDURE_GET_PERIOD_INFORMATION = "{call dbo.uspSTE_GetPeriodRegTime(?, ?, ?, ?, ?)}";
+    private static final String STORE_PROCEDURE_GET_NORM_TIME = "{call dbo.uspSTE_GetPeriodNormTime(?, ?, ?, ?)}";
 
     private Map<String, Password> userCache = new ConcurrentHashMap<String, Password>();
 
@@ -66,7 +68,6 @@ public class MSSQLHourRegDao implements HourRegDao {
         }
     }
 
-
     public PeriodDetails getPeriodDetails(String user, DateTime date) {
         PeriodDetails periodDetails = new PeriodDetails();
         Date sqlDate = new Date(date.getMillis());
@@ -93,6 +94,39 @@ public class MSSQLHourRegDao implements HourRegDao {
             close(statement, res, connection);
         }
         return periodDetails;
+    }
+
+    public NormTimeDetails getNormTimeDetails(String loggedInUser, String user, DateTime date) {
+        NormTimeDetails normTimeDetails = new NormTimeDetails();
+
+        CallableStatement statement = null;
+        Connection connection = null;
+        ResultSet resultSet = null;
+
+        try {
+            connection = getConnection();
+            statement = connection.prepareCall(STORE_PROCEDURE_GET_NORM_TIME);
+            statement.setString(1, COUNTRY);
+            statement.setString(2, loggedInUser.toUpperCase());
+            statement.setString(3, user.toUpperCase());
+            statement.setDate(4, new Date(date.getMillis()));
+
+            resultSet = statement.executeQuery();
+            int weekNormTime = 0;
+
+            while (resultSet.next()) {
+                weekNormTime += resultSet.getInt(4); // Column Quantity, lists number of norm hours per day
+            }
+
+            normTimeDetails.setPeriodNormTime(weekNormTime);
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            close(statement, resultSet, connection);
+        }
+
+        return normTimeDetails;
     }
 
     @Override
@@ -321,12 +355,11 @@ public class MSSQLHourRegDao implements HourRegDao {
         try {
             connection = getConnection();
             statement = connection.prepareCall(STORE_PROCEDURE_GET_PERIOD_INFORMATION);
-            statement.registerOutParameter(1, Types.INTEGER);
-            statement.setString(2, COUNTRY);
-            statement.setString(3, loggedInUser.toUpperCase());
-            statement.setString(4, viewer);
-            statement.setString(5, registeringForUser.toUpperCase());
-            statement.setDate(6, new Date(startDate.getMillis()));
+            statement.setString(1, COUNTRY);
+            statement.setString(2, loggedInUser.toUpperCase());
+            statement.setString(3, viewer);
+            statement.setString(4, registeringForUser.toUpperCase());
+            statement.setDate(5, new Date(startDate.getMillis()));
 
             resultSet = statement.executeQuery();
             while (resultSet.next()) {
@@ -402,38 +435,6 @@ public class MSSQLHourRegDao implements HourRegDao {
         } finally {
             close(statement, null, connection);
         }
-    }
-
-    @Override
-    public List<NormTime> getNormTime(String username) {
-        List<NormTime> result = new ArrayList<NormTime>();
-        PreparedStatement statement = null;
-        Connection connection = null;
-        ResultSet res = null;
-        try {
-            connection = getConnection();
-            statement = connection.prepareStatement(SELECT_NORMTIME);
-            statement.setString(1, username.toUpperCase());
-            res = statement.executeQuery();
-            while (res.next()) {
-                String normcode = res.getString(1);
-                int monday = res.getInt(2);
-                int tuesday = res.getInt(3);
-                int wednesday = res.getInt(4);
-                int thursday = res.getInt(5);
-                int friday = res.getInt(6);
-                int saturday = res.getInt(7);
-                int sunday = res.getInt(8);
-
-                NormTime norm = new NormTime(normcode, monday, tuesday, wednesday, thursday, friday, saturday, sunday);
-                result.add(norm);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            close(statement, res, connection);
-        }
-        return result;
     }
 
     @Override

@@ -15,7 +15,7 @@
 
     <filter>
         <filter-name>authorizationFilter</filter-name>
-        <filter-class>no.steria.swhrs.AuthorizationFilter</filter-class>
+        <filter-class>no.steria.swhrs.filter.AuthorizationFilter</filter-class>
     </filter>
 
     <filter-mapping>

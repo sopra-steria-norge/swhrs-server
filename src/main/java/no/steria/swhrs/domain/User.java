@@ -1,4 +1,6 @@
-package no.steria.swhrs;
+package no.steria.swhrs.domain;
+
+import no.steria.swhrs.domain.Password;
 
 public class User {
 	

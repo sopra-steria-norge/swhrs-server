@@ -1,7 +1,5 @@
 package no.steria.swhrs.validator;
 
-import no.steria.swhrs.RegistrationConstants;
-
 import java.util.ArrayList;
 import java.util.List;
 

@@ -1,5 +1,8 @@
-package no.steria.swhrs;
+package no.steria.swhrs.filter;
 
+import no.steria.swhrs.dao.MSSQLHourRegDao;
+import no.steria.swhrs.domain.Password;
+import no.steria.swhrs.domain.User;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ParseException;
@@ -11,7 +14,6 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Map;
 
 public class AuthorizationFilter implements Filter {
     private static final Logger logger = LoggerFactory.getLogger(AuthorizationFilter.class);

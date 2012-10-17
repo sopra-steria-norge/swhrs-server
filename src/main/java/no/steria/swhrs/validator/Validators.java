@@ -1,6 +1,6 @@
 package no.steria.swhrs.validator;
 
-import no.steria.swhrs.RegistrationConstants;
+import no.steria.swhrs.util.RegistrationConstants;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

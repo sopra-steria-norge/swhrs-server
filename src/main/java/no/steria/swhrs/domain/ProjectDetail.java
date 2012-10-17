@@ -1,4 +1,4 @@
-package no.steria.swhrs;
+package no.steria.swhrs.domain;
 
 /**
  * Date: 20.09.12
