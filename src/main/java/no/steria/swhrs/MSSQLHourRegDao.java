@@ -438,14 +438,15 @@ public class MSSQLHourRegDao implements HourRegDao {
 
     @Override
     public User findUser(String userId, Password providedPassword) {
+        userId = userId.toUpperCase();
         PreparedStatement statement = null;
         ResultSet res = null;
         Connection connection = null;
-        if (!userCache.containsKey(userId)) {
+        if (userCache.get(userId) == null) {
             try {
                 connection = getConnection();
                 statement = connection.prepareStatement(SELECT_USERS);
-                statement.setString(1, userId.toUpperCase());
+                statement.setString(1, userId);
                 res = statement.executeQuery();
                 if (res.next()) {
                     userCache.put(userId, Password.fromPlaintext(providedPassword.getSalt(), res.getString(2)));
