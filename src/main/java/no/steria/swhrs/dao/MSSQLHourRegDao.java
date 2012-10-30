@@ -4,6 +4,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.management.ManagementService;
 import no.steria.swhrs.JettyServer;
 import no.steria.swhrs.domain.*;
 import org.joda.time.DateTime;
@@ -11,14 +12,15 @@ import org.joda.time.DateTime;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
+import java.lang.management.ManagementFactory;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MSSQLHourRegDao implements HourRegDao {
-
     private static final String COUNTRY = "NO";
     private final DataSource datasource;
+    private boolean useCache;
     private static final String SELECT_CURRENT_PERIOD = "select TP.[Startdato],TP.[Slutdato], TP.[Beskrivelse] FROM [Norge$Time Periods] TP WHERE Ressource=? AND TP.[Startdato] <= ? AND TP.[Slutdato] >= ? ORDER BY [Startdato] DESC";
     private static final String SELECT_USERS = "SELECT No_, \"WEB Password\" FROM \"Norge$Resource\" where No_ = ?";
     private static final String SELECT_REGISTRATIONS = "SELECT * FROM \"Norge$Time Entry\" WHERE Ressourcekode = ? AND Dato = ? AND Projektnr_ NOT LIKE 'FLEX'";
@@ -38,7 +40,15 @@ public class MSSQLHourRegDao implements HourRegDao {
 
     public static final String USERNAME_PASSWORD_CACHE = "usernamePasswordCache";
 
-    {
+    public MSSQLHourRegDao(DataSource datasource, boolean useCache) {
+        this.datasource = datasource;
+        this.useCache = useCache;
+        if (useCache) {
+            configureCache();
+        }
+    }
+
+    private void configureCache() {
         Configuration cacheConfiguration = new Configuration();
         cacheConfiguration.setUpdateCheck(false);
         CacheManager singletonManager = CacheManager.create(cacheConfiguration);
@@ -46,10 +56,8 @@ public class MSSQLHourRegDao implements HourRegDao {
             singletonManager.addCache(new Cache(USERNAME_PASSWORD_CACHE, 1000, false, false, 120, 20));
         }
         usernamePasswordCache = singletonManager.getCache(USERNAME_PASSWORD_CACHE);
-    }
 
-    public MSSQLHourRegDao(DataSource datasource) {
-        this.datasource = datasource;
+        ManagementService.registerMBeans(singletonManager, ManagementFactory.getPlatformMBeanServer(), false, false, false, true);
     }
 
     public static MSSQLHourRegDao createInstance() throws NamingException {
@@ -57,7 +65,7 @@ public class MSSQLHourRegDao implements HourRegDao {
         if (dataSource == null) {
             throw new RuntimeException("Could not find datasource");
         }
-        return new MSSQLHourRegDao(dataSource);
+        return new MSSQLHourRegDao(dataSource, false);
     }
 
     private Connection getConnection() throws SQLException {
@@ -457,22 +465,29 @@ public class MSSQLHourRegDao implements HourRegDao {
         PreparedStatement statement = null;
         ResultSet res = null;
         Connection connection = null;
-        if (usernamePasswordCache.get(userId + providedPassword.getSalt()) == null) {
+        Password correctPassword = null;
+        if (!useCache || usernamePasswordCache.get(userId + providedPassword.getSalt()) == null) {
             try {
                 connection = getConnection();
                 statement = connection.prepareStatement(SELECT_USERS);
                 statement.setString(1, userId);
                 res = statement.executeQuery();
                 if (res.next()) {
-                    usernamePasswordCache.put(new Element(userId + providedPassword.getSalt(), Password.fromPlaintext(providedPassword.getSalt(), res.getString(2))));
+                    correctPassword = Password.fromPlaintext(providedPassword.getSalt(), res.getString(2));
+                    if (useCache) {
+                        usernamePasswordCache.put(new Element(userId + providedPassword.getSalt(), correctPassword));
+                    }
+                } else {
+                    throw new IllegalArgumentException("No username/password match");
                 }
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             } finally {
                 close(statement, res, connection);
             }
+        } else if (useCache) {
+            correctPassword = (Password) usernamePasswordCache.get(userId + providedPassword.getSalt()).getObjectValue();
         }
-        Password correctPassword = (Password) usernamePasswordCache.get(userId + providedPassword.getSalt()).getObjectValue();
         if (providedPassword.equals(correctPassword)) {
             User user = new User();
             user.setUsername(userId);

@@ -1,5 +1,8 @@
 package no.steria.swhrs;
 
+import no.steria.swhrs.dao.MSSQLHourRegDao;
+
+import javax.naming.NamingException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,6 +16,14 @@ import java.io.IOException;
  * @author chrm@steria.no
  */
 public class TestServlet extends RegistrationServlet {
+    @Override
+    public void init() throws ServletException {
+        try {
+            hourRegDao = MSSQLHourRegDao.createInstance();
+        } catch (NamingException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

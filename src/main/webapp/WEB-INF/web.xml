@@ -3,6 +3,10 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
 
+    <listener>
+        <listener-class>no.steria.swhrs.DataSourceServletContextListener</listener-class>
+    </listener>
+
     <servlet>
         <!-- Override init parameter to avoid nasty -->
         <!-- file locking issue on windows.         -->
@@ -12,6 +16,38 @@
             <param-value>false</param-value>
         </init-param>
     </servlet>
+
+
+    <filter>
+        <filter-name>parseAuthenticationTokenFilter</filter-name>
+        <filter-class>no.steria.swhrs.filter.ParseAuthenticationTokenFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>parseAuthenticationTokenFilter</filter-name>
+        <url-pattern>/swhrs-app/hours/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>parseAuthenticationTokenFilter</filter-name>
+        <url-pattern>/swhrs-app/checkAuthentication</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>accountLockoutFilter</filter-name>
+        <filter-class>no.steria.swhrs.filter.AccountLockoutFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>accountLockoutFilter</filter-name>
+        <url-pattern>/swhrs-app/hours/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>accountLockoutFilter</filter-name>
+        <url-pattern>/swhrs-app/checkAuthentication</url-pattern>
+    </filter-mapping>
+
 
     <filter>
         <filter-name>authorizationFilter</filter-name>
@@ -25,6 +61,21 @@
 
     <filter-mapping>
         <filter-name>authorizationFilter</filter-name>
+        <url-pattern>/swhrs-app/checkAuthentication</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>authenticationFilter</filter-name>
+        <filter-class>no.steria.swhrs.filter.AuthenticationFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>authenticationFilter</filter-name>
+        <url-pattern>/swhrs-app/hours/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>authenticationFilter</filter-name>
         <url-pattern>/swhrs-app/checkAuthentication</url-pattern>
     </filter-mapping>
 

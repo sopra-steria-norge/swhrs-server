@@ -1,7 +1,6 @@
 package no.steria.swhrs;
 
 import no.steria.swhrs.dao.HourRegDao;
-import no.steria.swhrs.dao.MSSQLHourRegDao;
 import no.steria.swhrs.domain.*;
 import no.steria.swhrs.util.JSONBuilder;
 import no.steria.swhrs.util.RegistrationConstants;
@@ -12,7 +11,6 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -27,20 +25,17 @@ import java.util.List;
  * @author chrm@steria.no
  */
 public class RegistrationServlet extends HttpServlet {
-    private static final Logger logger = LoggerFactory.getLogger(JettyServer.class);
+    private static final Logger logger = LoggerFactory.getLogger(JettyServerMBean.class);
     private static final long serialVersionUID = -1090477374982937503L;
     private static final String APPLICATION_JSON = "application/json";
     private static final String TEXT_PLAIN = "text/plain";
 
-    private HourRegDao db;
+    HourRegDao hourRegDao;
 
     @Override
     public void init() throws ServletException {
-        try {
-            db = MSSQLHourRegDao.createInstance();
-        } catch (NamingException e) {
-            throw new ServletException(e);
-        }
+        super.init();
+        hourRegDao = (HourRegDao) getServletContext().getAttribute("hourRegDao");
     }
 
     @Override
@@ -96,7 +91,7 @@ public class RegistrationServlet extends HttpServlet {
         boolean billable = resolveBillable(request.getParameter(RegistrationConstants.BILLABLE),
                 user.getUsername(), UtilityMethods.getProjectKey(projectNumber, activityCode));
 
-        Integer entryId = db.addHourRegistrations(username, username, projectNumber, activityCode, date, Double.parseDouble(hours), billable,
+        Integer entryId = hourRegDao.addHourRegistrations(username, username, projectNumber, activityCode, date, Double.parseDouble(hours), billable,
                 workType, description, false);
         fillInSuccessResponse(response, APPLICATION_JSON, JSONBuilder.createFromAddHours(entryId).toString());
     }
@@ -123,7 +118,7 @@ public class RegistrationServlet extends HttpServlet {
         boolean billable = resolveBillable(request.getParameter(RegistrationConstants.BILLABLE),
                 user.getUsername(), UtilityMethods.getProjectKey(projectNumber, activityCode));
 
-        db.updateHourRegistration(userId, taskNumber, projectNumber, activityCode, date,  Double.parseDouble(hours), billable, workType, description);
+        hourRegDao.updateHourRegistration(userId, taskNumber, projectNumber, activityCode, date, Double.parseDouble(hours), billable, workType, description);
         fillInSuccessResponse(response);
     }
 
@@ -146,7 +141,7 @@ public class RegistrationServlet extends HttpServlet {
         String taskNumber = request.getParameter(RegistrationConstants.TASK_NUMBER);
 
         try {
-            db.deleteHourRegistration(username, taskNumber);
+            hourRegDao.deleteHourRegistration(username, taskNumber);
         } catch (RuntimeException r) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, r.getMessage());
         }
@@ -167,7 +162,7 @@ public class RegistrationServlet extends HttpServlet {
         String projectNumber = request.getParameter(RegistrationConstants.PROJECT_NUMBER);
         String activityCode = request.getParameter(RegistrationConstants.ACTIVITY_CODE);
 
-        db.deleteFavourite(user.getUsername(), projectNumber, activityCode);
+        hourRegDao.deleteFavourite(user.getUsername(), projectNumber, activityCode);
         fillInSuccessResponse(response);
     }
 
@@ -188,7 +183,7 @@ public class RegistrationServlet extends HttpServlet {
         // TODO validate that the project and activity code being added actually exists, this is a shortcoming for now
         // TODO validate that the project isn't already a favorite of this user
 
-        db.addFavourites(user.getUsername(), projectNumber, activityCode);
+        hourRegDao.addFavourites(user.getUsername(), projectNumber, activityCode);
         fillInSuccessResponse(response);
     }
 
@@ -204,7 +199,7 @@ public class RegistrationServlet extends HttpServlet {
         }
 
         User user = getUserAttribute(request);
-        List<UserFavourites> userList = db.getUserFavourites(user.getUsername());
+        List<UserFavourites> userList = hourRegDao.getUserFavourites(user.getUsername());
         fillInSuccessResponse(response, APPLICATION_JSON, JSONBuilder.createFromFavourites(userList).toString());
     }
 
@@ -224,7 +219,7 @@ public class RegistrationServlet extends HttpServlet {
         }
 
         String searchInput = request.getParameter(RegistrationConstants.SEARCH);
-        List<ProjectDetail> project = db.searchProjects(searchInput);
+        List<ProjectDetail> project = hourRegDao.searchProjects(searchInput);
         fillInSuccessResponse(response, APPLICATION_JSON, JSONBuilder.createProjects(project).toString());
     }
 
@@ -244,7 +239,7 @@ public class RegistrationServlet extends HttpServlet {
         DateTime startDate = getDate(request.getParameter(RegistrationConstants.DATE));
 
         try {
-            db.submitHours(username, username, startDate);
+            hourRegDao.submitHours(username, username, startDate);
         } catch (SQLException e) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
             return;
@@ -267,7 +262,7 @@ public class RegistrationServlet extends HttpServlet {
 
         String username = getUserAttribute(request).getUsername();
         DateTime startDate = getDate(request.getParameter(RegistrationConstants.DATE));
-        db.reopenHours(username, username, startDate);
+        hourRegDao.reopenHours(username, username, startDate);
         fillInSuccessResponse(response);
     }
 
@@ -288,9 +283,9 @@ public class RegistrationServlet extends HttpServlet {
         String userId = user.getUsername();
 
         DateTime date = RegistrationConstants.dateTimeFormatter.parseDateTime(request.getParameter(RegistrationConstants.DATE));
-        PeriodDetails periodDetails = db.getPeriodDetails(userId, date);
-        NormTimeDetails normTimeDetails = db.getNormTimeDetails(userId, userId, periodDetails.getStartDate());
-        WeekDetails weekDetails = db.getWeekList(userId, userId, "EMP", periodDetails.getStartDate());
+        PeriodDetails periodDetails = hourRegDao.getPeriodDetails(userId, date);
+        NormTimeDetails normTimeDetails = hourRegDao.getNormTimeDetails(userId, userId, periodDetails.getStartDate());
+        WeekDetails weekDetails = hourRegDao.getWeekList(userId, userId, "EMP", periodDetails.getStartDate());
         fillInSuccessResponse(response, APPLICATION_JSON, JSONBuilder.createFromWeekDetails(weekDetails, periodDetails, normTimeDetails).toString());
     }
 
@@ -308,7 +303,7 @@ public class RegistrationServlet extends HttpServlet {
 
         User user = getUserAttribute(request);
         DateTime date = getDate(request.getParameter(RegistrationConstants.DATE));
-        List<HourRegistration> hourRegistrationList = db.getAllHoursForDate(user.getUsername(), date);
+        List<HourRegistration> hourRegistrationList = hourRegDao.getAllHoursForDate(user.getUsername(), date);
         fillInSuccessResponse(response, APPLICATION_JSON, JSONBuilder.createFromHours(hourRegistrationList, date).toString());
     }
 
@@ -326,7 +321,7 @@ public class RegistrationServlet extends HttpServlet {
     private Boolean resolveBillable(String user, String projectKey) throws IOException {
         boolean billable = false;
 
-        List<UserFavourites> favorites =  db.getUserFavourites(user);
+        List<UserFavourites> favorites =  hourRegDao.getUserFavourites(user);
         for (UserFavourites userFavorite : favorites) {
             if (StringUtils.equals(projectKey,
                     UtilityMethods.getProjectKey(userFavorite.getProjectNumber(),userFavorite.getActivityCode()))) {

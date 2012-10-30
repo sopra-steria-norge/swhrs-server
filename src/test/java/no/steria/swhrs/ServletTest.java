@@ -2,7 +2,7 @@ package no.steria.swhrs;
 
 import no.steria.swhrs.domain.Password;
 import no.steria.swhrs.domain.User;
-import no.steria.swhrs.filter.AuthorizationFilter;
+import no.steria.swhrs.filter.ParseAuthenticationTokenFilter;
 import no.steria.swhrs.util.RegistrationConstants;
 import org.apache.commons.lang.StringUtils;
 import org.json.simple.JSONObject;
@@ -47,12 +47,13 @@ public class ServletTest {
     @Before
     public void setup() throws Exception {
         jettyServer = new JettyServer();
-        jettyServer.setPort(10000);
+        jettyServer.setHttpPort(10000);
+        jettyServer.configureServer();
         jettyServer.startServer();
 
         request = mock(HttpServletRequest.class);
         response = mock(HttpServletResponse.class);
-        when(request.getHeader(AuthorizationFilter.AUTHENTICATION_TOKEN_HEADER_NAME)).thenReturn("{\"username\": \"ror\", \"password\": \"salt_IcZa2+j8IMsLptIK4JFG1ODO8Fk=\"}");
+        when(request.getHeader(ParseAuthenticationTokenFilter.AUTHENTICATION_TOKEN_HEADER_NAME)).thenReturn("{\"username\": \"ror\", \"password\": \"salt_IcZa2+j8IMsLptIK4JFG1ODO8Fk=\"}");
 
         User user = new User();
         user.setUsername("ROR");

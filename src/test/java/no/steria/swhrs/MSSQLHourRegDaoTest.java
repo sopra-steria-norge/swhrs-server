@@ -57,7 +57,7 @@ public class MSSQLHourRegDaoTest {
 		dataSource.setDatabaseName(databaseName);
 		dataSource.setUser(user);
 		dataSource.setPassword(password);
-		return new MSSQLHourRegDao(dataSource);
+		return new MSSQLHourRegDao(dataSource, false);
 	}
 
 	@Test

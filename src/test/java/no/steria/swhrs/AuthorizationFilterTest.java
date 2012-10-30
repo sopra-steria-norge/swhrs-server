@@ -6,7 +6,7 @@ import com.gargoylesoftware.htmlunit.WebRequestSettings;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import no.steria.swhrs.domain.Password;
-import no.steria.swhrs.filter.AuthorizationFilter;
+import no.steria.swhrs.filter.ParseAuthenticationTokenFilter;
 import no.steria.swhrs.util.RegistrationConstants;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -30,7 +30,8 @@ public class AuthorizationFilterTest {
         client.setThrowExceptionOnFailingStatusCode(false);
         client.setThrowExceptionOnScriptError(false);
         jettyServer = new JettyServer();
-        jettyServer.setPort(10000);
+        jettyServer.setHttpPort(10000);
+        jettyServer.configureServer();
         jettyServer.startServer();
     }
 
@@ -57,7 +58,7 @@ public class AuthorizationFilterTest {
 
 
     private static WebRequestSettings withAuthenticationHeader(WebRequestSettings settings) throws IOException {
-        settings.setAdditionalHeader(AuthorizationFilter.AUTHENTICATION_TOKEN_HEADER_NAME, "{\"username\": \"matb\", \"password\":\"" + Password.fromPlaintext("salt", "password") + "\"}");
+        settings.setAdditionalHeader(ParseAuthenticationTokenFilter.AUTHENTICATION_TOKEN_HEADER_NAME, "{\"username\": \"matb\", \"password\":\"" + Password.fromPlaintext("salt", "password") + "\"}");
         return settings;
     }
 
@@ -69,7 +70,7 @@ public class AuthorizationFilterTest {
         requestParameters.add(new NameValuePair(RegistrationConstants.USER, "ROR"));
         requestParameters.add(new NameValuePair(RegistrationConstants.DATE, "2012-09-05"));
         settings.setRequestParameters(requestParameters);
-        settings.setAdditionalHeader(AuthorizationFilter.AUTHENTICATION_TOKEN_HEADER_NAME, "{\"username\": \"ror\", \"password\": \"" + Password.fromPlaintext("salt", "password") + "\"}");
+        settings.setAdditionalHeader(ParseAuthenticationTokenFilter.AUTHENTICATION_TOKEN_HEADER_NAME, "{\"username\": \"ror\", \"password\": \"" + Password.fromPlaintext("salt", "password") + "\"}");
         HtmlPage page = client.getPage(settings);
         assertThat(page.getWebResponse().getStatusCode()).isEqualTo(HttpServletResponse.SC_OK);
     }
