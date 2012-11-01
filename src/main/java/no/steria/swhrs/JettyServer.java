@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Properties;
 
 public class JettyServer implements JettyServerMBean {
-    private static final Logger logger = LoggerFactory.getLogger(JettyServer.class);
+    private static final Logger logger = LoggerFactory.getLogger("swhrs");
     public static final String DB_JNDI = "jdbc/registerHoursDS";
     public static final String JDBC_DRIVER = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
     public static final String VALIDATION_QUERY = "sql select 1";
@@ -138,7 +138,7 @@ public class JettyServer implements JettyServerMBean {
     }
 
     public void loadConfigFile() {
-        InputStream resourceAsStream = JettyServerMBean.class.getResourceAsStream("/config.properties");
+        InputStream resourceAsStream = JettyServer.class.getResourceAsStream("/config.properties");
         Properties properties = System.getProperties();
         try {
             properties.load(resourceAsStream);

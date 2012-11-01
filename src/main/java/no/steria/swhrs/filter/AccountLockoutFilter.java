@@ -26,6 +26,9 @@ public class AccountLockoutFilter implements Filter {
     public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) resp;
+        if (request.getAttribute("authenticationToken") == null) {
+            response.sendError(500, "No authentication token");
+        }
         String username = (String) ((JSONObject) request.getAttribute("authenticationToken")).get("username");
 
         if (!loginTrialsMap.containsKey(username)) {

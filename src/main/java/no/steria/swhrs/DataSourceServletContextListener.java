@@ -14,7 +14,7 @@ public class DataSourceServletContextListener implements ServletContextListener 
 
     public void contextInitialized(ServletContextEvent sce) {
         try {
-            HourRegDao hourRegDao = MSSQLHourRegDao.createInstance();
+            HourRegDao hourRegDao = MSSQLHourRegDao.createInstance(true);
             sce.getServletContext().setAttribute("hourRegDao", hourRegDao);
         } catch (NamingException e) {
             sce.getServletContext().log(e.getMessage(), e);
@@ -23,6 +23,5 @@ public class DataSourceServletContextListener implements ServletContextListener 
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-
     }
 }

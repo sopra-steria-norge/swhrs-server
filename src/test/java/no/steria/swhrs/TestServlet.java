@@ -19,7 +19,7 @@ public class TestServlet extends RegistrationServlet {
     @Override
     public void init() throws ServletException {
         try {
-            hourRegDao = MSSQLHourRegDao.createInstance();
+            hourRegDao = MSSQLHourRegDao.createInstance(false);
         } catch (NamingException e) {
             e.printStackTrace();
         }

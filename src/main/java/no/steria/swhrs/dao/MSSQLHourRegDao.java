@@ -60,12 +60,12 @@ public class MSSQLHourRegDao implements HourRegDao {
         ManagementService.registerMBeans(singletonManager, ManagementFactory.getPlatformMBeanServer(), false, false, false, true);
     }
 
-    public static MSSQLHourRegDao createInstance() throws NamingException {
+    public static MSSQLHourRegDao createInstance(boolean useCache) throws NamingException {
         DataSource dataSource = (DataSource) new InitialContext().lookup(JettyServer.DB_JNDI);
         if (dataSource == null) {
             throw new RuntimeException("Could not find datasource");
         }
-        return new MSSQLHourRegDao(dataSource, false);
+        return new MSSQLHourRegDao(dataSource, useCache);
     }
 
     private Connection getConnection() throws SQLException {

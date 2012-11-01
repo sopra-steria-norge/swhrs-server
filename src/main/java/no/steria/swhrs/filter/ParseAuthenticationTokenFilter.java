@@ -35,8 +35,12 @@ public class ParseAuthenticationTokenFilter implements Filter {
             return;
         }
 
-        request.setAttribute("authenticationToken", authenticationTokenJsonObject);
-        chain.doFilter(req, resp);
+        if (authenticationTokenJsonObject != null) {
+            request.setAttribute("authenticationToken", authenticationTokenJsonObject);
+            chain.doFilter(req, resp);
+        } else {
+            incorrectAuthenticationHeader(response);
+        }
     }
 
     private static void incorrectAuthenticationHeader(HttpServletResponse response) throws IOException {

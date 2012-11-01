@@ -25,7 +25,7 @@ import java.util.List;
  * @author chrm@steria.no
  */
 public class RegistrationServlet extends HttpServlet {
-    private static final Logger logger = LoggerFactory.getLogger(JettyServerMBean.class);
+    private static final Logger logger = LoggerFactory.getLogger("swhrs");
     private static final long serialVersionUID = -1090477374982937503L;
     private static final String APPLICATION_JSON = "application/json";
     private static final String TEXT_PLAIN = "text/plain";
