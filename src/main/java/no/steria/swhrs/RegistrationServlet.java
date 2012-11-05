@@ -25,7 +25,7 @@ import java.util.List;
  * @author chrm@steria.no
  */
 public class RegistrationServlet extends HttpServlet {
-    private static final Logger logger = LoggerFactory.getLogger("swhrs");
+    private static final Logger logger = LoggerFactory.getLogger(RegistrationServlet.class);
     private static final long serialVersionUID = -1090477374982937503L;
     private static final String APPLICATION_JSON = "application/json";
     private static final String TEXT_PLAIN = "text/plain";
@@ -340,7 +340,7 @@ public class RegistrationServlet extends HttpServlet {
     private void fillInSuccessResponse(HttpServletResponse response, String contentType, String text) throws IOException {
         response.setContentType(contentType);
         response.setStatus(HttpServletResponse.SC_OK);
-        response.getWriter().append(text);
+        response.getWriter().print(text);
     }
 
     private void fillInSuccessResponse(HttpServletResponse response) throws IOException {

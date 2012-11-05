@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.Set;
 
 public class AuthenticationFilter implements Filter {
-    private static final Logger logger = LoggerFactory.getLogger(AuthorizationFilter.class);
+    private static final Logger logger = LoggerFactory.getLogger(AuthenticationFilter.class);
     private MSSQLHourRegDao hourRegDao;
 
     @Override
