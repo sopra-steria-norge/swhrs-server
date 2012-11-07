@@ -11,7 +11,7 @@
 
     <error-page>
         <error-code>500</error-code>
-        <location>/WEB-INF/empty</location>
+        <location>/WEB-INF/empty</location> <!-- Possible to return empty response another way? -->
     </error-page>
 
     <!-- ================================================================= -->
@@ -134,4 +134,5 @@
         <servlet-name>registrationServlet</servlet-name>
         <url-pattern>/swhrs-app/hours/*</url-pattern>
     </servlet-mapping>
+
 </web-app>

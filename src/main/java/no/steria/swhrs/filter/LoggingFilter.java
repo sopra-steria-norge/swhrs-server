@@ -1,5 +1,6 @@
 package no.steria.swhrs.filter;
 
+import no.steria.swhrs.SwhrsFilterException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
@@ -11,7 +12,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -39,13 +39,16 @@ public class LoggingFilter implements Filter {
 
         try {
             chain.doFilter(request, response);
+        } catch (SwhrsFilterException e) {
+            logUnsuccessfulExpectedResponse(requestId, e);
+            response.sendError(e.getStatusCode(), e.getMessage() + ". Request ID: " + requestId);
+            return;
         } catch (Exception e) {
-            logUnsuccessfulResponse(requestId, e);
-            response.sendError(500, "Server error. Request ID: " + requestId);
+            logUnsuccessfulUnexpectedResponse(requestId, e);
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unexpected error. Request ID: " + requestId);
             return;
         }
 
-        response.flushBodyContent();
         logSuccessfulResponse(requestId, response.getResponseBody());
     }
 
@@ -72,34 +75,34 @@ public class LoggingFilter implements Filter {
         logger.debug("RESPONSE requestId={} responseBody={}", requestId, requestBody);
     }
 
-    private void logUnsuccessfulResponse(String requestId, Exception exception) {
+    private void logUnsuccessfulUnexpectedResponse(String requestId, Exception exception) {
         logger.error("ERROR requestId=" + requestId, exception);
     }
 
+    private void logUnsuccessfulExpectedResponse(String requestId, SwhrsFilterException exception) {
+        logger.error("ERROR requestId={} errorMessage={}", requestId, exception.getMessage());
+    }
+
     private static class WitheldableContentHttpServletResponse extends HttpServletResponseWrapper {
-        private StringWriter stringWriter = new StringWriter();
+        private StringBuilder stringBuilder = new StringBuilder();
 
         public WitheldableContentHttpServletResponse(HttpServletResponse response) {
             super(response);
-            response.setCharacterEncoding("UTF-8");
         }
 
         public String getResponseBody() {
-            return stringWriter.toString();
-        }
-
-        public void flushBodyContent() throws IOException {
-            super.getWriter().print(stringWriter.toString());
+            return stringBuilder.toString();
         }
 
         @Override
         public PrintWriter getWriter() throws IOException {
-            return new PrintWriter(stringWriter);
-        }
-
-        @Override
-        public ServletOutputStream getOutputStream() throws IOException {
-            throw new UnsupportedOperationException("Not supported for binary streams");
+            return new PrintWriter(super.getWriter()) {
+                @Override
+                public void print(String s) {
+                    stringBuilder.append(s);
+                    super.print(s);
+                }
+            };
         }
     }
 }

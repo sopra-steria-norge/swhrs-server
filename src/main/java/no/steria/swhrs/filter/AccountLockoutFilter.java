@@ -1,5 +1,6 @@
 package no.steria.swhrs.filter;
 
+import no.steria.swhrs.SwhrsFilterException;
 import org.joda.time.Instant;
 import org.json.simple.JSONObject;
 
@@ -27,7 +28,7 @@ public class AccountLockoutFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) resp;
         if (request.getAttribute("authenticationToken") == null) {
-            response.sendError(500, "No authentication token");
+            throw new SwhrsFilterException(500, "No authentication token");
         }
         String username = (String) ((JSONObject) request.getAttribute("authenticationToken")).get("username");
 
@@ -36,11 +37,10 @@ public class AccountLockoutFilter implements Filter {
         }
 
         if (accountLockoutMap.get(username) != null && accountLockoutMap.get(username).isAfterNow()) {
-            response.sendError(500, "Account lockout");
+            throw new SwhrsFilterException(500, "Account lockout");
         } else {
             chain.doFilter(request, response);
         }
-
 
         if (response.getStatus() == 403) {
             loginTrialsMap.put(username, loginTrialsMap.get(username) + 1);
